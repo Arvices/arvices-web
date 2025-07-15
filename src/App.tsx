@@ -9,9 +9,9 @@ import { useEffect } from "react";
 
 function App() {
   useEffect(() => {
-  // Force light mode on first load
-  document.documentElement.classList.remove("dark");
-}, []);
+    // Force light mode on first load
+    document.documentElement.classList.remove("dark");
+  }, []);
   return (
     <>
       <ErrorBoundary>

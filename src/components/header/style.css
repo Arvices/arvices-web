@@ -1,0 +1,10 @@
+.primary-gradient-text {
+  background: linear-gradient(to right, #0026bd, #ff4489);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.primary-gradient-bg {
+  background: linear-gradient(to right, #0026bd, #ff4489);
+}
