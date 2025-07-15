@@ -2,5 +2,4 @@
 
 #### Contexts
 
-[AuthContext, LoadingContext, SocketContext,ThemeContext]
-
+[AuthContext, LoadingContext, SocketContext,ThemeContext,404page,protectedPages]
