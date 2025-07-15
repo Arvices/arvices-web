@@ -13,6 +13,7 @@ import PasswordReset from "../pages/auth/passwordreset";
 import VerifyEmail from "../pages/auth/verifyemail";
 import PageNotFound from "../pages/util/pagenotfound";
 import Header from "../components/header";
+import Footer from "../components/footer";
 
 // Import pages
 
@@ -53,6 +54,7 @@ function NavigationContent() {
         {/* 404 Route - must be last */}
         <Route path="*" Component={PageNotFound} />
       </Routes>
+      <Footer />
     </div>
   );
 }

@@ -57,8 +57,10 @@ const Header: React.FC = () => {
               <button>Login</button>
             </div>
             <div>
-              <button className="py-2 px-5 rounded-4xl bg-blue-700 text-white">Get Started</button>
-              </div>
+              <button className="py-2 px-5 rounded-4xl bg-blue-700 text-white">
+                Get Started
+              </button>
+            </div>
           </div>
         </div>
         <div className="w-max md:hidden">
