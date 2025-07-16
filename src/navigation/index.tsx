@@ -14,6 +14,10 @@ import VerifyEmail from "../pages/auth/verifyemail";
 import PageNotFound from "../pages/util/pagenotfound";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import AvailableJobPostings from "../pages/availablejobposts";
+import HelpCenter from "../pages/helpcenter";
+import ArvicesProviders from "../pages/providers";
+import Activities from "../pages/activities";
 
 // Import pages
 
@@ -45,11 +49,18 @@ function NavigationContent() {
       <Header />
       <Routes>
         <Route path="/" Component={Home} />
+        {/* Auth Pages */}
         <Route path="/login" Component={Login} />
         <Route path="/signup" Component={Signup} />
         <Route path="/forgot-password" Component={ForgotPassword} />
         <Route path="/resetpassword" Component={PasswordReset} />
         <Route path="/verify-email" Component={VerifyEmail} />
+
+        {/* App Functional Pages */}
+        <Route path="/job-posting" Component={AvailableJobPostings} />
+        <Route path="/service-providers" Component={ArvicesProviders} />
+        <Route path="/activities" Component={Activities} />
+        <Route path="/help-center" Component={HelpCenter} />
 
         {/* 404 Route - must be last */}
         <Route path="*" Component={PageNotFound} />

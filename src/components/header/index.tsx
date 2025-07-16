@@ -4,10 +4,13 @@ import Hamburger from "hamburger-react";
 import Overlay from "../overlay";
 import { Link } from "react-router-dom";
 import "./style.css";
+import { useAuth } from "../../contexts/AuthContext";
 
 let color = "#272727";
 
 const Header: React.FC = () => {
+  const auth = useAuth();
+  console.log({ auth });
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleMobileOpen = () => {
@@ -37,16 +40,24 @@ const Header: React.FC = () => {
         <div className="hidden md:block w-max">
           <ul>
             <li className="inline-block px-3">
-              <Link to={"/home"}>Home</Link>{" "}
+              <Link to={"/"}>Home</Link>{" "}
             </li>
             <li className="inline-block px-3">
-              <Link to={"/home"}>Activities</Link>{" "}
+              <Link to={"/activities"}>Activities</Link>{" "}
             </li>
+            {auth.isClient ||
+              (!auth.isClient && !auth.isProvider && (
+                <li className="inline-block px-3">
+                  <Link to={"/service-providers"}>View Providers</Link>{" "}
+                </li>
+              ))}
+            {auth.isProvider && (
+              <li className="inline-block px-3">
+                <Link to={"/job-posting"}>Available Job Posts</Link>{" "}
+              </li>
+            )}
             <li className="inline-block px-3">
-              <Link to={"/home"}>Providers / Requests</Link>{" "}
-            </li>
-            <li className="inline-block px-3">
-              <Link to={"/home"}>Help Center</Link>{" "}
+              <Link to={"/help-center"}>Help Center</Link>{" "}
             </li>
           </ul>
         </div>
@@ -54,12 +65,16 @@ const Header: React.FC = () => {
         <div className="hidden md:block w-max">
           <div className="flex items-center gap-x-3">
             <div>
-              <button>Login</button>
+              <Link to={"/login"}>
+                <button className="cursor-pointer">Login</button>
+              </Link>
             </div>
             <div>
-              <button className="py-2 px-5 rounded-4xl bg-blue-700 text-white">
-                Get Started
-              </button>
+              <Link to={"/signup"}>
+                <button className="py-2 px-5 rounded-4xl bg-blue-700 text-white cursor-pointer">
+                  Get Started
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -80,32 +95,42 @@ const Header: React.FC = () => {
                   </Link>
                 </li>
                 <li className="mb-8 text-gray-700">
-                  <Link onClick={toggleMobileOpen} to={"/"}>
+                  <Link onClick={toggleMobileOpen} to={"/activities"}>
                     Activities
                   </Link>
                 </li>
+                {auth.isClient ||
+                  (!auth.isClient && !auth.isProvider && (
+                    <li className="mb-8 text-gray-700">
+                      <Link to={"/service-providers"}>View Providers</Link>{" "}
+                    </li>
+                  ))}
+                {auth.isProvider && (
+                  <li className="mb-8 text-gray-700">
+                    <Link to={"/job-posting"}>Available Job Posts</Link>{" "}
+                  </li>
+                )}
                 <li className="mb-8 text-gray-700">
-                  <Link onClick={toggleMobileOpen} to={"/"}>
-                    Provider / Requests
-                  </Link>
-                </li>
-                <li className="mb-8 text-gray-700">
-                  <Link onClick={toggleMobileOpen} to={"/"}>
+                  <Link onClick={toggleMobileOpen} to={"/help-center"}>
                     Help Center
                   </Link>
                 </li>
               </ul>
               <div className="py-4"></div>
               <div className="mb-4 p-[1px] rounded bg-gradient-to-r from-[#0026BD] to-[#FF4489]">
-                <button className="bg-white login-btn block w-full p-3 rounded font-medium">
-                  <span className="primary-gradient-text">Login</span>
-                </button>
+                <Link to={"/login"} onClick={toggleMobileOpen}>
+                  <button className="bg-white login-btn block w-full p-3 rounded font-medium">
+                    <span className="primary-gradient-text">Login</span>
+                  </button>
+                </Link>
               </div>
 
               <div>
-                <button className=" block border w-full p-3 rounded primary-gradient-bg text-white font-medium">
-                  Sign Up
-                </button>
+                <Link onClick={toggleMobileOpen} to={"/signup"}>
+                  <button className=" block border w-full p-3 rounded primary-gradient-bg text-white font-medium">
+                    Sign Up
+                  </button>
+                </Link>
               </div>
             </div>
           </Overlay>

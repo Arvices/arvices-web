@@ -5,18 +5,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        bluenova: {
-          100: "#e0f2ff",
-          200: "#b9ddff",
-          300: "#91c8ff",
-          400: "#69b3ff",
-          500: "#419eff", // primary
-          600: "#1a89ff",
-          700: "#006fd6",
-          800: "#0055a3",
-          900: "#003b70",
-        },
+        royalblue: {
+          main: '#0026BD',
+          tint1: '#143AD0',
+          tint2: '#3657D9',
+          tint3: '#5977EF',
+          tint4: '#7A92F2',
+          tint5: '#A9BAFF',
+          tint6: '#D9E0FF',
+          shade1: '#1536B7',
+          shade2: '#213BA3',
+          shade3: '#283568',
+          shade4: '#2A3E8B',
+          shade5: '#2D3659',
+          shade6: '#2E3449',
+        }
       },
+      backgroundImage: {
+        'gradient-arvicepink': 'linear-gradient(to right, #FF4489, #FFA8C8)',
+        'gradient-royalblue': 'linear-gradient(to right, #0026BD, #5977EF)',
+      }
     },
   },
   plugins: [],
