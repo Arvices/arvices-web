@@ -66,11 +66,11 @@ const Home: React.FC = () => {
         </div>
       </div>
       {/* Categories Section */}
-      <div id="home-category-section">category</div>
+      <div id="home-category-section" className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border">category</div>
       {/* Professionals Section */}
-      <div id="home-professional-section">professionals</div>
+      <div id="home-professional-section" className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border">professionals</div>
       {/* Activities Section */}
-      <div id="home-activities-section">activities</div>
+      <div id="home-activities-section" className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border">activities</div>
     </section>
   );
 };

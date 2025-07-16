@@ -32,7 +32,9 @@ const Footer: React.FC = () => {
   ];
   let topCategories = serviceCategories.splice(0, 6);
   return (
-    <footer className="w-full pt-6 text-center sm:text-left mt-16 gradient-soft px-5 sm:px-8 md:px-16 lg:px-30 max-w-[1280px] mx-auto">
+    <footer className="w-full pt-6 text-center sm:text-left gradient-soft">
+      <div  className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
+
       <div className="flex-wrap sm:flex pt-15 gap-x-7">
         <div className="pb-10 flex-1/3 md:flex-auto">
           <h5 className="font-medium mb-3">Explore</h5>
@@ -100,7 +102,8 @@ const Footer: React.FC = () => {
           </p>
         </div>
       </div>
-      <div className=" bg-gray-100 text-center py-6">
+      </div>
+      <div className=" bg-white text-center py-6">
         <p className="text-sm text-gray-600">
           &copy; {new Date().getFullYear()} Arvices. All rights reserved.
         </p>
