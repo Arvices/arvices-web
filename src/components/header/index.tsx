@@ -18,7 +18,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="border-b border-gray-200 sticky top-0 z-[100] bg-white dark:bg-zinc-900">
+    <header className="border-b border-gray-200 w-full fixed top-0 z-[100] bg-white dark:bg-zinc-900 px-5 sm:px-8 md:px-16 lg:px-30 max-w-[1280px] mx-auto">
       <div className="flex items-center h-14">
         {/**Logo Container */}
         <div className="w-max">
@@ -71,7 +71,7 @@ const Header: React.FC = () => {
             </div>
             <div>
               <Link to={"/signup"}>
-                <button className="py-2 px-5 rounded-4xl bg-blue-700 text-white cursor-pointer">
+                <button className="py-2 px-5 rounded-4xl bg-royalblue-main text-white cursor-pointer">
                   Get Started
                 </button>
               </Link>

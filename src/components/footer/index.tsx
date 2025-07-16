@@ -3,37 +3,37 @@ import { Link } from "react-router-dom";
 import mobileApp from "../../assets/images/arvices-mobile-apps.png";
 
 const Footer: React.FC = () => {
-const serviceCategories = [
-  "Beauty & Glamour",
-  "Cleaning Services",
-  "Electrical & Engineering",
-  "Plumbing Services",
-  "Carpentry & Woodwork",
-  "Painting & Decoration",
-  "Home Appliance Repair",
-  "Interior Design",
-  "Event Planning & Management",
-  "Catering Services",
-  "Photography & Videography",
-  "Fitness & Personal Training",
-  "Tutoring & Education",
-  "Auto Repair & Maintenance",
-  "IT & Technical Support",
-  "Web & Graphic Design",
-  "Real Estate Services",
-  "Legal & Documentation",
-  "Fashion & Tailoring",
-  "Landscaping & Gardening",
-  "Pest Control Services",
-  "Laundry & Dry Cleaning",
-  "Logistics & Delivery Services",
-  "Security Services",
-  "Welding & Metal Fabrication"
-];
-let topCategories = serviceCategories.splice(0,6)
+  const serviceCategories = [
+    "Beauty & Glamour",
+    "Cleaning Services",
+    "Electrical & Engineering",
+    "Plumbing Services",
+    "Carpentry & Woodwork",
+    "Painting & Decoration",
+    "Home Appliance Repair",
+    "Interior Design",
+    "Event Planning & Management",
+    "Catering Services",
+    "Photography & Videography",
+    "Fitness & Personal Training",
+    "Tutoring & Education",
+    "Auto Repair & Maintenance",
+    "IT & Technical Support",
+    "Web & Graphic Design",
+    "Real Estate Services",
+    "Legal & Documentation",
+    "Fashion & Tailoring",
+    "Landscaping & Gardening",
+    "Pest Control Services",
+    "Laundry & Dry Cleaning",
+    "Logistics & Delivery Services",
+    "Security Services",
+    "Welding & Metal Fabrication",
+  ];
+  let topCategories = serviceCategories.splice(0, 6);
   return (
-    <footer className="w-full pt-6 text-center sm:text-left mt-16">
-      <div className="bg-blue-50 flex-wrap sm:flex pt-15 gap-x-7">
+    <footer className="w-full pt-6 text-center sm:text-left mt-16 gradient-soft px-5 sm:px-8 md:px-16 lg:px-30 max-w-[1280px] mx-auto">
+      <div className="flex-wrap sm:flex pt-15 gap-x-7">
         <div className="pb-10 flex-1/3 md:flex-auto">
           <h5 className="font-medium mb-3">Explore</h5>
           <ul>

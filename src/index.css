@@ -3,3 +3,30 @@
 :root {
   font-family: "DM Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
+
+@theme {
+  --color-royalblue-main: #0026bd;
+  --color-royalblue-tint1: #143ad0;
+  --color-royalblue-tint2: #3657d9;
+  --color-royalblue-tint3: #5977ef;
+  --color-royalblue-tint4: #7a92f2;
+  --color-royalblue-tint5: #a9baff;
+  --color-royalblue-tint6: #d9e0ff;
+  --color-royalblue-shade1: #1536b7;
+  --color-royalblue-shade2: #213ba3;
+  --color-royalblue-shade3: #283568;
+  --color-royalblue-shade4: #2a3e8b;
+  --color-royalblue-shade5: #2d3659;
+  --color-royalblue-shade6: #2e3449;
+}
+
+/* Override */
+
+.hamburger-react {
+  width: 30px;
+}
+
+/* global */
+.gradient-soft {
+    background-image: linear-gradient(45deg, #eaebff, #fffbfd);
+}
