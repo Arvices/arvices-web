@@ -1,0 +1,10 @@
+
+.cat-bg-img {
+  background-image: url(/src/assets/images/home-catsection-bg.svg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.h-cat-card {
+    box-shadow: 0px 0px 10px #7c70ff3c ;
+}
