@@ -33,75 +33,74 @@ const Footer: React.FC = () => {
   let topCategories = serviceCategories.splice(0, 6);
   return (
     <footer className="w-full pt-6 text-center sm:text-left gradient-soft">
-      <div  className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-
-      <div className="flex-wrap sm:flex pt-15 gap-x-7">
-        <div className="pb-10 flex-1/3 md:flex-auto">
-          <h5 className="font-medium mb-3">Explore</h5>
-          <ul>
-            <li className="mb-4">
-              <Link to={"/"}>Home</Link>
-            </li>
-            <li className="mb-4">
-              <Link to={"/service-providers"}>Service Providers</Link>
-            </li>
-            <li className="mb-4">
-              <Link to={"/job-posting"}>Job Postings</Link>
-            </li>
-            <li className="mb-4">
-              <Link to={"/activities"}>Activities & Showcase</Link>
-            </li>
-            <li className="mb-4">
-              <Link to={"/help-center"}>Help Center</Link>
-            </li>
-            <li className="mb-4">Get Recommendations</li>
-          </ul>
+      <div className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
+        <div className="flex-wrap sm:flex pt-15 gap-x-7">
+          <div className="pb-10 flex-1/3 md:flex-auto">
+            <h5 className="font-medium mb-3">Explore</h5>
+            <ul>
+              <li className="mb-4">
+                <Link to={"/"}>Home</Link>
+              </li>
+              <li className="mb-4">
+                <Link to={"/service-providers"}>Service Providers</Link>
+              </li>
+              <li className="mb-4">
+                <Link to={"/job-posting"}>Job Postings</Link>
+              </li>
+              <li className="mb-4">
+                <Link to={"/activities"}>Activities & Showcase</Link>
+              </li>
+              <li className="mb-4">
+                <Link to={"/help-center"}>Help Center</Link>
+              </li>
+              <li className="mb-4">Get Recommendations</li>
+            </ul>
+          </div>
+          <div className="pb-10 flex-1/3 md:flex-auto">
+            <h5 className="font-medium mb-3">Customer Service</h5>
+            <ul>
+              <li className="mb-4">
+                <Link to={"tel:+2348136243796"}>
+                  Help Line 1: +234 0859 4895 48
+                </Link>
+              </li>
+              <li className="mb-4">
+                <Link to={"tel:+2348136243796"}>
+                  Help Line 2: +234 0859 4895 48
+                </Link>
+              </li>
+              <li className="mb-4">
+                <Link to={"mailto:support@arvices.com"}>
+                  Email: support@arvices.com
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div className="pb-10  flex-1/3 md:flex-auto">
+            <h5 className="font-medium mb-3">Top Services Category</h5>
+            <ul>
+              {topCategories.map((x, index) => {
+                return (
+                  <li key={index} className="mb-4">
+                    <Link to={`/service-providers?category=${x}`}>{x}</Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className="flex-1" />
+          <div className="pb-10">
+            <img
+              src={mobileApp}
+              className="w-full max-w-80 border rounded-2xl border-gray-200"
+              alt="Arvices Mobile App (Coming Soon)"
+            />
+            <p className="max-w-80 text-center pt-3">
+              Our Mobile app would be available on playstore and apple store
+              very soon.
+            </p>
+          </div>
         </div>
-        <div className="pb-10 flex-1/3 md:flex-auto">
-          <h5 className="font-medium mb-3">Customer Service</h5>
-          <ul>
-            <li className="mb-4">
-              <Link to={"tel:+2348136243796"}>
-                Help Line 1: +234 0859 4895 48
-              </Link>
-            </li>
-            <li className="mb-4">
-              <Link to={"tel:+2348136243796"}>
-                Help Line 2: +234 0859 4895 48
-              </Link>
-            </li>
-            <li className="mb-4">
-              <Link to={"mailto:support@arvices.com"}>
-                Email: support@arvices.com
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div className="pb-10  flex-1/3 md:flex-auto">
-          <h5 className="font-medium mb-3">Top Services Category</h5>
-          <ul>
-            {topCategories.map((x, index) => {
-              return (
-                <li key={index} className="mb-4">
-                  <Link to={`/service-providers?category=${x}`}>{x}</Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        <div className="flex-1" />
-        <div className="pb-10">
-          <img
-            src={mobileApp}
-            className="w-full max-w-80 border rounded-2xl border-gray-200"
-            alt="Arvices Mobile App (Coming Soon)"
-          />
-          <p className="max-w-80 text-center pt-3">
-            Our Mobile app would be available on playstore and apple store very
-            soon.
-          </p>
-        </div>
-      </div>
       </div>
       <div className=" bg-white text-center py-6">
         <p className="text-sm text-gray-600">

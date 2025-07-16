@@ -8,3 +8,6 @@
 .primary-gradient-bg {
   background: linear-gradient(to right, #0026bd, #ff4489);
 }
+.gradient {
+  background: linear-gradient(to right, #0026bd, #ff4489);
+}

@@ -1,6 +1,6 @@
 import React from "react";
 import Icon from "feather-icons-react";
-import "./style.css"
+import "./style.css";
 
 import heroImg from "../../assets/images/services.svg";
 import heroImg1 from "../../assets/images/services1.svg";
@@ -9,65 +9,78 @@ import heroImg3 from "../../assets/images/services3.svg";
 import heroImg4 from "../../assets/images/services4.svg";
 
 // category icons imports
-import autoMechanics from '../../assets/images/h-cat-auto-mechanics.svg';
-import catering from '../../assets/images/h-cat-catering.svg';
-import cleaning from '../../assets/images/h-cat-cleaning.svg';
-import electrical from '../../assets/images/h-cat-electrical.svg';
-import furnitures from '../../assets/images/h-cat-furnitures.svg';
-import interiors from '../../assets/images/h-cat-interiors.svg';
-import logistics from '../../assets/images/h-cat-logistics.svg';
-import makeup from '../../assets/images/h-cat-makeup.svg';
-import photography from '../../assets/images/h-cat-photography.svg';
-import plumbing from '../../assets/images/h-cat-plumbing.svg';
-import tailoring from '../../assets/images/h-cat-tailoring.svg';
-
-
-interface CategoryDataItem {
-  title: string;
-  tagline: string;
-  img: string;
-}
+import autoMechanics from "../../assets/images/h-cat-auto-mechanics.svg";
+import catering from "../../assets/images/h-cat-catering.svg";
+import cleaning from "../../assets/images/h-cat-cleaning.svg";
+import electrical from "../../assets/images/h-cat-electrical.svg";
+import furnitures from "../../assets/images/h-cat-furnitures.svg";
+import interiors from "../../assets/images/h-cat-interiors.svg";
+import logistics from "../../assets/images/h-cat-logistics.svg";
+import makeup from "../../assets/images/h-cat-makeup.svg";
+import photography from "../../assets/images/h-cat-photography.svg";
+import plumbing from "../../assets/images/h-cat-plumbing.svg";
+import tailoring from "../../assets/images/h-cat-tailoring.svg";
+import {
+  CatCard,
+  CategoryDataItem,
+  ProviderCard,
+} from "../../components/cards/appcards";
 
 const categoryData: CategoryDataItem[] = [
-  { title: 'Auto Mechanics', tagline: 'Vehicle repairs & servicing', img: autoMechanics },
-  { title: 'Catering', tagline: 'Delicious event catering', img: catering },
-  { title: 'Cleaning', tagline: 'Professional home & office cleaning', img: cleaning },
-  { title: 'Electrical', tagline: 'Wiring, repairs, and installations', img: electrical },
-  { title: 'Furnitures', tagline: 'Custom and ready-made furniture', img: furnitures },
-  { title: 'Interiors', tagline: 'Interior decoration & design', img: interiors },
-  { title: 'Logistics', tagline: 'Swift delivery & transport', img: logistics },
-  { title: 'Makeup', tagline: 'Beauty for all occasions', img: makeup },
-  { title: 'Photography', tagline: 'Capture your moments', img: photography },
-  { title: 'Plumbing', tagline: 'Pipes, taps, and repairs', img: plumbing },
-  { title: 'Tailoring', tagline: 'Custom fashion & alterations', img: tailoring },
+  {
+    title: "Auto Mechanics",
+    tagline: "Vehicle repairs & servicing",
+    img: autoMechanics,
+  },
+  { title: "Catering", tagline: "Delicious event catering", img: catering },
+  {
+    title: "Cleaning",
+    tagline: "Professional home & office cleaning",
+    img: cleaning,
+  },
+  {
+    title: "Electrical",
+    tagline: "Wiring, repairs, and installations",
+    img: electrical,
+  },
+  {
+    title: "Furnitures",
+    tagline: "Custom and ready-made furniture",
+    img: furnitures,
+  },
+  {
+    title: "Interiors",
+    tagline: "Interior decoration & design",
+    img: interiors,
+  },
+  { title: "Logistics", tagline: "Swift delivery & transport", img: logistics },
+  { title: "Makeup", tagline: "Beauty for all occasions", img: makeup },
+  { title: "Photography", tagline: "Capture your moments", img: photography },
+  { title: "Plumbing", tagline: "Pipes, taps, and repairs", img: plumbing },
+  {
+    title: "Tailoring",
+    tagline: "Custom fashion & alterations",
+    img: tailoring,
+  },
 ];
-
-
-const CatCard: React.FC<CategoryDataItem> = ({ title, tagline, img }) => {
-  return (
-    <div className="h-cat-card rounded-[10px] p-3 w-max">
-      <div className="flex gap-x-3 items-center">
-        <div className="w-max"><img className='w-20 h-20' src={img} /></div>
-        <div className="flex-1">
-          <h6 className="text-royalblue-shade3 font-medium">{title}</h6>
-          <p>{tagline}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const Home: React.FC = () => {
   return (
     <section className="min-h-screen text-royalblue-shade5 pt-10">
       {/* Hero Section */}
-      <div id="hero-section" className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto gradient-soft">
+      <div
+        id="hero-section"
+        className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto gradient-soft"
+      >
         <div id="hero-top-images" className="flex justify-around pb-5">
           <div>
             <img className="inline w-25 h-25 relative top-4" src={heroImg1} />
           </div>
           <div>
-            <img className="inline w-25 h-25 relative bottom-6" src={heroImg2} />
+            <img
+              className="inline w-25 h-25 relative bottom-6"
+              src={heroImg2}
+            />
           </div>
           <div>
             <img className="inline w-25 h-25 relative top-5" src={heroImg3} />
@@ -116,24 +129,47 @@ const Home: React.FC = () => {
       </div>
       <div className="py-10" />
       {/* Categories Section */}
-      <div id="home-category-section" className="pt-5 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto cat-bg-img">
+      <div
+        id="home-category-section"
+        className="pt-5 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto cat-bg-img"
+      >
         <div>
-          <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">We Connect You to <span className="text-royalblue-main">Seasoned Professionals</span> In Different Services Categories.</h1>
+          <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">
+            We Connect You to{" "}
+            <span className="text-royalblue-main">Seasoned Professionals</span>{" "}
+            In Different Services Categories.
+          </h1>
         </div>
         <div className="flex flex-wrap gap-4 mt-10">
-          {
-            categoryData.map((category,index)=>{
-              return (
-                <CatCard key={index} {...category} />
-              )
-            })
-          }
+          {categoryData.map((category, index) => {
+            return <CatCard key={index} {...category} />;
+          })}
         </div>
       </div>
       {/* Professionals Section */}
-      <div id="home-professional-section" className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border">professionals</div>
+      <div
+        id="home-professional-section"
+        className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto"
+      >
+        <div className="mb-10">
+          <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">
+            Our Top Rated{" "}
+            <span className="text-royalblue-main">Service Providers</span>
+          </h1>
+        </div>
+        <div>
+          <div className="max-w-[400px] w-full">
+            <ProviderCard />
+          </div>
+        </div>
+      </div>
       {/* Activities Section */}
-      <div id="home-activities-section" className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border">activities</div>
+      <div
+        id="home-activities-section"
+        className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border"
+      >
+        activities
+      </div>
     </section>
   );
 };
