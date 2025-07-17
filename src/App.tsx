@@ -6,6 +6,8 @@ import { store } from "./store/store";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useEffect } from "react";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
   useEffect(() => {
@@ -16,13 +18,17 @@ function App() {
     <>
       <ErrorBoundary>
         <Provider store={store}>
-          <LoadingProvider>
-            <AuthProvider>
-              <ThemeProvider>
-                <Navigation />
-              </ThemeProvider>
-            </AuthProvider>
-          </LoadingProvider>
+          <NotificationProvider>
+            <LoadingProvider>
+              <AuthProvider>
+                <GoogleOAuthProvider clientId="246891298847-ukttjjfu01ibg3mfj5tr5o8q9h698g2f.apps.googleusercontent.com">
+                  <ThemeProvider>
+                    <Navigation />
+                  </ThemeProvider>
+                </GoogleOAuthProvider>
+              </AuthProvider>
+            </LoadingProvider>
+          </NotificationProvider>
         </Provider>
       </ErrorBoundary>
     </>

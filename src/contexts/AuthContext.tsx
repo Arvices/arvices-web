@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
-export type accountTypeVal = "client" | "provider" | undefined;
+export type AccountTypeVal = "client" | "provider" | "";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -9,14 +9,14 @@ interface AuthContextType {
     token: string,
     email: string,
     userID: string,
-    accountType: accountTypeVal,
+    accountType: AccountTypeVal,
   ) => void;
   logout: () => void;
   saveProfile: (profile: any) => void;
   user: string;
   email: string;
   token: string;
-  accountType: accountTypeVal;
+  accountType: AccountTypeVal;
   isProvider: boolean;
   isClient: boolean;
 }
@@ -35,7 +35,7 @@ const defaultAuthContext: AuthContextType = {
   user: "",
   email: "",
   token: "",
-  accountType: undefined,
+  accountType: "",
   isProvider: false,
   isClient: false,
 };
@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   let isAuthenticated = false;
   const [email, setEmail] = useState(email_saved || "");
-  const [accountType, setAccountType] = useState<accountTypeVal>();
+  const [accountType, setAccountType] = useState<AccountTypeVal>("");
   const isProvider = accountType === "provider";
   const isClient = accountType === "client";
   const [token, setToken] = useState(accessToken || "");
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     accessToken: string,
     email: string,
     userID: string,
-    accountType: accountTypeVal,
+    accountType: AccountTypeVal,
   ) => {
     setEmail(email);
     setToken(accessToken);

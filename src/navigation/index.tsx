@@ -18,6 +18,7 @@ import AvailableJobPostings from "../pages/availablejobposts";
 import HelpCenter from "../pages/helpcenter";
 import ArvicesProviders from "../pages/providers";
 import Activities from "../pages/activities";
+import CompleteProfile from "../pages/auth/completeprofile";
 
 // Import pages
 
@@ -55,6 +56,7 @@ function NavigationContent() {
         <Route path="/forgot-password" Component={ForgotPassword} />
         <Route path="/resetpassword" Component={PasswordReset} />
         <Route path="/verify-email" Component={VerifyEmail} />
+        <Route path="/complete-profile" Component={CompleteProfile} />
 
         {/* App Functional Pages */}
         <Route path="/job-posting" Component={AvailableJobPostings} />

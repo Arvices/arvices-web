@@ -98,23 +98,30 @@ export const ActivityCard: React.FC = () => {
   return (
     <div className="rounded-[10px] card-shadow p-0">
       <div className="w-full aspect-[5/3]">
-        <img src={placeholderUserImg} className="rounded-t-[8px] w-full h-full object-cover" />
+        <img
+          src={placeholderUserImg}
+          className="rounded-t-[8px] w-full h-full object-cover"
+        />
       </div>
       <div className="w-full p-3">
         <div className="flex px my-3">
-            <div className="w-max"><FeatherIcon className="inline" icon="heart"></FeatherIcon></div>
-            <div className="flex-1" />
-            <div className="w-max"><FeatherIcon className="inline-block mr-3" icon="send" /> <FeatherIcon className="inline" icon="bookmark" /> </div>
+          <div className="w-max">
+            <FeatherIcon className="inline" icon="heart"></FeatherIcon>
+          </div>
+          <div className="flex-1" />
+          <div className="w-max">
+            <FeatherIcon className="inline-block mr-3" icon="send" />{" "}
+            <FeatherIcon className="inline" icon="bookmark" />{" "}
+          </div>
         </div>
         <div className="my-3">
-            <p>
-                Wedding Makeup Jobs at Eko Hotel and Suites. #beckystudios #brideglam
-            </p>
+          <p>
+            Wedding Makeup Jobs at Eko Hotel and Suites. #beckystudios
+            #brideglam
+          </p>
         </div>
         <div className="my-3">
-            <p className="text-gray-500">
-                Posted Wed July, 2024. 3:14am
-            </p>
+          <p className="text-gray-500">Posted Wed July, 2024. 3:14am</p>
         </div>
       </div>
     </div>

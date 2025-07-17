@@ -102,12 +102,19 @@ const Header: React.FC = () => {
                 {auth.isClient ||
                   (!auth.isClient && !auth.isProvider && (
                     <li className="mb-8 text-gray-700">
-                      <Link to={"/service-providers"}>View Providers</Link>{" "}
+                      <Link
+                        onClick={toggleMobileOpen}
+                        to={"/service-providers"}
+                      >
+                        View Providers
+                      </Link>{" "}
                     </li>
                   ))}
                 {auth.isProvider && (
                   <li className="mb-8 text-gray-700">
-                    <Link to={"/job-posting"}>Available Job Posts</Link>{" "}
+                    <Link onClick={toggleMobileOpen} to={"/job-posting"}>
+                      Available Job Posts
+                    </Link>{" "}
                   </li>
                 )}
                 <li className="mb-8 text-gray-700">

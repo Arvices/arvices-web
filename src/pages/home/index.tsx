@@ -150,7 +150,7 @@ const Home: React.FC = () => {
       {/* Professionals Section */}
       <div
         id="home-professional-section"
-        className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto"
+        className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border-b border-gray-100"
       >
         <div className="mb-10">
           <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">
@@ -163,11 +163,17 @@ const Home: React.FC = () => {
             <ProviderCard />
           </div>
         </div>
+
+        <div className="mt-5 md:hidden">
+          <button className="w-full p-3 border border-gray-300 rounded-[8px]">
+            View More
+          </button>
+        </div>
       </div>
       {/* Activities Section */}
       <div
         id="home-activities-section"
-        className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border"
+        className="pt-20 sm:pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto"
       >
         <div className="mb-10">
           <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">
@@ -182,6 +188,11 @@ const Home: React.FC = () => {
           <div className="max-w-[400px] w-full">
             <ActivityCard />
           </div>
+        </div>
+        <div className="mt-5 md:hidden">
+          <button className="w-full p-3 border border-gray-300 rounded-[8px]">
+            View More
+          </button>
         </div>
       </div>
     </section>

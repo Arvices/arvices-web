@@ -32,9 +32,9 @@ const Footer: React.FC = () => {
   ];
   let topCategories = serviceCategories.splice(0, 6);
   return (
-    <footer className="w-full pt-6 text-center sm:text-left gradient-soft">
+    <footer className="w-full pt-6 text-center sm:text-left gradient-soft text-royalblue-shade4">
       <div className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        <div className="flex-wrap sm:flex pt-15 gap-x-7">
+        <div className="flex-wrap sm:flex pt-1 gap-x-7">
           <div className="pb-10 flex-1/3 md:flex-auto">
             <h5 className="font-medium mb-3">Explore</h5>
             <ul>
