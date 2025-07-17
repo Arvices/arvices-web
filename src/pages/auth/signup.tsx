@@ -105,7 +105,6 @@ const Signup: React.FC = () => {
               <input
                 id="email"
                 name="email"
-                
                 required
                 placeholder="eg. me@mail.com"
                 value={signupForm.email}

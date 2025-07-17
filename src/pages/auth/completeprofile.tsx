@@ -9,7 +9,7 @@ const CompleteProfile: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,10 +22,14 @@ const CompleteProfile: React.FC = () => {
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         <div className="max-w-[500px] mx-auto mt-10">
-          <h1 className="text-4xl font-medium text-center text-royalblue-shade3 mb-4">Complete Your Profile</h1>
+          <h1 className="text-4xl font-medium text-center text-royalblue-shade3 mb-4">
+            Complete Your Profile
+          </h1>
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="address" className="text-gray-600">Address</label>
+            <label htmlFor="address" className="text-gray-600">
+              Address
+            </label>
             <input
               type="text"
               name="address"
@@ -47,7 +51,9 @@ const CompleteProfile: React.FC = () => {
                 checked={form.accountType === "client"}
                 required
               />
-              <label htmlFor="client" className="ml-2">Regular Account</label>
+              <label htmlFor="client" className="ml-2">
+                Regular Account
+              </label>
             </div>
 
             <div className="mb-6">
@@ -59,10 +65,17 @@ const CompleteProfile: React.FC = () => {
                 onChange={handleChange}
                 checked={form.accountType === "provider"}
               />
-              <label htmlFor="provider" className="ml-2">Service Provider</label>
+              <label htmlFor="provider" className="ml-2">
+                Service Provider
+              </label>
             </div>
 
-            <button type="submit" className="cursor pointer w-full bg-royalblue-main text-white p-3 rounded">Complete Profile</button>
+            <button
+              type="submit"
+              className="cursor pointer w-full bg-royalblue-main text-white p-3 rounded"
+            >
+              Complete Profile
+            </button>
           </form>
         </div>
       </div>

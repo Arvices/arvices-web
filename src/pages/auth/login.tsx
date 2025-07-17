@@ -101,19 +101,19 @@ const Login: React.FC = () => {
             >
               Forgot Password?
             </Link>
-                        <Link
+            <Link
               to="/resetpassword"
               className="text-blue-600 font-medium hover:underline"
             >
               Password Reset
             </Link>
-                        <Link
+            <Link
               to="/verify-email"
               className="text-blue-600 font-medium hover:underline"
             >
               Account Verification
             </Link>
-                        <Link
+            <Link
               to="/complete-profile"
               className="text-blue-600 font-medium hover:underline"
             >

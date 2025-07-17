@@ -10,7 +10,7 @@ const ResetPassword: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswords(prev => ({ ...prev, [name]: value }));
+    setPasswords((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -27,7 +27,9 @@ const ResetPassword: React.FC = () => {
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         <div className="max-w-[500px] mx-auto mt-10">
-          <h1 className="text-4xl font-medium text-center text-royalblue-shade3 mb-4">Reset Password</h1>
+          <h1 className="text-4xl font-medium text-center text-royalblue-shade3 mb-4">
+            Reset Password
+          </h1>
 
           <form onSubmit={handleSubmit}>
             <PasswordInput
@@ -44,7 +46,12 @@ const ResetPassword: React.FC = () => {
               onChange={handleChange}
               className="h-13 px-4 border rounded border-gray-300 w-full mb-6"
             />
-            <button type="submit" className="cursor-pointer w-full bg-royalblue-main text-white p-3 rounded">Reset Password</button>
+            <button
+              type="submit"
+              className="cursor-pointer w-full bg-royalblue-main text-white p-3 rounded"
+            >
+              Reset Password
+            </button>
           </form>
         </div>
       </div>
