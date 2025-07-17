@@ -58,8 +58,10 @@ export const ProviderCard: React.FC = () => {
           />
         </div>
         <div className="mt-8 text-center">
-          <h5 className="text-2xl font-medium tracking-tight mb-2">Idrissa Gueye</h5>
-          <p  className="mb-2">
+          <h5 className="text-2xl font-medium tracking-tight mb-2">
+            Idrissa Gueye
+          </h5>
+          <p className="mb-2">
             <span>Photographer</span>
             <span className="inline-block ml-2">
               <FeatherIcon className="inline" size={18} icon="map-pin" /> Ikeja,
@@ -86,6 +88,33 @@ export const ProviderCard: React.FC = () => {
             View Profile{" "}
             <FeatherIcon className="inline" size={18} icon="arrow-up-right" />
           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const ActivityCard: React.FC = () => {
+  return (
+    <div className="rounded-[10px] card-shadow p-0">
+      <div className="w-full aspect-[5/3]">
+        <img src={placeholderUserImg} className="rounded-t-[8px] w-full h-full object-cover" />
+      </div>
+      <div className="w-full p-3">
+        <div className="flex px my-3">
+            <div className="w-max"><FeatherIcon className="inline" icon="heart"></FeatherIcon></div>
+            <div className="flex-1" />
+            <div className="w-max"><FeatherIcon className="inline-block mr-3" icon="send" /> <FeatherIcon className="inline" icon="bookmark" /> </div>
+        </div>
+        <div className="my-3">
+            <p>
+                Wedding Makeup Jobs at Eko Hotel and Suites. #beckystudios #brideglam
+            </p>
+        </div>
+        <div className="my-3">
+            <p className="text-gray-500">
+                Posted Wed July, 2024. 3:14am
+            </p>
         </div>
       </div>
     </div>

@@ -21,6 +21,7 @@ import photography from "../../assets/images/h-cat-photography.svg";
 import plumbing from "../../assets/images/h-cat-plumbing.svg";
 import tailoring from "../../assets/images/h-cat-tailoring.svg";
 import {
+  ActivityCard,
   CatCard,
   CategoryDataItem,
   ProviderCard,
@@ -166,9 +167,22 @@ const Home: React.FC = () => {
       {/* Activities Section */}
       <div
         id="home-activities-section"
-        className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border"
+        className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border"
       >
-        activities
+        <div className="mb-10">
+          <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">
+            Activity Updates &{" "}
+            <span className="text-royalblue-main">
+              Showcase from our service providers
+            </span>
+          </h1>
+        </div>
+
+        <div>
+          <div className="max-w-[400px] w-full">
+            <ActivityCard />
+          </div>
+        </div>
       </div>
     </section>
   );
