@@ -217,24 +217,6 @@ const Login: React.FC = () => {
             >
               Forgot Password?
             </Link>
-            <Link
-              to="/resetpassword"
-              className="text-blue-600 font-medium hover:underline"
-            >
-              Password Reset
-            </Link>
-            <Link
-              to="/verify-email"
-              className="text-blue-600 font-medium hover:underline"
-            >
-              Account Verification
-            </Link>
-            <Link
-              to="/complete-profile"
-              className="text-blue-600 font-medium hover:underline"
-            >
-              Complete Profile
-            </Link>
           </div>
           <div className="mt-10 mb-5 border-t border-gray-300" />
           <div className="py-2 text-center">
