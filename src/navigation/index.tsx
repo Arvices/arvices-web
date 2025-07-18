@@ -19,6 +19,7 @@ import HelpCenter from "../pages/helpcenter";
 import ArvicesProviders from "../pages/providers";
 import Activities from "../pages/activities";
 import CompleteProfile from "../pages/auth/completeprofile";
+import NewJobPosting from "../pages/newjobposting";
 
 // Import pages
 
@@ -46,7 +47,7 @@ function Navigation(): React.JSX.Element {
 // How to implement page not found?
 function NavigationContent() {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto  text-royalblue-shade5 ">
       <Header />
       <Routes>
         <Route path="/" Component={Home} />
@@ -63,6 +64,7 @@ function NavigationContent() {
         <Route path="/service-providers" Component={ArvicesProviders} />
         <Route path="/activities" Component={Activities} />
         <Route path="/help-center" Component={HelpCenter} />
+        <Route path="/client/new-job" Component={NewJobPosting} />
 
         {/* 404 Route - must be last */}
         <Route path="*" Component={PageNotFound} />

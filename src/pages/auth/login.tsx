@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { MyCustomGoogleLogin } from "./signup";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PasswordInput } from "../../components/input";
+import validator from "validator";
+import { useLoading } from "../../contexts/LoadingContext";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+import {
+  loginEmailAndPassword,
+  LoginEmailAndPasswordBody,
+  resendAccountVerificationMail,
+} from "../../api-services/auth";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface LoginFormState {
   email: string;
@@ -14,6 +23,11 @@ const Login: React.FC = () => {
     password: "",
   });
 
+  const navigate = useNavigate();
+  const { setLoading, setLoadingText } = useLoading();
+
+  const notify = useNotificationContext();
+  let auth = useAuth();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name) {
@@ -23,10 +37,113 @@ const Login: React.FC = () => {
     }
   };
 
-  const validateForm = () => {};
+  const validateForm = (): boolean => {
+    let valid = true;
+
+    // Validate Email
+    if (!loginForm.email.trim()) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Email is required.",
+        "error",
+      );
+      valid = false;
+    } else if (!validator.isEmail(loginForm.email)) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Please enter a valid email address.",
+        "error",
+      );
+      valid = false;
+    }
+
+    // Validate Password
+    if (!loginForm.password) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Password is required.",
+        "error",
+      );
+      valid = false;
+    } else if (loginForm.password.length < 8) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Password must be at least 8 characters long.",
+        "error",
+      );
+      valid = false;
+    }
+
+    return valid;
+  };
+  const handleResendVerification = async () => {
+    try {
+      const response = await resendAccountVerificationMail(
+        loginForm.email as string,
+      );
+      console.log("Resend verification success:", response);
+
+      notify.openNotification(
+        "topRight",
+        "Email Sent",
+        "A new verification email has been sent to your inbox.",
+        "success",
+      );
+    } catch (error: any) {
+      console.error("Resend verification error:", error);
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("submitting form", loginForm);
+    let valid = validateForm();
+    if (!valid) return;
+    let data: LoginEmailAndPasswordBody = {
+      email_or_phonenumber: loginForm.email,
+      password: loginForm.password,
+    };
+
+    try {
+      setLoading(true);
+      setLoadingText("Logging You In");
+      let response = await loginEmailAndPassword(data);
+      console.log("login response:- ", response);
+      auth.login(
+        response.response.access_token,
+        loginForm.email,
+        String(0),
+        "Client",
+      );
+      notify.openNotification(
+        "topRight",
+        "Success",
+        "Login Successful.",
+        "success",
+      );
+    } catch (err: any) {
+      //
+      let message = err?.message || "unknown error";
+      if (message === "Account not verified") {
+        notify.openNotification(
+          "topRight",
+          "Failed",
+          "Account Not Verified, You will be redirected to the verification page to continue your verification process",
+          "warning",
+        );
+        navigate(`/verify-email?email=${loginForm.email}`);
+        handleResendVerification();
+        return;
+      }
+      notify.openNotification("topRight", "Failed", message, "error");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <section className="min-h-screen pt-13 text-royalblue-shade4">
@@ -54,7 +171,6 @@ const Login: React.FC = () => {
                 id="email"
                 name="email"
                 required
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 placeholder="eg. me@mail.com"
                 value={loginForm.email}
                 onChange={handleInputChange}

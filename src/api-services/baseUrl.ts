@@ -1,1 +1,1 @@
-export const baseUrl = "https://placeholder.com";
+export const baseUrl = "https://arvicesapi.denateonlineservice.com";

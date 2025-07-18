@@ -2,7 +2,7 @@ import "./cards.css";
 import { Rate } from "antd";
 
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
-import FeatherIcon from "feather-icons-react";
+import FeatherIcon, { ArrowUpRight, Eye, MapPin } from "feather-icons-react";
 
 export interface CategoryDataItem {
   title: string;
@@ -68,10 +68,10 @@ export const ProviderCard: React.FC = () => {
               Lagos
             </span>
           </p>
-          <p className="mb-2">
+          <div className="mb-2">
             <Rate style={{ fontSize: "16px" }} allowHalf disabled value={4.5} />{" "}
             4.5 Overall Rating
-          </p>
+          </div>
           <p className="">23 Satisfied Clients</p>
         </div>
       </div>
@@ -123,6 +123,63 @@ export const ActivityCard: React.FC = () => {
         <div className="my-3">
           <p className="text-gray-500">Posted Wed July, 2024. 3:14am</p>
         </div>
+      </div>
+    </div>
+  );
+};
+
+export const JobCard: React.FC = () => {
+  return (
+    <div className="card-shadow rounded-[10px] p-5 py-6 sm:p-6 w-full">
+      <div className="flex">
+        <div className="max-w-max">
+          <h6 className="font-medium tracking-tight">Posted By Ezra Fitz</h6>
+          <p className="text-[13px] text-gray-600">
+            23mins ago, Plumbing and Pipeworks
+          </p>
+        </div>
+        <div className="flex-1"></div>
+        <div className="max-w-max">
+          <p className="text-royalblue-main font-medium cursor-pointer tracking-tight">
+            {" "}
+            <MapPin className="inline" size={16} /> Somewhere in Lagos
+          </p>
+        </div>
+      </div>
+      <div className="my-3 border-t border-gray-200" />
+      <div>
+        <p>I need a plumber to fix a leaking pipe in my kitchen.</p>
+      </div>
+      <div className="mt-6 flex gap-2 text-[14px] bg-gray-100 px-4 py-[8px] rounded">
+        <div className="w-max">
+          <Eye size={16} className="inline" /> 203
+        </div>
+        <div className="w-max pl-2 font-medium tracking-tight cursor-pointer">
+          25 Offer Sent
+        </div>
+        <div className="flex-1"></div>
+        <div className="w-max text-royalblue-main font-medium tracking-tight cursor-pointer">
+          Send An Offer <ArrowUpRight className="inline" size={16} />
+        </div>
+      </div>
+      <div className="meta"></div>
+    </div>
+  );
+};
+
+export const HomeCatCard: React.FC<CategoryDataItem> = ({
+  title,
+  tagline,
+  img,
+}) => {
+  return (
+    <div className="p-3 rounded border w-min-[120px]  w-max-[150px] mx-1 text-center border-gray-200">
+      <div className="rounded-[100px] w-max bg-gray-100 mx-auto mb-3">
+        <img className="w-[70px] h-[70px]" src={img} />
+      </div>
+      <div className=" text-gray-700 text-[15px]">
+        <h6 className="font-medium mb-1">{title}</h6>
+        <p className="text-gray-700 text-[14px]">{tagline}</p>
       </div>
     </div>
   );

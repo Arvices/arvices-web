@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
-export type AccountTypeVal = "client" | "provider" | "";
+export type AccountTypeVal = "Client" | "Service Provider" | "";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -95,8 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   let isAuthenticated = false;
   const [email, setEmail] = useState(email_saved || "");
   const [accountType, setAccountType] = useState<AccountTypeVal>("");
-  const isProvider = accountType === "provider";
-  const isClient = accountType === "client";
+  const isProvider = accountType === "Service Provider";
+  const isClient = accountType === "Client";
   const [token, setToken] = useState(accessToken || "");
   const [user, setUser] = useState(userID || "");
 

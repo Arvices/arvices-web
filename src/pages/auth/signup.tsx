@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { AccountTypeVal, useAuth } from "../../contexts/AuthContext";
-//import validator from "validator";
-//import { useLoading } from "../../contexts/LoadingContext";
+import { AccountTypeVal } from "../../contexts/AuthContext";
+import validator from "validator";
+import { useLoading } from "../../contexts/LoadingContext";
 import { PasswordInput } from "../../components/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import googleLogo from "../../assets/images/google-icon-logo-svgrepo-com.svg";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+import {
+  signUpEmailAndPassword,
+  SignUpEmailAndPasswordBody,
+} from "../../api-services/auth";
 
 interface SignupFormState {
   fullName: string;
@@ -38,9 +43,11 @@ export const MyCustomGoogleLogin = () => {
 };
 
 const Signup: React.FC = () => {
-  //  let { setLoading, setLoadingText } = useLoading();
-  let auth = useAuth();
+  const { setLoading, setLoadingText } = useLoading();
+  const navigate = useNavigate();
+  const notify = useNotificationContext();
   const [agreesToTerms, setAgreesToTerms] = useState(false);
+
   const [signupForm, setSignupForm] = useState<SignupFormState>({
     fullName: "",
     email: "",
@@ -59,11 +66,138 @@ const Signup: React.FC = () => {
     }
   };
 
-  const validateForm = () => {};
+  const validateForm = (): boolean => {
+    let valid = true;
+
+    // Validate Full Name
+    if (!signupForm.fullName.trim()) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Full Name is required.",
+        "error",
+      );
+      valid = false;
+    }
+
+    // Validate Email
+    if (!signupForm.email.trim()) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Email is required.",
+        "error",
+      );
+      valid = false;
+    } else if (!validator.isEmail(signupForm.email)) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Please enter a valid email address.",
+        "error",
+      );
+      valid = false;
+    }
+
+    // Validate Account Type
+    if (!signupForm.accountType.trim()) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Account Type is required.",
+        "error",
+      );
+      valid = false;
+    }
+
+    // Validate Password
+    if (!signupForm.password) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Password is required.",
+        "error",
+      );
+      valid = false;
+    } else if (signupForm.password.length < 8) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Password must be at least 8 characters long.",
+        "error",
+      );
+      valid = false;
+    } else if (
+      !/[a-zA-Z]/.test(signupForm.password) ||
+      !/[0-9]/.test(signupForm.password)
+    ) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Password must contain both letters and numbers.",
+        "error",
+      );
+      valid = false;
+    }
+
+    // Validate Password Confirmation
+    if (signupForm.password !== signupForm.passwordConfirm) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Passwords do not match.",
+        "error",
+      );
+      valid = false;
+    }
+
+    // Validate Address
+    if (!signupForm.address.trim()) {
+      notify.openNotification(
+        "topRight",
+        "Validation Error",
+        "Address is required.",
+        "error",
+      );
+      valid = false;
+    }
+
+    return valid;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("submitting form", signupForm);
+    let valid = validateForm();
+    if (!valid) return;
+    let data: SignUpEmailAndPasswordBody = {
+      email: signupForm.email,
+      fullName: signupForm.fullName,
+      type: signupForm.accountType,
+      address: signupForm.address,
+      password: signupForm.password,
+      username: signupForm.fullName,
+    };
+    try {
+      setLoading(true);
+      setLoadingText("Creating Account");
+      let response = await signUpEmailAndPassword(data);
+      console.log("signup response:- ", response);
+      notify.openNotification(
+        "topRight",
+        "Success",
+        "Signup Successful. Verify your account",
+        "success",
+      );
+      navigate(`/verify-email?email=${signupForm.email}`);
+    } catch (err: any) {
+      //
+      let message = err?.message || "unknown error";
+      notify.openNotification("topRight", "Failed", message, "error");
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <section className="min-h-screen pt-13 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
@@ -130,10 +264,10 @@ const Signup: React.FC = () => {
                   id="client"
                   name="accountType"
                   type="radio"
-                  value="client"
+                  value="Client"
                   required
                   onChange={handleInputChange}
-                  checked={signupForm.accountType === "client"}
+                  checked={signupForm.accountType === "Client"}
                   className="w-4 h-4 px-4 border rounded border-gray-300"
                 />
                 <label
@@ -149,9 +283,9 @@ const Signup: React.FC = () => {
                   id="provider"
                   name="accountType"
                   type="radio"
-                  value="provider"
+                  value="Service Provider"
                   onChange={handleInputChange}
-                  checked={signupForm.accountType === "provider"}
+                  checked={signupForm.accountType === "Service Provider"}
                   className="w-4 h-4 px-4 border rounded border-gray-300"
                 />
                 <label

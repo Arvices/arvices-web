@@ -26,8 +26,9 @@ import {
   CategoryDataItem,
   ProviderCard,
 } from "../../components/cards/appcards";
+//import { SlideUpUI } from "../../components/slideupUI";
 
-const categoryData: CategoryDataItem[] = [
+export const categoryData: CategoryDataItem[] = [
   {
     title: "Auto Mechanics",
     tagline: "Vehicle repairs & servicing",
@@ -68,7 +69,8 @@ const categoryData: CategoryDataItem[] = [
 const Home: React.FC = () => {
   return (
     <section className="min-h-screen text-royalblue-shade5 pt-10">
-      {/* Hero Section */}
+      {/* Hero Section 
+      <SlideUpUI > Slide Up content </SlideUpUI>*/}
       <div
         id="hero-section"
         className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto gradient-soft"
