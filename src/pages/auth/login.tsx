@@ -117,15 +117,19 @@ const Login: React.FC = () => {
       auth.login(
         response.response.access_token,
         loginForm.email,
-        String(0),
-        "Client",
+        response.response.user,
+        response.response.user.type,
       );
+
       notify.openNotification(
         "topRight",
         "Success",
         "Login Successful.",
         "success",
       );
+      response.response.user.type == "Client"
+        ? navigate("/service-providers")
+        : navigate("/job-posting");
     } catch (err: any) {
       //
       let message = err?.message || "unknown error";

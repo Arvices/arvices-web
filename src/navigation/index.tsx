@@ -47,7 +47,7 @@ function Navigation(): React.JSX.Element {
 // How to implement page not found?
 function NavigationContent() {
   return (
-    <div className="overflow-x-auto  text-royalblue-shade5 ">
+    <div className="overflow-x-auto  text-royalblue-shade6 ">
       <Header />
       <Routes>
         <Route path="/" Component={Home} />

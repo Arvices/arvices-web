@@ -45,7 +45,12 @@ const ForgotPassword: React.FC = () => {
       setLoading(true);
       setLoadingText("Sending reset email");
       let response = await forgotPassword({ email });
-      notify.openNotification("topRight", "Success", "A verification mail has been sent to you. Follow the instructions to recover your password", "success");
+      notify.openNotification(
+        "topRight",
+        "Success",
+        "A verification mail has been sent to you. Follow the instructions to recover your password",
+        "success",
+      );
       console.log("forgotpassword response:- ", response);
     } catch (err: any) {
       //

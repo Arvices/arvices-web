@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { UserAccount } from "../api-services/auth";
 
 export type AccountTypeVal = "Client" | "Service Provider" | "";
 
@@ -8,12 +9,12 @@ interface AuthContextType {
   login: (
     token: string,
     email: string,
-    userID: string,
+    user: UserAccount,
     accountType: AccountTypeVal,
   ) => void;
   logout: () => void;
   saveProfile: (profile: any) => void;
-  user: string;
+  user: UserAccount | undefined;
   email: string;
   token: string;
   accountType: AccountTypeVal;
@@ -32,7 +33,7 @@ const defaultAuthContext: AuthContextType = {
   login: dummyLogin,
   logout: dummyLogout,
   saveProfile: dummySaveProfile,
-  user: "",
+  user: undefined,
   email: "",
   token: "",
   accountType: "",
@@ -90,7 +91,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const accessToken = localStorage.getItem("access_token");
   const email_saved = localStorage.getItem("user_email");
-  const userID = localStorage.getItem("user_id");
+  const user_saved = localStorage.getItem("user");
+  const parsedUser = user_saved ? JSON.parse(user_saved as string) : "";
+  const [user, setUser] = useState<UserAccount>(parsedUser || undefined);
 
   let isAuthenticated = false;
   const [email, setEmail] = useState(email_saved || "");
@@ -98,7 +101,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isProvider = accountType === "Service Provider";
   const isClient = accountType === "Client";
   const [token, setToken] = useState(accessToken || "");
-  const [user, setUser] = useState(userID || "");
 
   if (token) {
     const decoded = jwtDecode(token);
@@ -112,16 +114,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = (
     accessToken: string,
     email: string,
-    userID: string,
+    user: UserAccount,
     accountType: AccountTypeVal,
   ) => {
     setEmail(email);
     setToken(accessToken);
-    setUser(userID);
+    setUser(user);
     setAccountType(accountType);
     window.localStorage.setItem("access_token", accessToken);
     window.localStorage.setItem("user_email", email);
-    window.localStorage.setItem("user_id", userID);
+    window.localStorage.setItem("user_saved", JSON.stringify(user));
   };
 
   const saveProfile = (profile: any) => {
@@ -137,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     window.localStorage.setItem("access_token", "");
     window.localStorage.setItem("token_expires_at", "");
     window.localStorage.setItem("user_email", "");
-    window.localStorage.setItem("user_id", "");
+    window.localStorage.setItem("user_saved", "");
     clearProfile();
     // navigate to homepage.
   };
@@ -145,14 +147,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
     const email = localStorage.getItem("user_email");
-    const userID = localStorage.getItem("user_id");
-    const expiresAt = Number(localStorage.getItem("token_expires_at"));
-    let bool = expiresAt && new Date().getTime() < expiresAt;
+    const user = localStorage.getItem("user_saved");
+    const parsedUser = user ? JSON.parse(user as string) : "";
+    console.log({ parsedUser });
 
-    if (accessToken && email && userID && bool) {
+    if (accessToken && email && user) {
       setEmail(email);
       setToken(accessToken);
-      setUser(userID);
+      setUser(parsedUser);
+      setAccountType(parsedUser?.type);
     }
   }, []);
 

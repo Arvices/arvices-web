@@ -12,7 +12,38 @@ export interface SignUpEmailAndPasswordBody {
   password: string;
   username: string;
 }
+export interface Wallet {
+  id: number;
+  name: string;
+  accountName: string | null;
+  accountNumber: string | null;
+  bank: string | null;
+  balance: number | null;
+  createdDate: string; // ISO date string
+}
 
+export interface UserAccount {
+  id: number;
+  username: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  address: string;
+  password: string;
+  type: AccountTypeVal;
+  accountCreationDate: string; // ISO date string
+  accountVerified: boolean;
+  accountDisable: number;
+  picture: string | null;
+  businessName: string | null;
+  position: string; // "lat,long" format string
+  rating: number | null;
+  allRating: number;
+  numberOfRating: number;
+  meanRating: number;
+  category: string[]; // Could be a string array or a more complex object type if known
+  wallet: Wallet;
+}
 export interface LoginEmailAndPasswordBody {
   email_or_phonenumber: string;
   password: string;
@@ -52,7 +83,7 @@ export interface LoginSuccessResponse {
   message: string;
   response: {
     access_token: string;
-    user: any;
+    user: UserAccount;
   };
   status: number;
 }

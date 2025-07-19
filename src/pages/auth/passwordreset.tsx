@@ -18,7 +18,7 @@ const ResetPassword: React.FC = () => {
 
   const [SearchParams] = useSearchParams();
   const token = SearchParams.get("token");
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswords((prev) => ({ ...prev, [name]: value }));

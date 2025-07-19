@@ -1,0 +1,38 @@
+
+const JobsMenu = (
+  <Menu
+    items={[
+      {
+        key: "1",
+        label: <Link to={'/'} className="w-[200px]">Manage Your Jobs</Link>,
+        disabled: true
+      },
+      { type: "divider" },
+      {
+        key: "2",
+        label: <Link to={'/'}>Open Offers <span className="rounded px-1 bg-gray-100 inline-block ml-2">3</span></Link>
+      },
+      {
+        key: "3",
+        label: <Link to={'/'}>Ongoing Negotiation <span className="rounded px-1 bg-gray-100 inline-block ml-2">2</span></Link>
+      },
+      {
+        key: "4",
+        label: <Link to={'/'}>Ongoing Jobs <span className="rounded px-1 bg-gray-100 inline-block ml-2">1</span></Link>,
+      },
+      {
+        key: "5",
+        label: <Link to={'/'}>Completed Jobs <span className="rounded px-1 bg-gray-100 inline-block ml-2">10</span></Link>,
+      },
+      { type: "divider" },
+      {
+        key: "6",
+        label: <Link className="mb-3 inline-block" to={'/'}>Customize Job Alert <ArrowUpRight className="inline" size={18} /></Link>,
+      },
+    ]}
+  />
+);
+
+const HireSomeoneMenu = (
+  
+)  the hire someone menu should have the following items, My Open Jobs, Pending Offers, Previous Hires, Ongoing Jobs, Completed Jobs, Favourite Professionals, by the way, add icons to the left of both the job menu and the hire someone menu. leave the customize job alert icon where it is on the right. only the ones you're adding should be on the left. then i use feather icon react, so
