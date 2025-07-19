@@ -47,7 +47,7 @@ const Header: React.FC = () => {
         {
           key: "1",
           label: (
-            <Link to={"/"} className="w-[200px]">
+            <Link to={""} className="w-[200px]">
               Manage Your Jobs
             </Link>
           ),
@@ -57,7 +57,7 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to={"/"}>
+            <Link to={"/provider/open-offers"}>
               <Clipboard size={16} className="inline mr-2" />
               Open Offers
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -69,7 +69,7 @@ const Header: React.FC = () => {
         {
           key: "3",
           label: (
-            <Link to={"/"}>
+            <Link to={"/provider/ongoing-negotiations"}>
               <MessageCircle size={16} className="inline mr-2" />
               Ongoing Negotiation
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -81,7 +81,7 @@ const Header: React.FC = () => {
         {
           key: "4",
           label: (
-            <Link to={"/"}>
+            <Link to={"/provider/ongoing-jobs"}>
               <Loader size={16} className="inline mr-2" />
               Ongoing Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -93,7 +93,7 @@ const Header: React.FC = () => {
         {
           key: "5",
           label: (
-            <Link to={"/"}>
+            <Link to={"/provider/completed-jobs"}>
               <CheckCircle size={16} className="inline mr-2" />
               Completed Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -106,10 +106,10 @@ const Header: React.FC = () => {
         {
           key: "6",
           label: (
-            <Link className="mb-3 inline-block" to={"/"}>
+            <span className="mb-3 inline-block">
               Customize Job Alert
               <ArrowUpRight className="inline ml-2" size={18} />
-            </Link>
+            </span>
           ),
         },
       ]}
@@ -132,7 +132,7 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to={"/"}>
+            <Link to={"/client/open-jobs"}>
               <Briefcase size={16} className="inline mr-2" />
               Open Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -144,7 +144,7 @@ const Header: React.FC = () => {
         {
           key: "3",
           label: (
-            <Link to={"/"}>
+            <Link to={"/client/pending-offers"}>
               <Clock size={16} className="inline mr-2" />
               Pending Offers
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -156,7 +156,7 @@ const Header: React.FC = () => {
         {
           key: "4",
           label: (
-            <Link to={"/"}>
+            <Link to={"/client/ongoing-jobs"}>
               <Loader size={16} className="inline mr-2" />
               Ongoing Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -168,7 +168,7 @@ const Header: React.FC = () => {
         {
           key: "5",
           label: (
-            <Link to={"/"}>
+            <Link to={"/client-completed-jobs"}>
               <CheckCircle size={16} className="inline mr-2" />
               Completed Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -180,7 +180,7 @@ const Header: React.FC = () => {
         {
           key: "6",
           label: (
-            <Link to={"/"}>
+            <Link to={"/client/previous-hires"}>
               <Users size={16} className="inline mr-2" />
               Previous Hires
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -193,7 +193,10 @@ const Header: React.FC = () => {
         {
           key: "7",
           label: (
-            <Link className="mb-3 inline-block" to={"/"}>
+            <Link
+              className="mb-3 inline-block"
+              to={"/client/favourite-service-providers"}
+            >
               <Heart className="inline mr-2" size={18} />
               Favourite Service Providers
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -231,7 +234,7 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/profile" className="flex items-center gap-2">
               <UserCheck size={16} /> Profile
               <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                 3
@@ -253,7 +256,7 @@ const Header: React.FC = () => {
         {
           key: "4",
           label: (
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/wallet" className="flex items-center gap-2">
               <CreditCard size={16} /> Wallet
               <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                 1
@@ -264,7 +267,7 @@ const Header: React.FC = () => {
         {
           key: "5",
           label: (
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/transaction-history" className="flex items-center gap-2">
               <FileText size={16} /> Transactions
               <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                 10
@@ -388,7 +391,7 @@ const Header: React.FC = () => {
                 </Dropdown>
               </li>
               <li className="inline-block px-2">
-                <Link to={"/help-center"}>Post Update</Link>{" "}
+                <Link to={"/post-showcase"}>Post Update</Link>{" "}
               </li>
               <li className="inline-block px-2">
                 <Link to={"/activities"}>What's New</Link>{" "}
@@ -400,14 +403,14 @@ const Header: React.FC = () => {
         {auth.isAuthenticated && (
           <ul>
             <li className="inline-block ml-4">
-              <Link to={"/"}>
+              <Link to={"/notifications"}>
                 <span className="h-7 w-7 flex items-center justify-center rounded-3xl">
                   <Bell className="inline" size={18} />
                 </span>
               </Link>
             </li>
             <li className="inline-block ml-4">
-              <Link to={"/"}>
+              <Link to={"/messaging/conversations"}>
                 <span className="h-7 w-7 flex items-center justify-center rounded-3xl">
                   <MessageSquare className="inline" size={18} />
                 </span>
@@ -487,7 +490,10 @@ const Header: React.FC = () => {
                 <ul className=" text-gray-700 space-y-3">
                   {/* Account Actions */}
                   <li className="mb-5 mt-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      to="/service-providers"
+                      className="flex items-center gap-2"
+                    >
                       <UserCheck size={16} /> Browse Service Providers
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         3

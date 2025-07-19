@@ -20,6 +20,15 @@ import ArvicesProviders from "../pages/providers";
 import Activities from "../pages/activities";
 import CompleteProfile from "../pages/auth/completeprofile";
 import NewJobPosting from "../pages/newjobposting";
+import AccountSettings from "../pages/accountsettings";
+import Profile from "../pages/profile";
+import Notification from "../pages/notification";
+import Conversations from "../pages/messaging";
+import ChatPage from "../pages/messaging/chatpage";
+import PostShowcase from "../pages/postshowcase";
+import Wallet from "../pages/wallet";
+import Transactions from "../pages/transactionhistory";
+import BaseLayout from "../pages/base";
 
 // Import pages
 
@@ -64,7 +73,29 @@ function NavigationContent() {
         <Route path="/service-providers" Component={ArvicesProviders} />
         <Route path="/activities" Component={Activities} />
         <Route path="/help-center" Component={HelpCenter} />
-        <Route path="/client/new-job" Component={NewJobPosting} />
+        <Route path="/account-settings" Component={AccountSettings} />
+        <Route path="/profile" Component={Profile} />
+        <Route path="/notifications" Component={Notification} />
+        <Route path="/messaging/conversations" Component={Conversations} />
+        <Route path="/messaging/chat" Component={ChatPage} />
+        <Route path="/post-showcase" Component={PostShowcase} />
+        <Route path="/wallet" Component={Wallet} />
+        <Route path="/transaction-history" Component={Transactions} />
+        <Route path="/jobs" Component={Transactions} />
+        <Route path="/provider/open-offers" Component={BaseLayout} />
+        <Route path="/provider/ongoing-negotiations" Component={BaseLayout} />
+        <Route path="/provider/ongoing-jobs" Component={BaseLayout} />
+        <Route path="/provider/completed-jobs" Component={BaseLayout} />
+        <Route path="/client/open-jobs" Component={BaseLayout} />
+        <Route path="/client/pending-offers" Component={BaseLayout} />
+        <Route path="/client/ongoing-jobs" Component={BaseLayout} />
+        <Route path="/client-completed-jobs" Component={BaseLayout} />
+        <Route
+          path="/client/favourite-service-providers"
+          Component={BaseLayout}
+        />
+        <Route path="/provider/open-offers" Component={BaseLayout} />
+        <Route path="/provider/open-offers" Component={BaseLayout} />
 
         {/* 404 Route - must be last */}
         <Route path="*" Component={PageNotFound} />
