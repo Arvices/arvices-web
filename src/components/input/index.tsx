@@ -50,3 +50,26 @@ export const PasswordInput: React.FC<PasswordInputType> = ({
     </div>
   );
 };
+
+export const Input: React.FC<PasswordInputType> = ({
+  className = "",
+  name,
+  value,
+  onChange,
+  placeholder = "Enter Text",
+  required,
+}) => {
+  return (
+    <div className={`relative `}>
+      <input
+        id={name}
+        name={name}
+        value={value}
+        required={required}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`rounded border border-gray-300 h-13 w-full pl-4 ${className}`}
+      />
+    </div>
+  );
+};

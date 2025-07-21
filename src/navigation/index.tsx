@@ -86,6 +86,7 @@ function NavigationContent() {
         <Route path="/provider/ongoing-negotiations" Component={BaseLayout} />
         <Route path="/provider/ongoing-jobs" Component={BaseLayout} />
         <Route path="/provider/completed-jobs" Component={BaseLayout} />
+        <Route path="/client/new-job" Component={NewJobPosting} />
         <Route path="/client/open-jobs" Component={BaseLayout} />
         <Route path="/client/pending-offers" Component={BaseLayout} />
         <Route path="/client/ongoing-jobs" Component={BaseLayout} />

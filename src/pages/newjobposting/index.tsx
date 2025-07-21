@@ -1,13 +1,121 @@
-import React, { useState } from "react";
-import { Input, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { Select } from "antd";
 import { categoryOptions } from "../providers/Filter";
 import { MapPin } from "feather-icons-react";
+// import utilities
+import { useLoading } from "../../contexts/LoadingContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+import { Input } from "../../components/input";
+import { createServiceRequest } from "../../api-services/servicerequests.service";
+import { parseHttpError } from "../../api-services/parseReqError";
+import { getAllCategory } from "../../api-services/categories.service";
+import { Category } from "../../api-services/categories.types";
 
 const NewJobPosting = (): React.ReactNode => {
+  // utilities
+  const { setLoading, setLoadingText } = useLoading();
+  const auth = useAuth();
+  const notify = useNotificationContext();
+  const navigate = useNavigate();
+
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
 
+  const [categories, setCategories] = useState([]);
+  const [catLoading, setCatLoading] = useState(false);
+  const [catError, setCatError] = useState("");
+  console.log({ catError: !!catError });
+
+  const mappedCat = [{ label: "Select A Category", value: "", id: 0 }].concat(
+    categories.map((x: any) => {
+      return { label: x.name, value: x.name, id: x.id };
+    }),
+  );
+  function findCategoryByName(name: string, categories: Category[]) {
+    return categories.find((cat) => cat.name === name) || null;
+  }
+  const loadCategories = async () => {
+    setCatLoading(true);
+    setCatError("");
+    try {
+      const response = await getAllCategory();
+      console.log({ response });
+      setCategories(response.data.response); // adjust this if your response shape is different
+    } catch (error: any) {
+      let errorMsg = parseHttpError(error);
+      console.error("Failed to load categories:", error);
+      setCatError(
+        (errorMsg || "Failed to load categories") +
+          "Use the button below to reload categories",
+      );
+    } finally {
+      setCatLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!description || description.trim() === "") {
+        return notify.openNotification(
+          "topRight",
+          "Missing Field",
+          "Please add a job description before posting.",
+          "error",
+        );
+      }
+
+      setLoading(true);
+      setLoadingText("Posting your job...");
+      let cat = findCategoryByName(category, categories) as Category;
+      const data = {
+        description,
+        address: location, // You can update this if address is part of the form
+        categoryId: cat.id, // Replace with selected category if applicable
+        type: "Public", // Or "Private" if user can choose
+      };
+
+      const response = await createServiceRequest(data, auth.token);
+      console.log("Job post response:", response);
+
+      notify.openNotification(
+        "topRight",
+        "Success",
+        "Your job post was submitted successfully!",
+        "success",
+      );
+
+      // Optionally reset form fields
+      // setDescription(""); setCategoryId(0); etc.
+    } catch (error) {
+      console.error("Failed to post job:", error);
+      let errorMsg = parseHttpError(error);
+      notify.openNotification(
+        "topRight",
+        "Error",
+        errorMsg || "Something went wrong while posting the job.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  /**
+   {
+  "description": "string",
+  "address": "string",
+  "position": "string",
+  "categoryId": 0,
+  "type": "Public"
+}
+   */
+  useEffect(() => {
+    loadCategories();
+  }, []);
   return (
     <section className="min-h-screen pt-13 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
@@ -24,54 +132,80 @@ const NewJobPosting = (): React.ReactNode => {
 
         <div className="my-8 border-t border-gray-200" />
 
-        {/* Description Field */}
-        <div className="mb-4">
-          <label className="text-gray-700 block mb-1">Task Description</label>
-          <textarea
-            placeholder="Briefly describe what you need help with"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="px-4 py-2 w-full border border-gray-200 rounded-md resize-none focus:outline-none focus:border-gray-300"
-            rows={4}
-          />
-        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          {/* Description Field */}
+          <div className="mb-4">
+            <label className="text-gray-700 block mb-1">Task Description</label>
+            <textarea
+              placeholder="Briefly describe what you need help with"
+              value={description}
+              required
+              onChange={(e) => setDescription(e.target.value)}
+              className="px-4 py-2 w-full border border-gray-200 rounded-md resize-none focus:outline-none focus:border-gray-300"
+              rows={4}
+            />
+          </div>
 
-        {/* Category Select */}
-        <div className="mb-5">
-          <label className="text-gray-700 block mb-1">Category</label>
-          <Select
-            value={category}
-            onChange={(value) => setCategory(value)}
-            className="w-full"
-            options={categoryOptions}
-            placeholder="Select category"
-            style={{ height: "50px" }}
-          />
-        </div>
+          {/* Category Select */}
+          {catError ? (
+            <div className="w-full mb-5">
+              <label className="text-red-600 font-light text-[13px] block mb-2">
+                {catError}
+              </label>
+              <button
+                onClick={loadCategories}
+                className="border cursor-pointer border-dashed border-gray-500 rounded px-4 py-2 text-sm hover:bg-gray-50 transition"
+              >
+                Reload Category
+              </button>
+            </div>
+          ) : (
+            <div className="mb-5">
+              <label className="text-gray-700 block mb-1">Category</label>
+              <Select
+                value={category}
+                onChange={(value) => setCategory(value)}
+                className="w-full"
+                aria-required
+                options={mappedCat}
+                placeholder="Select category"
+                style={{ height: "50px" }}
+              />
+            </div>
+          )}
 
-        {/* Location Input */}
-        <div className="mb-9 relative">
-          <label className="text-gray-700 block mb-1">Location</label>
-          <Input
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="rounded border border-gray-300 h-13 w-full"
-            style={{ paddingRight: "9rem" }}
-            placeholder="Enter your location"
-          />
-          <div className="w-max absolute top-[35px] right-4">
-            <button className="w-max font-medium cursor-pointer text-gray-600 hover:text-black">
-              <span>Add Location </span>
-              <MapPin className="inline ml-1" size={16} />
+          {/* Location Input */}
+          <div className="mb-9 relative">
+            <label className="text-gray-700 block mb-1">Location</label>
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+              className="rounded border border-gray-300 h-13 w-full pr-[9rem]"
+              placeholder="Enter your location"
+            />
+            <div className="w-max absolute top-[35px] right-4">
+              <button className="w-max font-medium cursor-pointer text-gray-600 hover:text-black">
+                <span>Add Location </span>
+                <MapPin className="inline ml-1" size={16} />
+              </button>
+            </div>
+          </div>
+          {/* Location Input */}
+          <div className="mb-5 relative">
+            <button
+              type="submit"
+              className="border rounded bg-royalblue-shade2 text-white w-full h-13 cursor-pointer"
+            >
+              Submit{" "}
             </button>
           </div>
-        </div>
-        {/* Location Input */}
-        <div className="mb-5 relative">
-          <button className="border rounded bg-royalblue-shade2 text-white w-full h-13 cursor-pointer">
-            Submit{" "}
-          </button>
-        </div>
+        </form>
       </div>
     </section>
   );
