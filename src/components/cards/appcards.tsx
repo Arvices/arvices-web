@@ -3,6 +3,7 @@ import { Rate } from "antd";
 
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
 import FeatherIcon, { ArrowUpRight, Eye, MapPin } from "feather-icons-react";
+import { UserAccount } from "../../api-services/auth";
 
 export interface CategoryDataItem {
   title: string;
@@ -30,7 +31,12 @@ export const CatCard: React.FC<CategoryDataItem> = ({
   );
 };
 
-export const ProviderCard: React.FC = () => {
+interface ProviderCardInterface {
+  provider: UserAccount;
+}
+
+export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
+  console.log({ provider });
   return (
     <div className="rounded-[10px] card-shadow p-4 pb-5 pt-6">
       {/* Card Header */}
@@ -59,7 +65,7 @@ export const ProviderCard: React.FC = () => {
         </div>
         <div className="mt-8 text-center">
           <h5 className="text-2xl font-medium tracking-tight mb-2">
-            Idrissa Gueye
+            {provider.fullName}
           </h5>
           <p className="mb-2">
             <span>Photographer</span>
@@ -79,13 +85,13 @@ export const ProviderCard: React.FC = () => {
       <div className="flex gap-x-3 mt-10">
         <div className="flex-1">
           <button className="py-4 w-full rounded bg-royalblue-main text-white cursor-pointer">
-            Chat{" "}
+            Follow{" "}
             <FeatherIcon className="inline" size={18} icon="message-square" />
           </button>
         </div>
         <div className="flex-1">
           <button className="py-4 w-full border border-royalblue-main rounded text-royalblue-shade3 cursor-pointer">
-            View Profile{" "}
+            View Page{" "}
             <FeatherIcon className="inline" size={18} icon="arrow-up-right" />
           </button>
         </div>

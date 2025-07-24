@@ -54,14 +54,20 @@ export const FilterComponent = ({
           onChange={(e) => onChange("searchTerm", e.target.value)}
           className="h-13 px-4  w-full active:border-gray-100 focus:border-gray-200"
         />
-        <button className="h-13 px-5 min-w-[120px] bg-gray-900 text-white rounded-3xl cursor-pointer">
+        <button
+          onClick={() => setFilterModalOpen(true)}
+          className="h-13 px-5 min-w-[120px] bg-gray-900 text-white rounded-3xl cursor-pointer"
+        >
           Apply <Filter className="inline" size={16} />
         </button>
       </div>
 
       {/* Mobile filter button */}
       <div className="lg:hidden flex justify-end">
-        <button className="bg-gray-900 px-7  text-white rounded cursor-pointer h-11">
+        <button
+          onClick={() => setFilterModalOpen(true)}
+          className="bg-gray-900 px-7  text-white rounded cursor-pointer h-11"
+        >
           Apply Filters <Filter className="inline" size={16} />
         </button>
       </div>

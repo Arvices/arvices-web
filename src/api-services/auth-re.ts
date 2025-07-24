@@ -230,18 +230,24 @@ const getRecentShowcase = async () => {
   return axios(config);
 };
 
-const getTopProfessionals = async () => {
+const getTopProfessionals = async (token: string) => {
   const config = {
     url: `${baseUrl}/user/gettopprofessionals`,
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
 
-const getRisingTalent = async () => {
+const getRisingTalent = async (token: string) => {
   const config = {
     url: `${baseUrl}/user/getrisingtalent`,
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };

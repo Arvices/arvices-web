@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "feather-icons-react";
 import "./style.css";
 
@@ -26,6 +26,8 @@ import {
   CategoryDataItem,
   ProviderCard,
 } from "../../components/cards/appcards";
+import { getTopProfessionals } from "../../api-services/auth-re";
+import { useAuth } from "../../contexts/AuthContext";
 //import { SlideUpUI } from "../../components/slideupUI";
 
 export const categoryData: CategoryDataItem[] = [
@@ -67,6 +69,29 @@ export const categoryData: CategoryDataItem[] = [
 ];
 
 const Home: React.FC = () => {
+  let auth = useAuth();
+  const [topLoading, setTopLoading] = useState(true);
+  const [topError, setTopError] = useState(false);
+  const [topProfessionals, setTopProfessionals] = useState<any[]>([]);
+
+  const fetchTopProfessionals = async () => {
+    try {
+      setTopLoading(true);
+      setTopError(false);
+      const res = await getTopProfessionals(auth.token);
+
+      console.log({ resTop: res });
+      setTopProfessionals(res?.data?.response || []);
+    } catch (err) {
+      setTopError(true);
+    } finally {
+      setTopLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTopProfessionals();
+  }, []);
   return (
     <section className="min-h-screen text-royalblue-shade5 pt-10">
       {/* Hero Section 
@@ -161,8 +186,19 @@ const Home: React.FC = () => {
           </h1>
         </div>
         <div>
-          <div className="max-w-[400px] w-full">
-            <ProviderCard />
+          <div className="flex flex-wrap gap-5">
+            {topProfessionals
+              .concat(topProfessionals)
+              .map((provider, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="max-w-[400px] min-w-[300px] flex-1"
+                  >
+                    <ProviderCard provider={provider} />
+                  </div>
+                );
+              })}
           </div>
         </div>
 
