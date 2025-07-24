@@ -25,6 +25,7 @@ const users = [
   { name: "Tunde Bako", category: "Graphic Designer", followerCount: 2900 },
   { name: "Grace Bello", category: "Event Planner", followerCount: 3700 },
 ];
+
 function formatFollowerCount(count: number): string {
   if (count >= 1_000_000) {
     return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -34,6 +35,7 @@ function formatFollowerCount(count: number): string {
   }
   return count.toString();
 }
+
 type ParsedCaption = {
   mainText: string;
   hashtags: string[];
@@ -312,7 +314,10 @@ const Activities = (): React.ReactNode => {
             <p className="font-medium mb-3">🔥 Top Providers </p>
             {users.map((user, index) => {
               return (
-                <div key={index} className="mb-3 p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                <div
+                  key={index}
+                  className="mb-3 p-2 border border-gray-200 rounded-lg shadow-sm bg-white"
+                >
                   {/* First Block: Avatar + Info */}
                   <div className="flex items-center gap-2">
                     {/* Avatar */}
