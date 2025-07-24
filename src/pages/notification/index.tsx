@@ -360,10 +360,13 @@ const Notification = (): React.ReactNode => {
           </div>
 
           {/* Footer Stats */}
-
         </div>
         <div className="mt-5 flex justify-center">
-          <Pagination totalPages={10} currentPage={1} onPageChange={()=> console.log("page changed")} />
+          <Pagination
+            totalPages={10}
+            currentPage={1}
+            onPageChange={() => console.log("page changed")}
+          />
         </div>
       </div>
     </section>
