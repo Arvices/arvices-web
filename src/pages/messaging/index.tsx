@@ -161,7 +161,7 @@ const Conversations = (): React.ReactNode => {
                   onClick={() => setSelectedConversation(conversation.id)}
                   className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 hover:scale-105 ${
                     selectedConversation === conversation.id
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                      ? "bg-gradient-to-r bg-royalblue-tint3 text-white shadow-lg"
                       : "bg-white/80 hover:bg-white text-gray-900 shadow-sm"
                   }`}
                 >
@@ -268,7 +268,7 @@ const Conversations = (): React.ReactNode => {
                         <div
                           className={`p-4 rounded-2xl shadow-sm ${
                             message.isOwn
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-md"
+                              ? "bg-gradient-to-r bg-royalblue-tint3 text-white rounded-br-md"
                               : "bg-white text-gray-900 rounded-bl-md border border-gray-100"
                           }`}
                         >
@@ -334,7 +334,7 @@ const Conversations = (): React.ReactNode => {
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type a cute message... 💕"
+                        placeholder="Enter Message"
                         className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                         onKeyPress={(e) =>
                           e.key === "Enter" && handleSendMessage()

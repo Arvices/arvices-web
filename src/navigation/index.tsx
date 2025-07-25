@@ -29,6 +29,7 @@ import PostShowcase from "../pages/postshowcase";
 import Wallet from "../pages/wallet";
 import Transactions from "../pages/transactionhistory";
 import BaseLayout from "../pages/base";
+import { ProfileEdit } from "../pages/profile/profile.edit";
 
 // Import pages
 
@@ -75,6 +76,7 @@ function NavigationContent() {
         <Route path="/help-center" Component={HelpCenter} />
         <Route path="/account-settings" Component={AccountSettings} />
         <Route path="/profile" Component={Profile} />
+        <Route path="/profile/edit" Component={ProfileEdit} />
         <Route path="/notifications" Component={Notification} />
         <Route path="/messaging/conversations" Component={Conversations} />
         <Route path="/messaging/chat" Component={ChatPage} />
