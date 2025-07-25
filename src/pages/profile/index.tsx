@@ -1,6 +1,6 @@
 import React from "react";
 
-import imgShape from "../../assets/images/pro-sample-img.png"
+import imgShape from "../../assets/images/pro-sample-img.png";
 import { Button } from "antd";
 import { Badge } from "antd";
 import { Card } from "antd";
@@ -27,51 +27,8 @@ const Profile = (): React.ReactNode => {
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         {/* Page Starts*/}
-        return (
+
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-          {/* Header */}
-          <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-            <div className="max-w-7xl mx-auto px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">A</span>
-                  </div>
-                  <span className="text-xl font-semibold text-gray-900">
-                    Arvice
-                  </span>
-                </div>
-
-                <nav className="hidden md:flex items-center space-x-8">
-                  <a
-                    href="#"
-                    className="text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    Home
-                  </a>
-                  <a
-                    href="#"
-                    className="text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    Providers
-                  </a>
-                  <a
-                    href="#"
-                    className="text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    Showcase
-                  </a>
-                </nav>
-
-                <div className="flex items-center space-x-3">
-                  <Button>
-                    <Edit3 className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </header>
 
           {/* Hero Section */}
           <section className="relative py-16 px-6">
@@ -143,9 +100,8 @@ const Profile = (): React.ReactNode => {
             </div>
           </section>
 
-          {/* Booking Status - Show upcoming appointments */}
+          {/* Booking Status - Show upcoming appointments 
           <BookingStatus />
-
           {/* Interactive Portfolio with Filtering */}
           <PortfolioFilter />
 
@@ -273,33 +229,8 @@ const Profile = (): React.ReactNode => {
             </div>
           </section>
 
-          {/* Footer */}
-          <footer className="py-12 px-6 bg-gray-900 text-white">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="flex items-center justify-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">A</span>
-                </div>
-                <span className="text-xl font-semibold">Arvice</span>
-              </div>
-              <p className="text-gray-400 mb-6">
-                Connecting you with the best service providers
-              </p>
-              <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
-                <a href="#" className="hover:text-white transition-colors">
-                  Privacy Policy
-                </a>
-                <a href="#" className="hover:text-white transition-colors">
-                  Terms of Service
-                </a>
-                <a href="#" className="hover:text-white transition-colors">
-                  Support
-                </a>
-              </div>
-            </div>
-          </footer>
         </div>
-        );
+        
       </div>
     </section>
   );

@@ -177,7 +177,10 @@ export function BookingStatus() {
                     )}
 
                     <div className="flex space-x-2">
-                      <Button className="flex-1" icon={<MessageSquare className="w-3 h-3" />}>
+                      <Button
+                        className="flex-1"
+                        icon={<MessageSquare className="w-3 h-3" />}
+                      >
                         Message
                       </Button>
                       <Button className="flex-1">View Details</Button>
