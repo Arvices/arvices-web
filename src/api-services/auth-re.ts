@@ -32,11 +32,12 @@ const updateAccountByEmail = async (data: any, token: string) => {
   return axios(config);
 };
 
-const getAccountById = async (id: string) => {
+const getAccountById = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/user/getaccountbyid`,
     method: "GET",
     params: { id },
+    headers: { Authorization: `Bearer ${token}` },
   };
   return axios(config);
 };

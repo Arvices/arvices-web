@@ -1,9 +1,19 @@
 import "./cards.css";
-import { Rate } from "antd";
+import { Button, Rate } from "antd";
 
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
-import FeatherIcon, { ArrowUpRight, Eye, MapPin } from "feather-icons-react";
+import FeatherIcon, {
+  ArrowUpRight,
+  Check,
+  Eye,
+  MapPin,
+  Plus,
+} from "feather-icons-react";
 import { UserAccount } from "../../api-services/auth";
+import { Link } from "react-router-dom";
+import { followUser, unfollowUser } from "../../api-services/auth-re";
+import { useAuth } from "../../contexts/AuthContext";
+import { useState } from "react";
 
 export interface CategoryDataItem {
   title: string;
@@ -36,7 +46,39 @@ interface ProviderCardInterface {
 }
 
 export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
-  console.log({ provider });
+  const auth = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleFollowToggle = async () => {
+    try {
+      setLoading(true);
+      if (isFollowing) {
+        await unfollowUser(provider.id.toString(), auth.token);
+        setIsFollowing(false);
+      } else {
+        await followUser(provider.id.toString(), auth.token);
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error(`${isFollowing ? "Unfollow" : "Follow"} error:`, error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFollow = async () => {
+    try {
+      setLoading(true);
+      await followUser(provider.id.toString(), auth.token);
+      setIsFollowing(true);
+    } catch (error) {
+      console.error("Follow error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="rounded-[10px] card-shadow p-4 pb-5 pt-6">
       {/* Card Header */}
@@ -53,9 +95,9 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
           </p>
         </div>
       </div>
+
       {/* Card Body */}
       <div>
-        {/* Image Container */}
         <div className="w-[150px] h-[150px] mx-auto flex items-center justify-center overflow-hidden rounded-full">
           <img
             src={placeholderUserImg}
@@ -78,22 +120,39 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
             <Rate style={{ fontSize: "16px" }} allowHalf disabled value={4.5} />{" "}
             4.5 Overall Rating
           </div>
-          <p className="">23 Satisfied Clients</p>
+          <p>23 Satisfied Clients</p>
         </div>
       </div>
+
       {/* Card Buttons */}
       <div className="flex gap-x-3 mt-10">
         <div className="flex-1">
-          <button className="py-4 w-full rounded bg-royalblue-main text-white cursor-pointer">
-            Follow{" "}
-            <FeatherIcon className="inline" size={18} icon="message-square" />
-          </button>
+          <Button
+            block
+            loading={loading}
+            onClick={handleFollowToggle}
+            className="!py-6 !bg-royalblue-main !text-white"
+          >
+            {isFollowing ? (
+              <>
+                Following <Check className="inline ml-1" size={18} />
+              </>
+            ) : (
+              <>
+                Follow <Plus className="inline ml-1" size={18} />
+              </>
+            )}
+          </Button>
         </div>
         <div className="flex-1">
-          <button className="py-4 w-full border border-royalblue-main rounded text-royalblue-shade3 cursor-pointer">
-            View Page{" "}
-            <FeatherIcon className="inline" size={18} icon="arrow-up-right" />
-          </button>
+          <Link to={`/user-profile/${provider.id}`}>
+            <Button
+              block
+              className="!py-6 !border !border-royalblue-tint3 text-royalblue-shade3"
+            >
+              View Page <ArrowUpRight className="inline ml-1" size={18} />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

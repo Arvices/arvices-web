@@ -11,6 +11,7 @@ interface ContentHOCProps {
   noContentBtnText?: string;
   actionFn?: () => void;
   UIComponent: React.ReactNode;
+  loadingText?: string | React.JSX.Element;
 }
 
 interface NoContentPropType {
@@ -44,18 +45,20 @@ export const ReqErr: React.FC<ReqErrProps> = ({
   actionText = "Retry",
   onAction,
 }) => (
-  <Result
-    status="error"
-    title="Request Failed"
-    subTitle={errorMessage}
-    extra={
-      onAction && (
-        <Button type="primary" onClick={onAction}>
-          {actionText}
-        </Button>
-      )
-    }
-  />
+  <div className="flex flex-col items-center justify-center min-h-screen">
+    <Result
+      status="error"
+      title="Request Failed"
+      subTitle={errorMessage}
+      extra={
+        onAction && (
+          <Button type="primary" onClick={onAction}>
+            {actionText}
+          </Button>
+        )
+      }
+    />
+  </div>
 );
 
 export const ContentHOC: React.FC<ContentHOCProps> = ({
@@ -68,10 +71,18 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
   noContentBtnText = "Refresh",
   actionFn,
   UIComponent,
+  loadingText,
 }) => {
   if (loading) {
     return (
-      <Spin size="large" style={{ display: "block", margin: "100px auto" }} />
+      <div className="text-center min-h-screen flex flex-col item-center justify-center">
+        <div>
+          <Spin size="small" />
+          <p className="mt-4 text-gray-700">
+            {loadingText || "Loading Content"}
+          </p>
+        </div>
+      </div>
     );
   }
 

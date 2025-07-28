@@ -129,7 +129,7 @@ export function BookingCalendar() {
     <>
       <Button
         type="primary"
-        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300"
+        className="bg-gradient-to-r  !h-12 from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300"
         onClick={() => setIsOpen(true)}
       >
         <CalendarIcon className="w-5 h-5 mr-2" />

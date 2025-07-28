@@ -75,7 +75,8 @@ function NavigationContent() {
         <Route path="/activities" Component={Activities} />
         <Route path="/help-center" Component={HelpCenter} />
         <Route path="/account-settings" Component={AccountSettings} />
-        <Route path="/profile" Component={Profile} />
+        <Route path="/user-profile/:id" Component={Profile} />
+        <Route path="/myprofile" Component={Profile} />
         <Route path="/profile/edit" Component={ProfileEdit} />
         <Route path="/notifications" Component={Notification} />
         <Route path="/messaging/conversations" Component={Conversations} />
