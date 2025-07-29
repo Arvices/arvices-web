@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { useEffect } from "react";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { CategoryProvider } from "./contexts/CategoryContext";
 
 function App() {
   useEffect(() => {
@@ -19,15 +20,17 @@ function App() {
       <ErrorBoundary>
         <Provider store={store}>
           <NotificationProvider>
-            <LoadingProvider>
-              <AuthProvider>
-                <GoogleOAuthProvider clientId="246891298847-ukttjjfu01ibg3mfj5tr5o8q9h698g2f.apps.googleusercontent.com">
-                  <ThemeProvider>
-                    <Navigation />
-                  </ThemeProvider>
-                </GoogleOAuthProvider>
-              </AuthProvider>
-            </LoadingProvider>
+            <CategoryProvider>
+              <LoadingProvider>
+                <AuthProvider>
+                  <GoogleOAuthProvider clientId="246891298847-ukttjjfu01ibg3mfj5tr5o8q9h698g2f.apps.googleusercontent.com">
+                    <ThemeProvider>
+                      <Navigation />
+                    </ThemeProvider>
+                  </GoogleOAuthProvider>
+                </AuthProvider>
+              </LoadingProvider>
+            </CategoryProvider>
           </NotificationProvider>
         </Provider>
       </ErrorBoundary>

@@ -27,7 +27,7 @@ export interface UserAccount {
   username: string;
   fullName: string;
   email: string;
-  phoneNumber: string | null;
+  phoneNumber: string;
   address: string;
   password: string;
   type: AccountTypeVal;
@@ -39,10 +39,14 @@ export interface UserAccount {
   position: string; // "lat,long" format string
   rating: number | null;
   allRating: number;
+  bio: string | null;
   numberOfRating: number;
   meanRating: number;
-  category: string[]; // Could be a string array or a more complex object type if known
+  category: number[]; // Could be a string array or a more complex object type if known
+  categoryId: number;
   wallet: Wallet;
+  website: string;
+  specialties: string[];
 }
 export interface LoginEmailAndPasswordBody {
   email_or_phonenumber: string;

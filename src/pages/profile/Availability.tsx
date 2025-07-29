@@ -19,7 +19,7 @@ export interface Availability {
 export default function AvailabilitySection({
   availability,
 }: {
-  availability: Availability
+  availability: Availability;
 }) {
   const appointmentMenu = (
     <Menu>

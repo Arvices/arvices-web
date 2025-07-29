@@ -12,9 +12,9 @@ const addAccount = async (data: any) => {
   return axios(config);
 };
 
-const updateAccountById = async (data: any, token: string) => {
+const updateAccountById = async (data: FormData, id: number, token: string) => {
   const config = {
-    url: `${baseUrl}/user/updateaccountbyid`,
+    url: `${baseUrl}/user/updateaccountbyid?id=${id}`,
     method: "PUT",
     headers: { Authorization: `Bearer ${token}` },
     data,

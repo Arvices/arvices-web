@@ -7,7 +7,7 @@ import { Heart, MapPin, Star } from "feather-icons-react";
 import { PortfolioFilter } from "./portfoliofilter";
 import { BookingCalendar } from "./bookingcarlendar";
 import { BookingStatus } from "./bookingstatus";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { getAccountById, getAllUsers } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
@@ -57,7 +57,11 @@ const Profile = (): React.ReactNode => {
   const auth = useAuth();
   const { pathname } = useLocation();
   const params = useParams();
-  const isMyProfile = pathname.includes("myprofile");
+  const id = params.id || auth?.user?.id;
+
+  const isMyProfile =
+    pathname.includes("myprofile") || params.id === auth?.user?.id;
+  console.log({ isMyProfile });
   const carouselRef = useRef<any>(null);
 
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
@@ -90,8 +94,6 @@ const Profile = (): React.ReactNode => {
     ],
   };
 
-  const id = params.id || auth?.user?.id;
-
   const loadProfile = async () => {
     try {
       setProfileLoading(true);
@@ -117,8 +119,28 @@ const Profile = (): React.ReactNode => {
 
   let UIComponent = (
     <section className="min-h-screen pt-13 ">
-      <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto bg-[linear-gradient(to_right,_#ffe4f2,_#e8f4ff)]">
+      <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] relative mx-auto bg-[linear-gradient(to_right,_#ffe4f2,_#e8f4ff)]">
         {/* Hero Section */}
+        {isMyProfile && (
+          <Link to={"/profile/edit"}>
+            <button className="border z-[1] border-blue-200 absolute cursor-pointer top-10 right-10 flex items-center space-x-1 text-sm px-5 py-2 bg-white text-gray-600 rounded">
+              <span>Edit Profile</span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.232 5.232l3.536 3.536M9 13l6.768-6.768a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-.878.515L7 17l.657-3.95a2 2 0 01.515-.878z"
+                />
+              </svg>
+            </button>
+          </Link>
+        )}
         <section className="relative py-16 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="relative inline-block mb-6">
@@ -164,13 +186,15 @@ const Profile = (): React.ReactNode => {
             </div>
 
             {/* Enhanced Booking Section */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-              <BookingCalendar />
-              <Button className="shadow-sm !h-12">
-                <Heart className="w-4 h-4 mr-2" />
-                Save to Favorites
-              </Button>
-            </div>
+            {!isMyProfile && (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                <BookingCalendar />
+                <Button className="shadow-sm !h-12">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Save to Favorites
+                </Button>
+              </div>
+            )}
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-8 items-center justify-center">
@@ -291,9 +315,12 @@ const Profile = (): React.ReactNode => {
                         </div>
                         <p className="text-gray-800 mb-6">"{review.text}"</p>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">                            
+                          <div className="flex items-center space-x-3">
                             <span className="font-medium text-gray-900 inline-block ml-2">
-                              {review.name} <span className="text-gray-500 text-[12px] font-normal">Client</span> 
+                              {review.name}{" "}
+                              <span className="text-gray-500 text-[12px] font-normal">
+                                Client
+                              </span>
                             </span>
                           </div>
                           <span className="text-sm text-gray-500">
@@ -333,12 +360,12 @@ const Profile = (): React.ReactNode => {
   return (
     <ContentHOC
       loading={profileLoading}
+      loadingText={"Loading User Profile. Please Wait"}
       error={!!profileErr}
       errMessage={profileErr as string}
       noContent={false}
       actionFn={loadProfile}
       UIComponent={UIComponent}
-      loadingText={"Loading User Profile. Please Wait"}
     />
   );
 };

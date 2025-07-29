@@ -29,11 +29,6 @@ const NewJobPosting = (): React.ReactNode => {
   const [catError, setCatError] = useState("");
   console.log({ catError: !!catError });
 
-  const mappedCat = [{ label: "Select A Category", value: "", id: 0 }].concat(
-    categories.map((x: any) => {
-      return { label: x.name, value: x.name, id: x.id };
-    }),
-  );
   function findCategoryByName(name: string, categories: Category[]) {
     return categories.find((cat) => cat.name === name) || null;
   }
@@ -56,6 +51,9 @@ const NewJobPosting = (): React.ReactNode => {
     }
   };
 
+  useEffect(() => {
+    loadCategories();
+  }, []);
   const handleSubmit = async () => {
     try {
       if (!description || description.trim() === "") {
@@ -104,6 +102,11 @@ const NewJobPosting = (): React.ReactNode => {
     }
   };
 
+  const mappedCat = [{ label: "Select A Category", value: "", id: 0 }].concat(
+    categories.map((x: any) => {
+      return { label: x.name, value: x.name, id: x.id };
+    }),
+  );
   /**
    {
   "description": "string",
@@ -113,9 +116,6 @@ const NewJobPosting = (): React.ReactNode => {
   "type": "Public"
 }
    */
-  useEffect(() => {
-    loadCategories();
-  }, []);
   return (
     <section className="min-h-screen pt-13 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
