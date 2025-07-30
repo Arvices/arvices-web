@@ -25,13 +25,13 @@ export const UserFieldId = {
   Specialties: "specialties",
 } as const;
 
-interface Service {
-  id: string;
-  name: string;
+export interface ServiceOfferingPayload {
+  title: string;
+  price: string; // e.g. "10000" (₦10,000)
   description: string;
-  duration: string;
-  price: string;
-  active: boolean;
+  duration: string; // e.g. "2"
+  timeUnit: string; // e.g. "hours", "days", etc.
+  id: number;
 }
 
 interface profileData {
@@ -49,9 +49,6 @@ interface profileData {
   experience: string;
   specialties: string[];
   languages: string[];
-
-  // Services
-  services: Service[];
 
   // Availability
   workingHours: {

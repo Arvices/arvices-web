@@ -28,6 +28,9 @@ export interface UserAccount {
   fullName: string;
   email: string;
   phoneNumber: string;
+  availableDays: string[] | null;
+  availableFromTime: string | null;
+  availableToTime: string | null;
   address: string;
   password: string;
   type: AccountTypeVal;
@@ -46,7 +49,7 @@ export interface UserAccount {
   categoryId: number;
   wallet: Wallet;
   website: string;
-  specialties: string[];
+  specialties: string[] | null;
 }
 export interface LoginEmailAndPasswordBody {
   email_or_phonenumber: string;

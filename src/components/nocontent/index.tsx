@@ -1,5 +1,6 @@
 import React from "react";
 import { Empty, Result, Button, Spin } from "antd";
+import { Inbox, X } from "feather-icons-react";
 
 interface ContentHOCProps {
   loading: boolean;
@@ -12,6 +13,7 @@ interface ContentHOCProps {
   actionFn?: () => void;
   UIComponent: React.ReactNode;
   loadingText?: string | React.JSX.Element;
+  minHScreen?: boolean;
 }
 
 interface NoContentPropType {
@@ -31,13 +33,22 @@ export const NoContent: React.FC<NoContentPropType> = ({
   onAction,
   actionText = "Refresh",
 }) => (
-  <Empty description={message} image={Empty.PRESENTED_IMAGE_SIMPLE}>
+  <div className="w-full border border-gray-300 rounded-2xl flex flex-col items-center justify-center text-center px-6 py-10">
+    <span className="inline-block w-full text-center">
+      <span className="mx-auto mb-5 bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center">
+        <Inbox className="inline w-10 h-20 text-gray-500" />
+      </span>
+    </span>
+    <p className="text-sm text-gray-500 mb-4">{message}</p>
     {onAction && (
-      <Button type="primary" onClick={onAction}>
+      <button
+        onClick={onAction}
+        className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
         {actionText}
-      </Button>
+      </button>
     )}
-  </Empty>
+  </div>
 );
 
 export const ReqErr: React.FC<ReqErrProps> = ({
@@ -71,11 +82,14 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
   noContentBtnText = "Refresh",
   actionFn,
   UIComponent,
+  minHScreen = true,
   loadingText,
 }) => {
   if (loading) {
     return (
-      <div className="text-center min-h-screen flex flex-col item-center justify-center">
+      <div
+        className={`text-center ${minHScreen ? "min-h-screen" : "my-20"} flex flex-col item-center justify-center`}
+      >
         <div>
           <Spin size="small" />
           <p className="mt-4 text-gray-700">

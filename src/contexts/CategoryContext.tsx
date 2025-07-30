@@ -15,6 +15,7 @@ interface CategoryContextType {
   catError: string;
   loadCategories: () => Promise<void>;
   findCategoryByName: (name: string) => Category | null;
+  findCategoryById: (id: number) => Category | null;
 }
 
 // Default context
@@ -48,7 +49,8 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const findCategoryByName = (name: string) =>
     categories.find((cat) => cat.name === name) || null;
-
+  const findCategoryById = (id: number) =>
+    categories.find((cat) => cat.id === id) || null;
   useEffect(() => {
     loadCategories();
   }, []);
@@ -61,6 +63,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
         catError,
         loadCategories,
         findCategoryByName,
+        findCategoryById,
       }}
     >
       {children}

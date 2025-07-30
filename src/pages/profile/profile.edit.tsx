@@ -1,34 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import {
   UserOutlined,
-  RiseOutlined,
   DollarOutlined,
   ClockCircleOutlined,
-  PictureOutlined,
-  SettingOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 
-import {
-  Button,
-  Input,
-  Select,
-  Switch,
-  Badge,
-  Typography,
-  Divider,
-  Form,
-  Checkbox,
-} from "antd";
+import { Button, Select, Divider } from "antd";
 
-const { TextArea } = Input;
 const { Option } = Select;
-const { Title, Text } = Typography;
-import { getAllCategory } from "../../api-services/categories.service";
 
-import { Save, Image as ImageIcon } from "feather-icons-react";
+import { Plus, Save, Edit3, Trash2, X } from "feather-icons-react";
 
-import imgShape from "../../assets/images/pro-sample-img.png";
 import { UserAccount } from "../../api-services/auth";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAccountById, updateAccountById } from "../../api-services/auth-re";
@@ -38,78 +21,15 @@ import { getImagePreview } from "../util/getImagePreview";
 import { useCategory } from "../../contexts/CategoryContext";
 import { useLoading } from "../../contexts/LoadingContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
+import { ServiceOfferingPayload } from "./profile.types";
 
-const initialData = {
-  fullName: "Theresa Lane",
-  profileImage: imgShape,
-  bio: "Professional makeup artist specializing in bridal and event makeup. I bring out the natural beauty in every client with personalized looks that last all day. Based in Lagos, serving clients across the city with mobile services.",
-  profession: "Makeup Artist",
-  location: "Ikeja, Lagos",
-  phone: "+234 801 234 5678",
-  email: "theresa.lane@example.com",
-  website: "www.theresalane.com",
-  experience: "5+ years",
-  specialties: [
-    "Bridal Makeup",
-    "Special Events",
-    "Photo Shoots",
-    "Natural Looks",
-    "Glam Makeup",
-    "Contouring",
-  ],
-  languages: ["English", "Yoruba", "Igbo"],
-  services: [
-    {
-      id: "1",
-      name: "Bridal Makeup",
-      description: "Complete bridal look with trial session included",
-      duration: "3-4 hours",
-      price: "45000",
-      active: true,
-    },
-    {
-      id: "2",
-      name: "Event Makeup",
-      description: "Perfect for parties, galas, and special events",
-      duration: "2-3 hours",
-      price: "25000",
-      active: true,
-    },
-    {
-      id: "3",
-      name: "Photoshoot Makeup",
-      description: "Camera-ready makeup for professional shoots",
-      duration: "2 hours",
-      price: "20000",
-      active: true,
-    },
-    {
-      id: "4",
-      name: "Natural Glam",
-      description: "Subtle enhancement for everyday elegance",
-      duration: "1.5 hours",
-      price: "15000",
-      active: true,
-    },
-  ],
-  workingHours: {
-    monday: { start: "09:00", end: "18:00", available: true },
-    tuesday: { start: "09:00", end: "18:00", available: true },
-    wednesday: { start: "09:00", end: "18:00", available: true },
-    thursday: { start: "09:00", end: "18:00", available: true },
-    friday: { start: "09:00", end: "18:00", available: true },
-    saturday: { start: "10:00", end: "16:00", available: true },
-    sunday: { start: "10:00", end: "16:00", available: false },
-  },
-  bookingAdvance: "7",
-  mobileService: true,
-  serviceRadius: "30",
-  depositRequired: true,
-  depositPercentage: "50",
-  cancellationPolicy:
-    "24 hours notice required for cancellation. Deposits are non-refundable within 48 hours of appointment.",
-  autoConfirm: false,
-};
+import {
+  createProfileService,
+  deleteProfileService,
+  getAllProfileService,
+  updateProfileService,
+} from "../../api-services/profileservice.service";
+import { formatTime } from "../util/timeUtil";
 
 type ChangeLikeEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -117,29 +37,29 @@ type ChangeLikeEvent =
 
 const tabOptions = [
   { label: "Personal", value: "personal", icon: <UserOutlined /> },
-  { label: "Professional", value: "professional", icon: <RiseOutlined /> },
   { label: "Services", value: "services", icon: <DollarOutlined /> },
   {
     label: "Availability",
     value: "availability",
     icon: <ClockCircleOutlined />,
   },
-  { label: "Portfolio", value: "portfolio", icon: <PictureOutlined /> },
-  { label: "Settings", value: "settings", icon: <SettingOutlined /> },
 ];
+
 export function ProfileEdit() {
   const auth = useAuth();
   const id = auth?.user?.id;
-  const {setLoading,setLoadingText} = useLoading()
-  const {openNotification} = useNotificationContext()
+  const { setLoading, setLoadingText } = useLoading();
+  const { openNotification } = useNotificationContext();
 
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [editData, setEditData] = useState<UserAccount | null>(null);
-  const [bioCharCount,setBioCharCount] = useState(editData?.bio?.length || 0)
 
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileErr, setProfileErr] = useState<string | null>(null);
 
+  const [services, setServices] = useState<any[]>([]);
+  const [serviceLoading, setServiceLoading] = useState(false);
+  const [serviceErr, setServiceErr] = useState<string | null>(null);
 
   const [imgFile, setImgFile] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -147,18 +67,83 @@ export function ProfileEdit() {
   const category = useCategory();
 
   const [changesSaved, setChangesSaved] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [serviceEditIndex, setServiceEditIndex] = useState<number>();
+  const [serviceEdit, setServiceEdit] = useState<ServiceOfferingPayload>();
+  const [newServiceForm, setNewServiceForm] = useState<ServiceOfferingPayload>({
+    title: "",
+    price: "",
+    description: "",
+    duration: "",
+    timeUnit: "",
+    id: 0,
+  });
+
+  const [input, setInput] = useState("");
+
+  const specialities: string[] = editData?.specialties || [];
+
+  const updateSpecialities = (list: string[]) => {
+    setEditData((prev: any) => ({
+      ...prev,
+      specialties: list.length > 0 ? list : null,
+    }));
+  };
+
+  const handleAdd = () => {
+    const trimmed = input.trim();
+    if (!trimmed || specialities.includes(trimmed)) return;
+    updateSpecialities([...specialities, trimmed]);
+    setInput("");
+  };
+
+  const handleRemove = (index: number) => {
+    const updated = specialities.filter((_, i) => i !== index);
+    updateSpecialities(updated);
+  };
+
+  const handleNewServiceFormChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setNewServiceForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
+  const toggleDay = (day: string) => {
+    if (!editData) return;
+
+    const isSelected = editData.availableDays?.includes(day) ?? false;
+    const updatedDays = isSelected
+      ? (editData.availableDays?.filter((d) => d !== day) ?? [])
+      : [...(editData.availableDays ?? []), day];
+
+    setEditData((prev) =>
+      prev
+        ? {
+            ...prev,
+            availableDays: updatedDays,
+          }
+        : null,
+    );
+  };
 
   const handleChange = (e: ChangeLikeEvent) => {
     const { name, value } = e.target;
 
     setEditData((prev) => {
       if (!prev) return prev;
-      if(name == "category"){
-        let val = Number(value)
+      if (name == "category") {
+        let val = Number(value);
         return {
           ...prev,
-          [name]: [val]
-        }
+          [name]: [val],
+        };
       }
       return {
         ...prev,
@@ -194,62 +179,189 @@ export function ProfileEdit() {
       setProfileLoading(false);
     }
   };
+  const fetchServices = async () => {
+    setServiceLoading(true);
+    setServiceErr(null);
+    try {
+      const res = await getAllProfileService(auth.token);
+      console.log({ servicesRes: res });
+      setServices(res?.data?.response || []);
+    } catch (error: any) {
+      console.error(error);
+      setServiceErr("Could not fetch services.");
+    } finally {
+      setServiceLoading(false);
+    }
+  };
+  const handleSaveNewService = async () => {
+    try {
+      setLoading(true);
+      setLoadingText("Saving new service...");
 
+      const payload = {
+        ...newServiceForm,
+      };
+
+      await createProfileService(payload, auth.token); // send token if required
+
+      setShowForm(false);
+      openNotification(
+        "topRight",
+        "New Service Added Successfully",
+        "",
+        "success",
+      );
+
+      // refetch services or notify success
+    } catch (error) {
+      console.error(error);
+      openNotification(
+        "topRight",
+        "Error saving service",
+        error?.toString() || "Something went wrong",
+        "error",
+      );
+      // show error notification
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+  const saveEditedService = async () => {
+    if (!serviceEdit || serviceEditIndex === undefined) return;
+
+    try {
+      setLoading(true);
+      setLoadingText("Saving service changes...");
+
+      const updated = await updateProfileService(
+        serviceEdit.id,
+        serviceEdit,
+        auth.token,
+      );
+
+      setServices((prev) => {
+        const copy = [...prev];
+        copy[serviceEditIndex] = serviceEdit;
+        return copy;
+      });
+
+      openNotification(
+        "topRight",
+        "Service updated successfully",
+        "",
+        "success",
+      );
+      setServiceEditIndex(undefined);
+      setServiceEdit(undefined);
+    } catch (error) {
+      openNotification("topRight", "Failed to update service", "", "error");
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
   useEffect(() => {
     if (id && auth?.token) {
-      loadProfile()
+      loadProfile();
+      fetchServices();
     }
-  }, [id, auth?.token])
+  }, [id, auth?.token]);
 
   const [activeTab, setActiveTab] = useState("personal");
 
-const handleSave = async () => {
-  if (changesSaved) {
-    return openNotification("topRight", "All changes have been saved", "", "info");
-  }
-
-  const data = new FormData();
-
-  // Append image if present
-  if (imgFile) {
-    data.append("image", imgFile);
-  }
-
-const skipFields = ['accountDisable', 'password'];
-
-if (editData && userProfile) {
-  Object.entries(editData).forEach(([key, value]) => {
-    const originalValue = userProfile[key as keyof typeof userProfile];
-
-    const hasChanged = value !== originalValue;
-    const shouldSkip = skipFields.includes(key);
-
-    if (hasChanged && !shouldSkip && value !== undefined && value !== null) {
-      console.log({isUpdating: {key,value}})
-      data.append(key, String(value));
+  const handleSave = async () => {
+    if (changesSaved) {
+      return openNotification(
+        "topRight",
+        "All changes have been saved",
+        "",
+        "info",
+      );
     }
-  });
-}
 
-  try {
-    setLoading(true);
-    setLoadingText("Updating Profile. Please wait");
+    const data = new FormData();
+    console.log({editData})
 
-    const res = await updateAccountById(data, auth?.user?.id as number, auth.token);
-    console.log("Update response:", res);
+    // Append image if present
+    if (imgFile) {
+      data.append("image", imgFile);
+    }
 
-    openNotification("topRight", "Profile updated successfully", "", "success");
-    setChangesSaved(true);
-  } catch (error) {
-    console.error("Error updating account:", error);
-    openNotification("topRight", "Failed to update profile", "", "error");
-  } finally {
-    setLoading(false);
-    setLoadingText("");
-  }
-};
+    const skipFields = ["accountDisable", "password"];
+    console.log({ editData });
+    if (editData && userProfile) {
+      Object.entries(editData).forEach(([key, value]) => {
+        const originalValue = userProfile[key as keyof typeof userProfile];
 
+        const hasChanged = value !== originalValue;
+        const shouldSkip = skipFields.includes(key);
 
+        if (
+          hasChanged &&
+          !shouldSkip &&
+          value !== undefined &&
+          value !== null
+        ) {
+          console.log({ isUpdating: { key, value } });
+          data.append(key, String(value));
+        }
+      });
+    }
+
+    try {
+      setLoading(true);
+      setLoadingText("Updating Profile. Please wait");
+
+      const res = await updateAccountById(
+        data,
+        auth?.user?.id as number,
+        auth.token,
+      );
+      console.log("Update response:", res);
+
+      openNotification(
+        "topRight",
+        "Profile updated successfully",
+        "",
+        "success",
+      );
+      setChangesSaved(true);
+    } catch (error) {
+      console.error("Error updating account:", error);
+      openNotification("topRight", "Failed to update profile", "", "error");
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+  const handleDeleteService = async (serviceId: string) => {
+    try {
+      setLoading(true);
+      setLoadingText("Deleting service...");
+
+      await deleteProfileService(serviceId, auth.token);
+
+      openNotification(
+        "topRight",
+        "Service deleted successfully",
+        "",
+        "success",
+      );
+
+      // Optionally refresh services or update UI
+      fetchServices?.(); // if you have a refetcher
+    } catch (err: any) {
+      openNotification(
+        "topRight",
+        "Error deleting service",
+        err?.message || "Something went wrong",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <ContentHOC
       loading={profileLoading}
@@ -261,22 +373,9 @@ if (editData && userProfile) {
       UIComponent={
         <div className="min-h-screen px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
           {/* Header */}
-          <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 mt-14">
-            <div className="mx-auto px-6 py-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3"></div>
+          <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 mt-14"></header>
 
-                <div className="flex items-center space-x-3">
-                  <Button onClick={handleSave} className="bg-gradient-to-r">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="py-8">
             <div className="mb-8">
               <h1 className="text-[21px] font-bold mb-2">Edit Profile</h1>
               <p className="text-gray-600">
@@ -286,48 +385,18 @@ if (editData && userProfile) {
 
             <div className="space-y-6">
               <div className="hidden sm:flex flex-wrap gap-2 border-b border-gray-200 pb-7 ">
-                <Button
-                  type={activeTab === "personal" ? "primary" : "default"}
-                  icon={<UserOutlined />}
-                  onClick={() => setActiveTab("personal")}
-                >
-                  Personal
-                </Button>
-                <Button
-                  type={activeTab === "professional" ? "primary" : "default"}
-                  icon={<RiseOutlined />}
-                  onClick={() => setActiveTab("professional")}
-                >
-                  Professional
-                </Button>
-                <Button
-                  type={activeTab === "services" ? "primary" : "default"}
-                  icon={<DollarOutlined />}
-                  onClick={() => setActiveTab("services")}
-                >
-                  Services
-                </Button>
-                <Button
-                  type={activeTab === "availability" ? "primary" : "default"}
-                  icon={<ClockCircleOutlined />}
-                  onClick={() => setActiveTab("availability")}
-                >
-                  Availability
-                </Button>
-                <Button
-                  type={activeTab === "portfolio" ? "primary" : "default"}
-                  icon={<PictureOutlined />}
-                  onClick={() => setActiveTab("portfolio")}
-                >
-                  Portfolio
-                </Button>
-                <Button
-                  type={activeTab === "settings" ? "primary" : "default"}
-                  icon={<SettingOutlined />}
-                  onClick={() => setActiveTab("settings")}
-                >
-                  Settings
-                </Button>
+                {tabOptions.map((tabData, index) => {
+                  return (
+                    <Button
+                      key={index}
+                      type={activeTab === tabData.value ? "primary" : "default"}
+                      icon={tabData.icon}
+                      onClick={() => setActiveTab(tabData.value)}
+                    >
+                      {tabData.label}
+                    </Button>
+                  );
+                })}
               </div>
               <div className="flex sm:hidden flex-wrap gap-2 border-b border-gray-200 pb-7 ">
                 <label>Select a section of your profile to edit</label>
@@ -405,10 +474,10 @@ if (editData && userProfile) {
                       <Select
                         placeholder="Select a category"
                         className="!w-full !h-10 !border-royalblue-tint5 !rounded-md !focus:outline-none !focus:ring-1 !focus:ring-royalblue-tint4"
-                        value={editData?.categoryId}
+                        value={Number(editData?.category) || undefined}
                         onChange={(value) =>
                           handleChange({
-                            target: { name: "category", value: String(value) },
+                            target: { name: "categoryId", value: [value] },
                           })
                         }
                       >
@@ -419,6 +488,58 @@ if (editData && userProfile) {
                         ))}
                       </Select>
                     </div>
+                    {/* Profession */}
+                    <div className="flex flex-col">
+                      <label className="mb-2 font-medium">Add Specialities</label>
+
+                    
+                    <div className="space-y-4 p-4 border border-gray-200 rounded-2xl">
+                      {/* Display existing specialities */}
+                      {/* Divider */}
+                      {/* Input and Add Button */}
+                      <div className="flex gap-2">
+                        <input
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          className="flex-1 border border-gray-300 px-3 py-2 rounded-md text-sm"
+                          placeholder="Add speciality..."
+                        />
+                        <button
+                          type="button"
+                          className="bg-black text-white px-4 py-2 rounded-md text-sm w-max"
+                          onClick={handleAdd}
+                        >
+                          Add
+                        </button>
+                      </div>
+
+                      <div className="border-t border-gray-200 my-2 mb-4" />
+
+                      {specialities.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {specialities.map((item, i) => (
+                            <span
+                              key={i}
+                              className="flex items-center gap-1 bg-white text-gray-700 border border-gray-300 rounded-full px-3 py-1 text-sm"
+                            >
+                              {item}
+                              <button
+                              type="button"
+                                onClick={() => handleRemove(i)}
+                                className="hover:text-red-500"
+                              >
+                                <X size={14} />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+
+                    </div>
+                    </div>
+                    
+                    
 
                     {/* Phone Number */}
                     <div className="flex flex-col">
@@ -480,8 +601,8 @@ if (editData && userProfile) {
                         rows={4}
                         maxLength={700}
                         placeholder="Tell potential clients about yourself and your services..."
-                        className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4"
-                        value={editData?.bio || ''}
+                        className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4 w-full"
+                        value={editData?.bio || ""}
                         onChange={handleChange}
                       />
                       <span className="text-sm text-gray-500 mt-1">
@@ -492,163 +613,374 @@ if (editData && userProfile) {
                 </div>
               )}
 
-              {activeTab === "professional" && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Highest Qualification
-                      </label>
-                      <Input placeholder="e.g. BSc in Computer Science" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Years of Experience
-                      </label>
-                      <Input type="number" placeholder="e.g. 5" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Bio / Professional Summary
-                    </label>
-                    <Input.TextArea
-                      rows={4}
-                      placeholder="Describe your professional background..."
-                    />
-                  </div>
-
-                  <div>
-                    <Checkbox>I'm open to freelance or remote roles</Checkbox>
-                  </div>
-                </div>
-              )}
-
               {activeTab === "services" && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Primary Service
-                      </label>
-                      <Select
-                        placeholder="Select a service"
-                        options={[
-                          { label: "Web Development", value: "web-dev" },
-                          { label: "UI/UX Design", value: "ui-ux" },
-                          { label: "Mobile Development", value: "mobile-dev" },
-                        ]}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Rate (per hour)
-                      </label>
-                      <Input prefix="₦" placeholder="e.g. 10000" />
-                    </div>
-                  </div>
+                <div>
+                  {showForm && (
+                    <div className="w-full flex justify-end gap-2 mb-4">
+                      {/* Cancel Button */}
+                      <button
+                        onClick={() => setShowForm(false)}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition text-sm"
+                      >
+                        Cancel
+                      </button>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Add Service Description
-                    </label>
-                    <Input.TextArea
-                      rows={3}
-                      placeholder="Details about your service..."
+                      {/* Save Button */}
+                      <button
+                        onClick={handleSaveNewService}
+                        className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 transition text-sm"
+                      >
+                        Save Service
+                      </button>
+                    </div>
+                  )}
+
+                  {!showForm && (
+                    <div className="w-full flex justify-end mb-4">
+                      <button
+                        onClick={() => setShowForm(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 transition text-sm"
+                      >
+                        <Plus size={16} />
+                        Add Service
+                      </button>
+                    </div>
+                  )}
+
+                  {showForm ? (
+                    <div className="w-full border border-gray-200 rounded-xl p-4 space-y-4">
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">
+                          Service Title
+                        </label>
+                        <input
+                          type="text"
+                          name="title"
+                          value={newServiceForm.title}
+                          onChange={handleNewServiceFormChange}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">
+                          Description
+                        </label>
+                        <textarea
+                          name="description"
+                          value={newServiceForm.description}
+                          onChange={handleNewServiceFormChange}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">
+                          Price (₦)
+                        </label>
+                        <input
+                          type="text"
+                          name="price"
+                          value={newServiceForm.price}
+                          onChange={handleNewServiceFormChange}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-gray-700 mb-1">
+                            Duration
+                          </label>
+                          <input
+                            type="text"
+                            name="duration"
+                            value={newServiceForm.duration}
+                            onChange={handleNewServiceFormChange}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-gray-700 mb-1">
+                            Time Unit
+                          </label>
+                          <select
+                            name="timeUnit"
+                            value={newServiceForm.timeUnit}
+                            onChange={handleNewServiceFormChange}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                          >
+                            <option value="">Select unit</option>
+                            <option value="Min">Minutes</option>
+                            <option value="Hour">Hours</option>
+                            <option value="days">Days</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <ContentHOC
+                      loading={serviceLoading}
+                      loadingText={"Fetching user Service"}
+                      error={!!serviceErr}
+                      errMessage={serviceErr || ""}
+                      noContent={services.length == 0}
+                      actionFn={fetchServices}
+                      minHScreen={false}
+                      UIComponent={
+                        <div className="space-y-6 mt-6">
+                          {services.map((service, index) => {
+                            const isEditing = serviceEditIndex === index;
+
+                            if (isEditing) {
+                              return (
+                                <div
+                                  key={index}
+                                  className=" rounded card-shadow p-4 relative"
+                                >
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <input
+                                      placeholder="Service Title"
+                                      className="px-4 py-2 border border-gray-300 rounded-md w-full"
+                                      value={serviceEdit?.title || ""}
+                                      onChange={(e) =>
+                                        setServiceEdit((prev) => ({
+                                          ...prev!,
+                                          title: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                    <input
+                                      placeholder="Price"
+                                      className="px-4 py-2 border border-gray-300 rounded-md w-full"
+                                      value={serviceEdit?.price || ""}
+                                      onChange={(e) =>
+                                        setServiceEdit((prev) => ({
+                                          ...prev!,
+                                          price: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                    <input
+                                      placeholder="Duration"
+                                      className="px-4 py-2 border border-gray-300 rounded-md w-full"
+                                      value={serviceEdit?.duration || ""}
+                                      onChange={(e) =>
+                                        setServiceEdit((prev) => ({
+                                          ...prev!,
+                                          duration: e.target.value,
+                                        }))
+                                      }
+                                    />
+
+                                    <div>
+                                      <select
+                                        name="timeUnit"
+                                        value={serviceEdit?.timeUnit}
+                                        onChange={(e) =>
+                                          setServiceEdit((prev) => ({
+                                            ...prev!,
+                                            timeUnit: e.target.value,
+                                          }))
+                                        }
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                                      >
+                                        <option value="">Select unit</option>
+                                        <option value="Min">Minutes</option>
+                                        <option value="Hour">Hours</option>
+                                        <option value="days">Days</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <textarea
+                                    placeholder="Description"
+                                    className="mt-4 px-4 py-2 border border-gray-300 rounded-md w-full"
+                                    rows={3}
+                                    value={serviceEdit?.description || ""}
+                                    onChange={(e) =>
+                                      setServiceEdit((prev) => ({
+                                        ...prev!,
+                                        description: e.target.value,
+                                      }))
+                                    }
+                                  />
+                                  <div className="flex gap-2 justify-end mt-4">
+                                    <button
+                                      className="px-4 py-2 bg-green-600 text-white rounded-md"
+                                      onClick={() => saveEditedService()}
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
+                                      onClick={() => {
+                                        setServiceEditIndex(undefined);
+                                        setServiceEdit(undefined);
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div
+                                key={service.id || index}
+                                className="p-4 py-6 rounded-lg card-shadow bg-white relative"
+                              >
+                                {/* Edit / Delete Icons */}
+                                <div className="absolute top-3 right-3 flex gap-2">
+                                  <div className="absolute top-3 right-3 flex gap-2">
+                                    <button
+                                      className="p-2 bg-gray-100 text-blue-600 rounded hover:bg-gray-200 transition"
+                                      onClick={() => {
+                                        setServiceEditIndex(index);
+                                        setServiceEdit(service);
+                                      }}
+                                    >
+                                      <Edit3 size={16} />
+                                    </button>
+                                    <button
+                                      className="p-2 bg-gray-100 text-red-500 rounded hover:bg-gray-200 transition"
+                                      onClick={() =>
+                                        handleDeleteService(service.id)
+                                      }
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+                                  <div>
+                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
+                                      Service Title
+                                    </p>
+                                    <p>{service.title}</p>
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
+                                      Rate
+                                    </p>
+                                    <p>{service.price}</p>
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
+                                      Duration
+                                    </p>
+                                    <p>{service.duration}</p>
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
+                                      Time Unit
+                                    </p>
+                                    <p>{service.timeUnit}</p>
+                                  </div>
+                                </div>
+
+                                <div className="mt-4">
+                                  <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
+                                    Service Description
+                                  </p>
+                                  <p className="text-sm">
+                                    {service.description}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      }
                     />
-                  </div>
-
-                  <div>
-                    <Checkbox>Offer discount for bulk projects</Checkbox>
-                  </div>
+                  )}
                 </div>
               )}
+
               {activeTab === "availability" && (
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">
-                      Available for Work?
+                  {/* Days Selector */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Available Days
                     </label>
-                    <Switch defaultChecked />
+                    <div className="flex flex-wrap gap-2">
+                      {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map(
+                        (day) => {
+                          const availableDays = editData?.availableDays || [];
+                          const isSelected = availableDays.includes(day);
+                          return (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => toggleDay(day)}
+                              className={`px-4 py-2 rounded-full border text-sm capitalize transition 
+                              ${
+                                isSelected
+                                  ? "bg-black text-white"
+                                  : "border-gray-300 text-gray-600"
+                              }`}
+                            >
+                              {day}
+                            </button>
+                          );
+                        },
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Preferred Working Hours
-                    </label>
-                    <Input placeholder="e.g. 9am - 5pm, Weekdays" />
-                  </div>
+                  {/* Time Inputs */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Available From
+                      </label>
+                      <input
+                        type="time"
+                        name="availableFromTime"
+                        value={
+                          editData?.availableFromTime || formatTime(new Date())
+                        }
+                        onChange={handleChange}
+                        className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4 w-full"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Timezone
-                    </label>
-                    <Select
-                      placeholder="Select timezone"
-                      options={[
-                        { label: "GMT+1 (West Africa)", value: "gmt+1" },
-                        { label: "GMT", value: "gmt" },
-                        { label: "EST", value: "est" },
-                      ]}
-                    />
-                  </div>
-                </div>
-              )}
-              {activeTab === "portfolio" && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Portfolio Link
-                    </label>
-                    <Input placeholder="e.g. https://myportfolio.com" />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Upload Portfolio Items
-                    </label>
-                    <Input type="file" multiple />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Short Description
-                    </label>
-                    <Input.TextArea
-                      rows={3}
-                      placeholder="Briefly describe your portfolio or work style..."
-                    />
-                  </div>
-                </div>
-              )}
-              {activeTab === "settings" && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Email
-                    </label>
-                    <Input disabled value="you@example.com" />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Change Password
-                    </label>
-                    <Input.Password placeholder="Enter new password" />
-                  </div>
-
-                  <div>
-                    <Checkbox>Receive Email Notifications</Checkbox>
-                  </div>
-
-                  <div>
-                    <Checkbox>Make Profile Public</Checkbox>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Available To
+                      </label>
+                      <input
+                        type="time"
+                        name="availableToTime"
+                        value={
+                          editData?.availableToTime || formatTime(new Date())
+                        }
+                        onChange={handleChange}
+                        className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4 w-full"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Other tabs to be implemented similarly... */}
+            </div>
+          </div>
+          <div className="my-5 border-t border-gray-300" />
+
+          <div className="mx-auto px-6 py-2 mb-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3"></div>
+
+              <div className="flex items-center space-x-3">
+                <Button onClick={handleSave} className="bg-gradient-to-r">
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </Button>
+              </div>
             </div>
           </div>
         </div>
