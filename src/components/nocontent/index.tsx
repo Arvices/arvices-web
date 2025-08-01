@@ -56,7 +56,7 @@ export const ReqErr: React.FC<ReqErrProps> = ({
   actionText = "Retry",
   onAction,
 }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen">
+  <div className="w-full border border-gray-300 rounded-2xl  flex flex-col items-center justify-center md:py-10 ">
     <Result
       status="error"
       title="Request Failed"
@@ -88,7 +88,7 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
   if (loading) {
     return (
       <div
-        className={`text-center ${minHScreen ? "min-h-screen" : "my-20"} flex flex-col item-center justify-center`}
+        className={`w-full border border-gray-300 rounded-2xl text-center ${minHScreen ? "min-h-screen" : "py-20"} flex flex-col item-center justify-center`}
       >
         <div>
           <Spin size="small" />

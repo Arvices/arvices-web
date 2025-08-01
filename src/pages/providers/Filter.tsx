@@ -1,15 +1,7 @@
 import { Filter, MapPin } from "feather-icons-react";
 import { Modal, Input, Select } from "antd";
 import { useState } from "react";
-
-export const categoryOptions = [
-  { label: "All Categories", value: "" },
-  { label: "Plumber", value: "plumber" },
-  { label: "Electrician", value: "electrician" },
-  { label: "Carpenter", value: "carpenter" },
-  { label: "Cleaner", value: "cleaner" },
-  { label: "Mechanic", value: "mechanic" },
-];
+import { useCategory } from "../../contexts/CategoryContext";
 
 export interface FilterFormProps {
   filters: {
@@ -25,6 +17,7 @@ export const FilterComponent = ({
   onChange,
 }: FilterFormProps): React.ReactNode => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const category = useCategory()
   return (
     <div>
       <div className="hidden lg:flex border rounded-3xl border-gray-300">
@@ -40,10 +33,10 @@ export const FilterComponent = ({
           onChange={(e) => onChange("category", e.target.value)}
           value={filters.category}
         >
-          {categoryOptions.map((val, index) => {
+          {category.categories.map((val, index) => {
             return (
-              <option className="text-gray-700" key={index} value={val.value}>
-                {val.label}
+              <option className="text-gray-700" key={index} value={JSON.stringify(val)}>
+                {val.name}
               </option>
             );
           })}
@@ -96,7 +89,9 @@ export const FilterComponent = ({
             style={{ height: "45px" }}
             onChange={(value) => onChange("category", value)}
             className="w-full rounded py-2"
-            options={categoryOptions}
+            options={category.categories.map(x=>{
+              return {label: x.name,value: x.id}
+            })}
             placeholder="Select category"
           />
         </div>

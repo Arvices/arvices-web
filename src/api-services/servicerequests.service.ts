@@ -3,18 +3,54 @@ import axios from "axios";
 import { AxiosRequestConfig } from "axios";
 
 import { baseUrl } from "./baseUrl";
-
-export const getAllServiceRequests = (token: string) => {
+interface GetAllServiceRequestParams {
+  token: string;
+  page: number;
+  limit: number;
+  search?: string;
+  category?: number;
+  user?: number;
+  status?: string;
+  type?: string;
+  startDate?: string;
+  endDate?: string;
+  orderBy?: string;
+}
+export const getAllServiceRequests = ({
+  token,
+  page,
+  limit,
+  search,
+  category,
+  user,
+  status,
+  type,
+  startDate,
+  endDate,
+  orderBy,
+}: GetAllServiceRequestParams) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getallservicerequest`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    params: {
+      page,
+      limit,
+      ...(search && { search }),
+      ...(category && { category }),
+      ...(user && { user }),
+      ...(status && { status }),
+      ...(type && { type }),
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate }),
+      ...(orderBy && { orderBy }),
+    },
   };
+
   return axios(config);
 };
-
 export const getServiceRequest = (
   params: { [key: string]: any },
   token: string,

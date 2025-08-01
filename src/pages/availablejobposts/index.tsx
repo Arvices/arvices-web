@@ -5,48 +5,69 @@ import { categoryData } from "../home";
 import { JobCard } from "../../components/cards/appcards";
 import { getAllServiceRequests } from "../../api-services/servicerequests.service";
 import { useAuth } from "../../contexts/AuthContext";
+import { ContentHOC } from "../../components/nocontent";
+import { Pagination } from "../../components/pagination";
+import { useNotificationContext } from "../../contexts/NotificationContext";
 
 const AvailableJobPostings = (): React.ReactNode => {
-  const auth = useAuth();
-  const [filters, setFilters] = useState({
-    searchTerm: "",
-    category: "",
-    location: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [jobPostings, setJobPostings] = useState<any[]>([]); // replace `any` with your actual type if available
+ const auth = useAuth();
+ 
+  const [openFromRight, setOpenFromRight] = useState(false);
+  const [openFromBottom, setOpenFromBottom] = useState(false);
+  
+const [currentPage, setCurrentPage] = useState(1);
+  const { openNotification } = useNotificationContext();
+const [filters, setFilters] = useState({
+  searchTerm: "",
+  category: "",
+  location: "", // assuming location maps to "user" or another query param
+});
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
+const [jobPostings, setJobPostings] = useState<any[]>([]); // Replace `any` with your actual type if available
 
-  const handleFilterChange = (name: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
+const handleFilterChange = (name: string, value: string) => {
+  setFilters((prev) => ({ ...prev, [name]: value }));
+};
 
-  const loadServiceRequest = async () => {
-    setLoading(true);
-    setError(null);
+const loadServiceRequest = async () => {
+  setLoading(true);
+  setError(null);
 
-    try {
-      const response = await getAllServiceRequests(auth.token);
-      setJobPostings(response?.data?.response || []);
-      console.log({ response });
-    } catch (err: any) {
-      console.error(err);
-      setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Failed to load service requests",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const response = await getAllServiceRequests({
+      token: auth.token,
+      page: currentPage,
+      limit: 10,
+      search: filters.searchTerm || undefined,
+      category: filters.category ? Number(filters.category) : undefined,
+      user: filters.location ? Number(filters.location) : undefined, // adjust if needed
+    });
 
-  useEffect(() => {
-    if (auth.token) {
-      loadServiceRequest();
-    }
-  }, [auth.token]);
+      if (response?.data?.response?.length === 0) {
+        openNotification("topRight", "No More Content To Show", "", "info");
+        return;
+      }
+    setJobPostings(response?.data?.response || []);
+    console.log({ response });
+  } catch (err: any) {
+    console.error(err);
+    setError(
+      err?.response?.data?.message ||
+        err?.message ||
+        "Failed to load service requests"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
+useEffect(() => {
+  if (auth.token) {
+    loadServiceRequest();
+  }
+  // include currentPage and filters in the dependencies
+}, [auth.token, currentPage, filters]);
   return (
     <section className="min-h-screen pt-13  text-royalblue-shade5 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
@@ -68,11 +89,44 @@ const AvailableJobPostings = (): React.ReactNode => {
           <p className="text-[16px] md:text-[18px] tracking-tight font-medium">
             All Categories
           </p>
+
           <div className="pt-8">
-            <div className="max-w-[500px] w-full">
-              <JobCard />
-            </div>
+            {
+              <ContentHOC
+                loading={loading}
+                error={!!error}
+                errMessage={error || ""}
+                actionFn={loadServiceRequest}
+                noContent={jobPostings.length === 0}
+                minHScreen={false}
+                UIComponent={
+                  <div className="flex flex-wrap gap-5">
+                    {jobPostings.map((job, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className="max-w-[400px] min-w-[300px] flex-1"
+                        >
+                          <JobCard job={job} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                }
+              />
+            }
           </div>
+
+                  <div className="w-max mx-auto mt-20">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={10}
+                      onPageChange={(pageNo) => {
+                        setCurrentPage(pageNo);
+                        console.log("new Page is", pageNo);
+                      }}
+                    />
+                  </div>
         </div>
       </div>
     </section>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Select } from "antd";
-import { categoryOptions } from "../providers/Filter";
 import { MapPin } from "feather-icons-react";
 // import utilities
 import { useLoading } from "../../contexts/LoadingContext";

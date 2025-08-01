@@ -4,11 +4,13 @@ import { Button, Rate } from "antd";
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
 import FeatherIcon, {
   ArrowUpRight,
+  Box,
   Check,
   Eye,
   Layers,
   MapPin,
   Plus,
+  User,
 } from "feather-icons-react";
 import { UserAccount } from "../../api-services/auth";
 import { Link } from "react-router-dom";
@@ -16,6 +18,8 @@ import { followUser, unfollowUser } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
 import { getInitials } from "../../util/getInitials";
+import moment from "moment";
+import { SlideIn } from "../slideupUI";
 
 export interface CategoryDataItem {
   title: string;
@@ -199,37 +203,116 @@ export const ActivityCard: React.FC = () => {
   );
 };
 
-export const JobCard: React.FC = () => {
+export interface Job {
+  id: number;
+  address: string;
+  category: {
+    id: number;
+    name: string;
+    description: string | null;
+    file: string | null;
+    createdDate: string;
+  };
+  createdDate: string;
+  description: string;
+  images: string[]; // Adjust if images have an object structure
+  offer: any[]; // Specify type if offer items have a defined structure
+  position: any | null; // Define more specifically if known
+  status: string;
+  type: string;
+  user: UserAccount;
+}
+
+interface JobCardProp {
+  job: Job;
+}
+
+export const JobCard = ({ job }: JobCardProp) => {
+  const [openFromRight, setOpenFromRight] = useState(false);
+  const [openFromBottom, setOpenFromBottom] = useState(false);
+
+
   return (
     <div className="card-shadow rounded-[10px] p-5 py-6 sm:p-6 w-full">
-      <div className="flex">
-        <div className="max-w-max">
-          <h6 className="font-medium tracking-tight">Posted By Ezra Fitz</h6>
-          <p className="text-[13px] text-gray-600">
-            23mins ago, Plumbing and Pipeworks
+            {/* Slide from Right */}
+      <SlideIn
+        from="right"
+        isOpen={openFromRight}
+        toggle={() => setOpenFromRight(false)}
+      >
+        <div>
+          <h2 className="text-lg font-bold mb-2">Panel from Right</h2>
+          <p className="text-sm text-gray-700 mb-4">
+            This panel slides in from the right and is scrollable.
           </p>
+          <button
+            onClick={() => setOpenFromRight(false)}
+            className="mt-4 px-3 py-2 bg-red-500 text-white rounded"
+          >
+            Close
+          </button>
+        </div>
+      </SlideIn>
+
+      {/* Slide from Bottom */}
+      <SlideIn
+        from="bottom"
+        isOpen={openFromBottom}
+        toggle={() => setOpenFromBottom(false)}
+      >
+        <div>
+          <h2 className="text-lg font-bold mb-2">Panel from Bottom</h2>
+          <p className="text-sm text-gray-700 mb-4">
+            This panel slides in from the bottom and is scrollable.
+          </p>
+          <button
+            onClick={() => setOpenFromBottom(false)}
+            className="mt-4 px-3 py-2 bg-red-500 text-white rounded"
+          >
+            Close
+          </button>
+        </div>
+      </SlideIn>
+      <div className="flex items-center ">
+        <div className="max-w-max">
+          <h6 className="font-medium tracking-tight">
+            <span className="inline-block w-max p-2 py-1 rounded-full border border-gray-200">
+              <User className={"inline-block mx-auto w-4 h-4"} />
+            </span>{" "}
+            {job.user?.fullName || "Unknown"}
+          </h6>
         </div>
         <div className="flex-1"></div>
-        <div className="max-w-max">
-          <p className="text-royalblue-main font-medium cursor-pointer tracking-tight">
-            {" "}
-            <MapPin className="inline" size={16} /> Somewhere in Lagos
+        <div>
+          <p className="text-[13px] text-gray-600 mt-1">
+            {moment(job.createdDate).fromNow()}
           </p>
         </div>
       </div>
-      <div className="my-3 border-t border-gray-200" />
+      <div className="my-2 md:my-3 border-t border-gray-100" />
+      <div className="max-w-max text-[14px] mb-3 mt-1.5">
+        <p className="text-royalblue-main font-medium cursor-pointer tracking-tight">
+          {" "}
+          <MapPin className="inline" size={16} />{" "}
+          {job.user?.address ?? "No address"}
+        </p>
+        <p className="text-[14px] text-gray-600 mt-1 font-medium ">
+          {job.category?.name ?? "Uncategorized"}
+        </p>
+      </div>
+      <div className="my-2 md:my-3 border-t border-gray-100" />
       <div>
-        <p>I need a plumber to fix a leaking pipe in my kitchen.</p>
+        <p>{job.description}</p>
       </div>
       <div className="mt-6 flex gap-2 text-[14px] bg-gray-100 px-4 py-[8px] rounded">
-        <div className="w-max">
+        <div className="w-max hidden">
           <Eye size={16} className="inline" /> 203
         </div>
         <div className="w-max pl-2 font-medium tracking-tight cursor-pointer">
           25 Offer Sent
         </div>
         <div className="flex-1"></div>
-        <div className="w-max text-royalblue-main font-medium tracking-tight cursor-pointer">
+        <div  onClick={() => setOpenFromBottom(true)} className="w-max text-royalblue-main font-medium tracking-tight cursor-pointer">
           Send An Offer <ArrowUpRight className="inline" size={16} />
         </div>
       </div>

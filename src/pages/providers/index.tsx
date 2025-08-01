@@ -6,9 +6,7 @@ import { ProviderCard } from "../../components/cards/appcards";
 
 import { useAuth } from "../../contexts/AuthContext";
 import {
-  getProfessionals,
-  getRisingTalent,
-  getTopProfessionals,
+  getProfessionals
 } from "../../api-services/auth-re";
 import { Pagination } from "../../components/pagination";
 import { UserAccount } from "../../api-services/auth";
@@ -21,7 +19,7 @@ const ArvicesProviders = (): React.ReactNode => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
   const [professionals, setProfessionals] = useState<UserAccount[]>([]);
-  const {openNotification } = useNotificationContext()
+  const { openNotification } = useNotificationContext();
 
   const [filters, setFilters] = useState({
     searchTerm: "",
@@ -45,13 +43,13 @@ const ArvicesProviders = (): React.ReactNode => {
         page: currentPage,
         limit: 10,
       });
-      if(res?.data?.response?.length === 0 ){
-        openNotification("topRight","No More Content To Show","","info")
+      if (res?.data?.response?.length === 0) {
+        openNotification("topRight", "No More Content To Show", "", "info");
         return;
       }
       setProfessionals(res?.data?.response || []);
 
-      console.log({res});
+      console.log({ res });
     } catch (err: any) {
       setError(err.toString());
     } finally {
@@ -109,17 +107,15 @@ const ArvicesProviders = (): React.ReactNode => {
           </div>
         </div>
         <div className="w-max mx-auto mt-20">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={10}
-          onPageChange={(pageNo) => {
-            setCurrentPage(pageNo);
-            console.log("new Page is", pageNo);
-          }}
-          
-        />          
+          <Pagination
+            currentPage={currentPage}
+            totalPages={10}
+            onPageChange={(pageNo) => {
+              setCurrentPage(pageNo);
+              console.log("new Page is", pageNo);
+            }}
+          />
         </div>
-
       </div>
     </section>
   );
