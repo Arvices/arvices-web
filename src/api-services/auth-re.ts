@@ -261,6 +261,22 @@ const getServiceProvidersAroundMe = async () => {
   return axios(config);
 };
 
+const getProfessionals = async (params: {
+  search?: string;
+  category?: string; // e.g., "1,2,3"
+  professionalType?: string;
+  orderBy?: string;
+  page: number;
+  limit: number;
+}) => {
+  const config = {
+    url: `${baseUrl}/user/getprofessionals`,
+    method: "GET",
+    params,
+  };
+  return axios(config);
+};
+
 // FOLLOW SYSTEM
 
 const followUser = async (userId: string, token: string) => {
@@ -331,4 +347,5 @@ export {
   unfollowUser,
   getAllUserFollowing,
   getAllUserFollowers,
+  getProfessionals,
 };

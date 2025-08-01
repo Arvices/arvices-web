@@ -6,21 +6,22 @@ import { ProviderCard } from "../../components/cards/appcards";
 
 import { useAuth } from "../../contexts/AuthContext";
 import {
+  getProfessionals,
   getRisingTalent,
   getTopProfessionals,
 } from "../../api-services/auth-re";
 import { Pagination } from "../../components/pagination";
+import { UserAccount } from "../../api-services/auth";
+import { ContentHOC } from "../../components/nocontent";
+import { useNotificationContext } from "../../contexts/NotificationContext";
 
 const ArvicesProviders = (): React.ReactNode => {
   let auth = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
-  const [topProfessionals, setTopProfessionals] = useState<any[]>([]);
-  const [risingTalents, setRisingTalents] = useState<any[]>([]);
-
-  const [topLoading, setTopLoading] = useState(true);
-  const [risingLoading, setRisingLoading] = useState(true);
-  const [topError, setTopError] = useState(false);
-  const [risingError, setRisingError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+  const [professionals, setProfessionals] = useState<UserAccount[]>([]);
+  const {openNotification } = useNotificationContext()
 
   const [filters, setFilters] = useState({
     searchTerm: "",
@@ -32,39 +33,35 @@ const ArvicesProviders = (): React.ReactNode => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const fetchTopProfessionals = async () => {
-    try {
-      setTopLoading(true);
-      setTopError(false);
-      const res = await getTopProfessionals(auth.token);
+  const fetchProfessionals = async () => {
+    setLoading(true);
+    setError(undefined);
 
-      console.log({ resTop: res });
-      setTopProfessionals(res?.data?.response || []);
-    } catch (err) {
-      setTopError(true);
-    } finally {
-      setTopLoading(false);
-    }
-  };
-
-  const fetchRisingTalents = async () => {
     try {
-      setRisingLoading(true);
-      setRisingError(false);
-      const res = await getRisingTalent(auth.token);
-      console.log({ resRising: res });
-      setRisingTalents(res?.data?.response || []);
-    } catch (err) {
-      setRisingError(true);
+      const res = await getProfessionals({
+        search: filters.searchTerm || undefined,
+        category: filters.category || undefined,
+        orderBy: "DESC",
+        page: currentPage,
+        limit: 10,
+      });
+      if(res?.data?.response?.length === 0 ){
+        openNotification("topRight","No More Content To Show","","info")
+        return;
+      }
+      setProfessionals(res?.data?.response || []);
+
+      console.log({res});
+    } catch (err: any) {
+      setError(err.toString());
     } finally {
-      setRisingLoading(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTopProfessionals();
-    fetchRisingTalents();
-  }, []);
+    fetchProfessionals();
+  }, [filters, currentPage]);
   return (
     <section className="min-h-screen pt-14 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto pb-15">
@@ -86,44 +83,32 @@ const ArvicesProviders = (): React.ReactNode => {
             Top Professionals
           </p>
           <div className="pt-8">
-            <div className="flex flex-wrap gap-5">
-              {topProfessionals
-                .concat(topProfessionals)
-                .map((provider, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="max-w-[400px] min-w-[300px] flex-1"
-                    >
-                      <ProviderCard provider={provider} />
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        </div>
-        <div className="mt-13 text-royalblue-shade5 ">
-          <h3 className="hidden text-2xl font-medium tracking-tight md:text-3xl mb-2">
-            Service Providers
-          </h3>
-          <p className="text-[16px] md:text-[18px] tracking-tight font-medium">
-            Rising Talents
-          </p>
-          <div className="pt-8">
-            <div className="flex flex-wrap gap-5">
-              {risingTalents.concat(risingTalents).map((provider, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="max-w-[400px] min-w-[300px] flex-1"
-                  >
-                    <ProviderCard provider={provider} />
+            {
+              <ContentHOC
+                loading={loading}
+                error={!!error}
+                errMessage={error}
+                actionFn={fetchProfessionals}
+                noContent={professionals.length === 0}
+                UIComponent={
+                  <div className="flex flex-wrap gap-5">
+                    {professionals.map((provider, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className="max-w-[400px] min-w-[300px] flex-1"
+                        >
+                          <ProviderCard provider={provider} />
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                }
+              />
+            }
           </div>
         </div>
+        <div className="w-max mx-auto mt-20">
         <Pagination
           currentPage={currentPage}
           totalPages={10}
@@ -131,7 +116,10 @@ const ArvicesProviders = (): React.ReactNode => {
             setCurrentPage(pageNo);
             console.log("new Page is", pageNo);
           }}
-        />
+          
+        />          
+        </div>
+
       </div>
     </section>
   );

@@ -114,7 +114,6 @@ export function ProfileEdit() {
     }));
   };
 
-
   const toggleDay = (day: string) => {
     if (!editData) return;
 
@@ -281,7 +280,7 @@ export function ProfileEdit() {
     }
 
     const data = new FormData();
-    console.log({editData})
+    console.log({ editData });
 
     // Append image if present
     if (imgFile) {
@@ -490,56 +489,53 @@ export function ProfileEdit() {
                     </div>
                     {/* Profession */}
                     <div className="flex flex-col">
-                      <label className="mb-2 font-medium">Add Specialities</label>
+                      <label className="mb-2 font-medium">
+                        Add Specialities
+                      </label>
 
-                    
-                    <div className="space-y-4 p-4 border border-gray-200 rounded-2xl">
-                      {/* Display existing specialities */}
-                      {/* Divider */}
-                      {/* Input and Add Button */}
-                      <div className="flex gap-2">
-                        <input
-                          value={input}
-                          onChange={(e) => setInput(e.target.value)}
-                          className="flex-1 border border-gray-300 px-3 py-2 rounded-md text-sm"
-                          placeholder="Add speciality..."
-                        />
-                        <button
-                          type="button"
-                          className="bg-black text-white px-4 py-2 rounded-md text-sm w-max"
-                          onClick={handleAdd}
-                        >
-                          Add
-                        </button>
-                      </div>
-
-                      <div className="border-t border-gray-200 my-2 mb-4" />
-
-                      {specialities.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {specialities.map((item, i) => (
-                            <span
-                              key={i}
-                              className="flex items-center gap-1 bg-white text-gray-700 border border-gray-300 rounded-full px-3 py-1 text-sm"
-                            >
-                              {item}
-                              <button
-                              type="button"
-                                onClick={() => handleRemove(i)}
-                                className="hover:text-red-500"
-                              >
-                                <X size={14} />
-                              </button>
-                            </span>
-                          ))}
+                      <div className="space-y-4 p-4 border border-gray-200 rounded-2xl">
+                        {/* Display existing specialities */}
+                        {/* Divider */}
+                        {/* Input and Add Button */}
+                        <div className="flex gap-2">
+                          <input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            className="flex-1 border border-gray-300 px-3 py-2 rounded-md text-sm"
+                            placeholder="Add speciality..."
+                          />
+                          <button
+                            type="button"
+                            className="bg-black text-white px-4 py-2 rounded-md text-sm w-max"
+                            onClick={handleAdd}
+                          >
+                            Add
+                          </button>
                         </div>
-                      )}
 
+                        <div className="border-t border-gray-200 my-2 mb-4" />
 
+                        {specialities.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {specialities.map((item, i) => (
+                              <span
+                                key={i}
+                                className="flex items-center gap-1 bg-white text-gray-700 border border-gray-300 rounded-full px-3 py-1 text-sm"
+                              >
+                                {item}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemove(i)}
+                                  className="hover:text-red-500"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    </div>
-                    
-                    
 
                     {/* Phone Number */}
                     <div className="flex flex-col">

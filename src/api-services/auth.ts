@@ -32,6 +32,7 @@ export interface UserAccount {
   availableFromTime: string | null;
   availableToTime: string | null;
   address: string;
+  followers: number[];
   password: string;
   type: AccountTypeVal;
   accountCreationDate: string; // ISO date string

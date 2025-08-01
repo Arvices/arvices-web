@@ -14,6 +14,7 @@ import { ContentHOC } from "../../components/nocontent";
 import { UserAccount } from "../../api-services/auth";
 import { parseHttpError } from "../../api-services/parseReqError";
 import AvailabilitySection, { Availability } from "./Availability";
+import { getInitials } from "../../util/getInitials";
 
 const reviews = [
   {
@@ -144,16 +145,23 @@ const Profile = (): React.ReactNode => {
         <section className="relative py-16 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="relative inline-block mb-6">
-              <div
-                className="w-32 h-32 rounded-full bg-cover bg-center border-4 border-white shadow-2xl"
-                style={{ backgroundImage: `url('${imgShape}')` }}
-              />
+              <div className="w-32 h-32 rounded-full border-4 border-white shadow-2xl overflow-hidden flex items-center justify-center bg-gray-200 text-white text-3xl font-semibold">
+                {userProfile?.picture ? (
+                  <img
+                    src={userProfile?.picture}
+                    alt="User"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{getInitials(userProfile?.fullName || "")}</span>
+                )}
+              </div>
               <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white flex items-center justify-center">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             </div>
 
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 capitalize">
               {userProfile?.fullName}
             </h1>
             <div className="flex items-center justify-center space-x-2 mb-4">
@@ -220,10 +228,7 @@ const Profile = (): React.ReactNode => {
             </div>
 
             <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              D-P D-P Professional makeup artist specializing in bridal and
-              event makeup. I bring out the natural beauty in every client with
-              personalized looks that last all day. Based in Lagos, serving
-              clients across the city with mobile services.
+              {userProfile?.bio || ""}
             </p>
           </div>
         </section>

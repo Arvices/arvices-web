@@ -6,6 +6,7 @@ import FeatherIcon, {
   ArrowUpRight,
   Check,
   Eye,
+  Layers,
   MapPin,
   Plus,
 } from "feather-icons-react";
@@ -14,6 +15,7 @@ import { Link } from "react-router-dom";
 import { followUser, unfollowUser } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
+import { getInitials } from "../../util/getInitials";
 
 export interface CategoryDataItem {
   title: string;
@@ -48,7 +50,12 @@ interface ProviderCardInterface {
 export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
   const auth = useAuth();
   const [loading, setLoading] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const currentUserId = auth?.user?.id ?? -1;
+  const isUserFollowing =
+    Array.isArray(provider.followers) &&
+    provider.followers.includes(currentUserId);
+
+  const [isFollowing, setIsFollowing] = useState(isUserFollowing);
 
   const handleFollowToggle = async () => {
     try {
@@ -62,18 +69,6 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
       }
     } catch (error) {
       console.error(`${isFollowing ? "Unfollow" : "Follow"} error:`, error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFollow = async () => {
-    try {
-      setLoading(true);
-      await followUser(provider.id.toString(), auth.token);
-      setIsFollowing(true);
-    } catch (error) {
-      console.error("Follow error:", error);
     } finally {
       setLoading(false);
     }
@@ -98,29 +93,40 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
 
       {/* Card Body */}
       <div>
-        <div className="w-[150px] h-[150px] mx-auto flex items-center justify-center overflow-hidden rounded-full">
-          <img
-            src={placeholderUserImg}
-            className="w-full h-full object-cover"
-            alt="User"
-          />
+        <div className="w-[150px] h-[150px] mx-auto flex items-center justify-center overflow-hidden rounded-full bg-amber-50 text-4xl font-semibold text-royalblue-main">
+          {provider?.picture ? (
+            <img
+              src={provider.picture}
+              className="w-full h-full object-cover"
+              alt="User"
+            />
+          ) : (
+            <span>{getInitials(provider?.fullName || "")}</span>
+          )}
         </div>
         <div className="mt-8 text-center">
-          <h5 className="text-2xl font-medium tracking-tight mb-2">
+          <h5 className="text-2xl font-medium tracking-tight mb-2 capitalize">
             {provider.fullName}
           </h5>
           <p className="mb-2">
-            <span>Photographer</span>
+            <span className="block my-3 w-max mx-auto p-1 rounded-2xl text-white bg-gradient-to-r px-4 py-2 from-royalblue-shade4 to-royalblue-main">
+              <Layers className="inline w-4 h-4" /> Make Up Artist
+            </span>
             <span className="inline-block ml-2">
-              <FeatherIcon className="inline" size={18} icon="map-pin" /> Ikeja,
-              Lagos
+              <FeatherIcon className="inline" size={18} icon="map-pin" />{" "}
+              {provider.address}
             </span>
           </p>
           <div className="mb-2">
-            <Rate style={{ fontSize: "16px" }} allowHalf disabled value={4.5} />{" "}
-            4.5 Overall Rating
+            <Rate
+              style={{ fontSize: "16px" }}
+              allowHalf
+              disabled
+              value={provider?.rating || 0}
+            />{" "}
+            {provider?.rating} Overall Rating
           </div>
-          <p>23 Satisfied Clients</p>
+          <p>0 Satisfied Clients</p>
         </div>
       </div>
 
