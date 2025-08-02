@@ -43,7 +43,7 @@ export const SlideIn = ({
       {isOpen && (
         <>
           <motion.div
-           className="fixed inset-0 bg-black/40  z-100"
+            className="fixed inset-0 bg-black/40  z-100"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

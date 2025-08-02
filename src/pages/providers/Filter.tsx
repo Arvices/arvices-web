@@ -17,7 +17,7 @@ export const FilterComponent = ({
   onChange,
 }: FilterFormProps): React.ReactNode => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const category = useCategory()
+  const category = useCategory();
   return (
     <div>
       <div className="hidden lg:flex border rounded-3xl border-gray-300">
@@ -35,7 +35,11 @@ export const FilterComponent = ({
         >
           {category.categories.map((val, index) => {
             return (
-              <option className="text-gray-700" key={index} value={JSON.stringify(val)}>
+              <option
+                className="text-gray-700"
+                key={index}
+                value={JSON.stringify(val)}
+              >
                 {val.name}
               </option>
             );
@@ -89,8 +93,8 @@ export const FilterComponent = ({
             style={{ height: "45px" }}
             onChange={(value) => onChange("category", value)}
             className="w-full rounded py-2"
-            options={category.categories.map(x=>{
-              return {label: x.name,value: x.id}
+            options={category.categories.map((x) => {
+              return { label: x.name, value: x.id };
             })}
             placeholder="Select category"
           />

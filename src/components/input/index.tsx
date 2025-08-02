@@ -8,6 +8,7 @@ export interface PasswordInputType {
   placeholder?: string;
   name?: string;
   required?: boolean;
+  type?: string;
 }
 
 export const PasswordInput: React.FC<PasswordInputType> = ({
@@ -58,12 +59,14 @@ export const Input: React.FC<PasswordInputType> = ({
   onChange,
   placeholder = "Enter Text",
   required,
+  type = "text",
 }) => {
   return (
     <div className={`relative `}>
       <input
         id={name}
         name={name}
+        type={type}
         value={value}
         required={required}
         onChange={onChange}

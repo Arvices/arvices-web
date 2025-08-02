@@ -518,6 +518,7 @@ const Header: React.FC = () => {
                           <li>
                             <Link
                               to="/open-offers"
+                              onClick={toggleMobileOpen}
                               className="flex items-center gap-2"
                             >
                               <Clipboard size={14} /> Open Offers
@@ -529,6 +530,7 @@ const Header: React.FC = () => {
                           <li>
                             <Link
                               to="/negotiation"
+                              onClick={toggleMobileOpen}
                               className="flex items-center gap-2"
                             >
                               <MessageCircle size={14} /> Ongoing Negotiation
@@ -540,6 +542,7 @@ const Header: React.FC = () => {
                           <li>
                             <Link
                               to="/ongoing-jobs"
+                              onClick={toggleMobileOpen}
                               className="flex items-center gap-2"
                             >
                               <Loader size={14} /> Ongoing Jobs
@@ -551,6 +554,7 @@ const Header: React.FC = () => {
                           <li>
                             <Link
                               to="/completed-jobs"
+                              onClick={toggleMobileOpen}
                               className="flex items-center gap-2"
                             >
                               <CheckCircle size={14} /> Completed Jobs
@@ -565,7 +569,11 @@ const Header: React.FC = () => {
                   </li>
 
                   <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      to="/post-showcase"
+                      onClick={toggleMobileOpen}
+                      className="flex items-center gap-2"
+                    >
                       <CreditCard size={16} /> Post A Job
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         1
@@ -573,7 +581,11 @@ const Header: React.FC = () => {
                     </Link>
                   </li>
                   <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      to="/activities"
+                      onClick={toggleMobileOpen}
+                      className="flex items-center gap-2"
+                    >
                       <FileText size={16} /> What's new
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         10
@@ -588,7 +600,11 @@ const Header: React.FC = () => {
                 <ul className=" text-gray-700 space-y-3">
                   {/* Account Actions */}
                   <li className="mb-5 mt-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      onClick={toggleMobileOpen}
+                      to="/job-posting"
+                      className="flex items-center gap-2"
+                    >
                       <UserCheck size={16} /> Find Jobs
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         3
@@ -611,6 +627,7 @@ const Header: React.FC = () => {
                         <ul className="text-sm text-gray-700 ">
                           <li className="py-2">
                             <Link
+                              onClick={toggleMobileOpen}
                               to="/open-offers"
                               className="flex items-center gap-2"
                             >
@@ -619,6 +636,7 @@ const Header: React.FC = () => {
                           </li>
                           <li className="py-2">
                             <Link
+                              onClick={toggleMobileOpen}
                               to="/negotiations"
                               className="flex items-center gap-2"
                             >
@@ -627,6 +645,7 @@ const Header: React.FC = () => {
                           </li>
                           <li className="py-2">
                             <Link
+                              onClick={toggleMobileOpen}
                               to="/ongoing-jobs"
                               className="flex items-center gap-2"
                             >
@@ -635,6 +654,7 @@ const Header: React.FC = () => {
                           </li>
                           <li className="py-2">
                             <Link
+                              onClick={toggleMobileOpen}
                               to="/completed-jobs"
                               className="flex items-center gap-2"
                             >
@@ -647,7 +667,11 @@ const Header: React.FC = () => {
                   </li>
 
                   <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      onClick={toggleMobileOpen}
+                      to="/"
+                      className="flex items-center gap-2"
+                    >
                       <CreditCard size={16} /> Post An Update
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         1
@@ -655,7 +679,11 @@ const Header: React.FC = () => {
                     </Link>
                   </li>
                   <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      onClick={toggleMobileOpen}
+                      to="/"
+                      className="flex items-center gap-2"
+                    >
                       <FileText size={16} /> Whats New
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         10
@@ -671,7 +699,11 @@ const Header: React.FC = () => {
                 <ul className=" text-gray-700 space-y-3">
                   {/* Account Actions */}
                   <li className="mb-5 mt-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      onClick={toggleMobileOpen}
+                      to="/myprofile"
+                      className="flex items-center gap-2"
+                    >
                       <UserCheck size={16} /> Profile
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         3
@@ -679,31 +711,23 @@ const Header: React.FC = () => {
                     </Link>
                   </li>
                   <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
-                      <Sun size={16} /> Customize
-                      <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                        2
-                      </span>
-                    </Link>
-                  </li>
-                  <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
-                      <CreditCard size={16} /> Wallet
+                    <Link
+                      onClick={toggleMobileOpen}
+                      to="/wallet"
+                      className="flex items-center gap-2"
+                    >
+                      <CreditCard size={16} /> Wallet & Transactions
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         1
                       </span>
                     </Link>
                   </li>
                   <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
-                      <FileText size={16} /> Transactions
-                      <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                        10
-                      </span>
-                    </Link>
-                  </li>
-                  <li className="mb-5">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link
+                      onClick={toggleMobileOpen}
+                      to="/"
+                      className="flex items-center gap-2"
+                    >
                       <BarChart2 size={16} /> Reports
                       <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                         10
@@ -720,7 +744,10 @@ const Header: React.FC = () => {
                   {/* Logout */}
                   <li className="mt-10">
                     <Link
-                      onClick={auth.logout}
+                      onClick={() => {
+                        auth.logout();
+                        toggleMobileOpen();
+                      }}
                       to="/"
                       className="flex items-center gap-2 text-red-500"
                     >

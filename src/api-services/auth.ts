@@ -48,7 +48,7 @@ export interface UserAccount {
   meanRating: number;
   category: number[]; // Could be a string array or a more complex object type if known
   categoryId: number;
-  wallet: Wallet;
+  wallet?: Wallet;
   website: string;
   specialties: string[] | null;
 }

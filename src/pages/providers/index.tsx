@@ -5,9 +5,7 @@ import { CategoryCarousel } from "./CategoryCarousel";
 import { ProviderCard } from "../../components/cards/appcards";
 
 import { useAuth } from "../../contexts/AuthContext";
-import {
-  getProfessionals
-} from "../../api-services/auth-re";
+import { getProfessionals } from "../../api-services/auth-re";
 import { Pagination } from "../../components/pagination";
 import { UserAccount } from "../../api-services/auth";
 import { ContentHOC } from "../../components/nocontent";
