@@ -41,6 +41,9 @@ const Header: React.FC = () => {
     setMobileOpen((prev) => !prev);
   };
 
+  {
+    /* Provider context menu */
+  }
   const JobsMenu = (
     <Menu
       items={[
@@ -57,7 +60,7 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to={"/provider/open-offers"}>
+            <Link to={"/provider/manage-jobs#pending"}>
               <Clipboard size={16} className="inline mr-2" />
               Open Offers
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -69,7 +72,7 @@ const Header: React.FC = () => {
         {
           key: "3",
           label: (
-            <Link to={"/provider/ongoing-negotiations"}>
+            <Link to={"/provider/manage-jobs#negotiating"}>
               <MessageCircle size={16} className="inline mr-2" />
               Ongoing Negotiation
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -81,7 +84,7 @@ const Header: React.FC = () => {
         {
           key: "4",
           label: (
-            <Link to={"/provider/ongoing-jobs"}>
+            <Link to={"/provider/manage-jobs#ongoing"}>
               <Loader size={16} className="inline mr-2" />
               Ongoing Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -93,7 +96,7 @@ const Header: React.FC = () => {
         {
           key: "5",
           label: (
-            <Link to={"/provider/completed-jobs"}>
+            <Link to={"/provider/manage-jobs#completed"}>
               <CheckCircle size={16} className="inline mr-2" />
               Completed Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -116,13 +119,16 @@ const Header: React.FC = () => {
     />
   );
 
+  {
+    /* Client context menu */
+  }
   const HireSomeoneMenu = (
     <Menu
       items={[
         {
           key: "1",
           label: (
-            <Link to={"/"} className="w-[200px]">
+            <Link to={"/service-providers"} className="w-[200px]">
               Hire Someone
             </Link>
           ),
@@ -132,7 +138,7 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to={"/client/open-jobs"}>
+            <Link to={"/client/manage-jobs#open"}>
               <Briefcase size={16} className="inline mr-2" />
               Open Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -144,7 +150,7 @@ const Header: React.FC = () => {
         {
           key: "3",
           label: (
-            <Link to={"/client/pending-offers"}>
+            <Link to={"/client/manage-jobs#pending"}>
               <Clock size={16} className="inline mr-2" />
               Pending Offers
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -156,7 +162,7 @@ const Header: React.FC = () => {
         {
           key: "4",
           label: (
-            <Link to={"/client/ongoing-jobs"}>
+            <Link to={"/client/manage-jobs#ongoing"}>
               <Loader size={16} className="inline mr-2" />
               Ongoing Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -168,7 +174,7 @@ const Header: React.FC = () => {
         {
           key: "5",
           label: (
-            <Link to={"/client-completed-jobs"}>
+            <Link to={"/client/manage-jobs#completed"}>
               <CheckCircle size={16} className="inline mr-2" />
               Completed Jobs
               <span className="rounded px-1 bg-gray-100 inline-block ml-2">
@@ -208,6 +214,10 @@ const Header: React.FC = () => {
       ]}
     />
   );
+
+  {
+    /* Account Context Menu */
+  }
 
   const AccountMenu = (
     <Menu

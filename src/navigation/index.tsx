@@ -30,6 +30,7 @@ import Wallet from "../pages/wallet";
 import Transactions from "../pages/transactionhistory";
 import BaseLayout from "../pages/base";
 import { ProfileEdit } from "../pages/profile/profile.edit";
+import ManageJob from "../pages/jobs&negotiations";
 
 // Import pages
 
@@ -85,15 +86,9 @@ function NavigationContent() {
         <Route path="/wallet" Component={Wallet} />
         <Route path="/transaction-history" Component={Transactions} />
         <Route path="/jobs" Component={Transactions} />
-        <Route path="/provider/open-offers" Component={BaseLayout} />
-        <Route path="/provider/ongoing-negotiations" Component={BaseLayout} />
-        <Route path="/provider/ongoing-jobs" Component={BaseLayout} />
-        <Route path="/provider/completed-jobs" Component={BaseLayout} />
+        <Route path="/provider/manage-jobs" Component={ManageJob} />
+        <Route path="/client/manage-jobs" Component={ManageJob} />
         <Route path="/client/new-job" Component={NewJobPosting} />
-        <Route path="/client/open-jobs" Component={BaseLayout} />
-        <Route path="/client/pending-offers" Component={BaseLayout} />
-        <Route path="/client/ongoing-jobs" Component={BaseLayout} />
-        <Route path="/client-completed-jobs" Component={BaseLayout} />
         <Route
           path="/client/favourite-service-providers"
           Component={BaseLayout}
