@@ -244,7 +244,7 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to="/myprofile" className="flex items-center gap-2">
+            <Link to={auth.isClient ? "/profile/edit" : "/myprofile"} className="flex items-center gap-2">
               <UserCheck size={16} /> Profile
               <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
                 3

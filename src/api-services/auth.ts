@@ -1,6 +1,7 @@
 import { AccountTypeVal } from "../contexts/AuthContext";
 import { baseUrl } from "./baseUrl";
 import axios from "axios";
+import { Category } from "./categories.types";
 
 // --- Interfaces for Request Bodies ---
 
@@ -46,12 +47,13 @@ export interface UserAccount {
   bio: string | null;
   numberOfRating: number;
   meanRating: number;
-  category: number[]; // Could be a string array or a more complex object type if known
+  category: Category[]; // Could be a string array or a more complex object type if known
   categoryId: number;
   wallet?: Wallet;
   website: string;
   specialties: string[] | null;
 }
+
 export interface LoginEmailAndPasswordBody {
   email_or_phonenumber: string;
   password: string;

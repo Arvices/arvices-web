@@ -1,6 +1,6 @@
 export interface Category {
   // Replace these with actual properties inside each category object
-  id: string;
+  id: number;
   name: string;
   description?: string;
   imageUrl?: string;

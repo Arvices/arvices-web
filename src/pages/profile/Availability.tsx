@@ -1,4 +1,4 @@
-import { Clock, Globe, MapPin, Calendar } from "feather-icons-react";
+import { Clock, Globe, MapPin, Calendar, UserCheck } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
 export interface AppointmentTime {
   day: string;
@@ -9,18 +9,24 @@ export interface AppointmentTime {
 export interface Availability {
   startTime: string;
   endTime: string;
-  mobileService: boolean;
+  mobileService?: boolean;
   location: string;
   appointmentsAvailable: number;
   days: string[];
-  appointmentTimes: AppointmentTime[];
+  appointmentTimes?: AppointmentTime[];
 }
 
 export default function AvailabilitySection({
-  availability,
-}: {
-  availability: Availability;
-}) {
+  startTime,
+  endTime,
+  mobileService = true,
+  location,
+  days,
+  appointmentsAvailable,
+  appointmentTimes,
+}: Availability) {
+  /**
+   
   const appointmentMenu = (
     <Menu>
       {availability.appointmentTimes.map((item, idx) => (
@@ -32,16 +38,17 @@ export default function AvailabilitySection({
       ))}
     </Menu>
   );
+   */
   return (
     <div className="space-y-4 text-gray-700">
       <div className="flex items-center space-x-3">
         <Clock className="w-5 h-5 text-purple-600" />
         <span>
-          Available {availability.startTime} - {availability.endTime}
+          Available {startTime} - {endTime}
         </span>
       </div>
 
-      {availability.mobileService && (
+      {mobileService && (
         <div className="flex items-center space-x-3">
           <Globe className="w-5 h-5 text-purple-600" />
           <span>Mobile services available</span>
@@ -50,9 +57,26 @@ export default function AvailabilitySection({
 
       <div className="flex items-center space-x-3">
         <MapPin className="w-5 h-5 text-purple-600" />
-        <span>Serving {availability.location}</span>
+        <span>Serving {location}</span>
       </div>
-
+      <div className="flex items-start space-x-3">
+        <UserCheck className="w-5 h-5 text-purple-600 mt-1" />
+        <div>
+          <p className="">Available Days:</p>
+          <div className="flex flex-wrap gap-2 mt-1">
+            {days.filter(Boolean).map((day, index) => (
+              <span
+                key={index}
+                className="px-3 py-1 rounded-2xl border border-gray-300 text-sm"
+              >
+                {day}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/*
+  
       <Dropdown
         overlay={appointmentMenu}
         trigger={["hover"]}
@@ -66,6 +90,7 @@ export default function AvailabilitySection({
           </span>
         </div>
       </Dropdown>
+  */}
     </div>
   );
 }

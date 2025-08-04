@@ -62,38 +62,11 @@ const Profile = (): React.ReactNode => {
 
   const isMyProfile =
     pathname.includes("myprofile") || params.id === auth?.user?.id;
-  console.log({ isMyProfile });
   const carouselRef = useRef<any>(null);
 
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileErr, setProfileErr] = useState<string | null>(null);
-
-  const availability: Availability = {
-    startTime: "7am",
-    endTime: "7pm",
-    mobileService: true,
-    location: "Lagos & surrounding areas",
-    appointmentsAvailable: 2,
-    days: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
-    appointmentTimes: [
-      { day: "Monday", from: "7am", to: "7pm" },
-      { day: "Tuesday", from: "7am", to: "7pm" },
-      { day: "Wednesday", from: "7am", to: "7pm" },
-      { day: "Thursday", from: "7am", to: "7pm" },
-      { day: "Friday", from: "7am", to: "7pm" },
-      { day: "Saturday", from: "7am", to: "7pm" },
-      { day: "Sunday", from: "7am", to: "7pm" },
-    ],
-  };
 
   const loadProfile = async () => {
     try {
@@ -124,7 +97,7 @@ const Profile = (): React.ReactNode => {
         {/* Hero Section */}
         {isMyProfile && (
           <Link to={"/profile/edit"}>
-            <button className="border z-[1] border-blue-200 absolute cursor-pointer top-10 right-10 flex items-center space-x-1 text-sm px-5 py-2 bg-white text-gray-600 rounded">
+            <button className="border z-[50] border-blue-200 fixed cursor-pointer bottom-10 right-10 flex items-center space-x-1 text-sm px-5 py-2 bg-white text-gray-600 rounded">
               <span>Edit Profile</span>
               <svg
                 className="w-4 h-4"
@@ -170,7 +143,7 @@ const Profile = (): React.ReactNode => {
             </div>
 
             <Badge className="!mb-6 !px-6 !py-3 cursor-pointer bg-gradient-to-r from-purple-200 to-pink-200 border-purple-400 rounded">
-              Makeup Artist
+              {userProfile?.category[0]?.name || "Uncategorized"}
             </Badge>
 
             <div className="flex items-center justify-center space-x-1 mb-6">
@@ -252,21 +225,15 @@ const Profile = (): React.ReactNode => {
                     Specialties
                   </h3>
                   <div className="flex flex-wrap !gap-2">
-                    {[
-                      "Bridal Makeup",
-                      "Special Events",
-                      "Photo Shoots",
-                      "Natural Looks",
-                      "Glam Makeup",
-                      "Contouring",
-                    ].map((skill) => (
-                      <Badge
-                        key={skill}
-                        className="bg-white/80 text-gray-700 border !px-2 !py-2 rounded-sm text-sm border-purple-100"
-                      >
-                        {skill}
-                      </Badge>
-                    ))}
+                    {userProfile?.specialties &&
+                      userProfile.specialties.map((skill) => (
+                        <Badge
+                          key={skill}
+                          className="bg-white/80 text-gray-700 border !px-2 !py-2 rounded-2xl text-sm border-purple-400"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
                   </div>
                 </div>
 
@@ -275,7 +242,13 @@ const Profile = (): React.ReactNode => {
                   <h3 className="text-2xl font-semibold text-gray-900 mb-6">
                     Service Info
                   </h3>
-                  <AvailabilitySection availability={availability} />
+                  <AvailabilitySection
+                    startTime={userProfile?.availableFromTime || ""}
+                    location={userProfile?.address || ""}
+                    appointmentsAvailable={3}
+                    endTime={userProfile?.availableToTime || ""}
+                    days={userProfile?.availableDays || []}
+                  />
                 </div>
               </div>
             </div>

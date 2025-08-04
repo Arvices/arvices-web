@@ -123,7 +123,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
           </h5>
           <p className="mb-2">
             <span className="block my-3 w-max mx-auto p-1 rounded-2xl text-white bg-gradient-to-r px-4 py-2 from-royalblue-shade4 to-royalblue-main">
-              <Layers className="inline w-4 h-4" /> Make Up Artist
+              <Layers className="inline w-4 h-4" /> {provider?.category && provider.category[0] && provider?.category[0]?.name || "Uncategorized"}
             </span>
             <span className="inline-block ml-2">
               <FeatherIcon className="inline" size={18} icon="map-pin" />{" "}

@@ -2,12 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getAllCategory } from "../api-services/categories.service";
 import { parseHttpError } from "../api-services/parseReqError";
-
-// Types
-export interface Category {
-  id: number;
-  name: string;
-}
+import { Category } from "../api-services/categories.types";
 
 interface CategoryContextType {
   categories: Category[];

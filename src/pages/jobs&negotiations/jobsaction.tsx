@@ -148,7 +148,7 @@ export const clientJobActions: JobActionsMap<ClientJobState> = {
       label: "View Offers",
       action: () => console.log("Viewing offers"),
       styleClass: "primary",
-      icon: ArrowUpRight
+      icon: ArrowUpRight,
     },
     {
       label: "Edit Job",

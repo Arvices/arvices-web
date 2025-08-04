@@ -112,11 +112,23 @@ const enableAccountByEmail = async (data: any, token: string) => {
 
 // PASSWORD & VERIFICATION
 
-const changePassword = async (data: any, token: string) => {
+interface ChangePasswordData {
+  old_password: string;
+  new_password: string;
+}
+
+const changePassword = async (
+  data: ChangePasswordData,
+  id: number,
+  token: string,
+) => {
   const config = {
-    url: `${baseUrl}/user/changepassword`,
+    url: `${baseUrl}/user/changepassword?id=${id}`,
     method: "PUT",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json", // Optional, but good practice
+    },
     data,
   };
   return axios(config);

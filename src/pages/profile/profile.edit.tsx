@@ -30,12 +30,23 @@ import {
   updateProfileService,
 } from "../../api-services/profileservice.service";
 import { formatTime } from "../util/timeUtil";
+import { Settings } from "lucide-react";
+import PasswordChange from "./passwordchange";
 
 type ChangeLikeEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   | { target: { name: string; value: any } };
 
-const tabOptions = [
+
+
+
+export function ProfileEdit() {
+  const auth = useAuth();
+  const id = auth?.user?.id;
+  const { setLoading, setLoadingText } = useLoading();
+  const { openNotification } = useNotificationContext();
+
+let tabOptions = [
   { label: "Personal", value: "personal", icon: <UserOutlined /> },
   { label: "Services", value: "services", icon: <DollarOutlined /> },
   {
@@ -43,13 +54,18 @@ const tabOptions = [
     value: "availability",
     icon: <ClockCircleOutlined />,
   },
+  {
+    label: "Settings",
+    value: "settings",
+    icon: <Settings size={14} />,
+  },
 ];
 
-export function ProfileEdit() {
-  const auth = useAuth();
-  const id = auth?.user?.id;
-  const { setLoading, setLoadingText } = useLoading();
-  const { openNotification } = useNotificationContext();
+if(auth.isClient){
+  tabOptions = tabOptions.filter((x=>{
+    return !(x.value === "services" || x.value === "availability")
+  }))
+}
 
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [editData, setEditData] = useState<UserAccount | null>(null);
@@ -70,6 +86,7 @@ export function ProfileEdit() {
   const [showForm, setShowForm] = useState(false);
   const [serviceEditIndex, setServiceEditIndex] = useState<number>();
   const [serviceEdit, setServiceEdit] = useState<ServiceOfferingPayload>();
+
   const [newServiceForm, setNewServiceForm] = useState<ServiceOfferingPayload>({
     title: "",
     price: "",
@@ -130,20 +147,28 @@ export function ProfileEdit() {
           }
         : null,
     );
+    setChangesSaved(false);
   };
 
   const handleChange = (e: ChangeLikeEvent) => {
     const { name, value } = e.target;
 
-    setEditData((prev) => {
-      if (!prev) return prev;
-      if (name == "category") {
-        let val = Number(value);
+    if (name === "categoryId") {
+      const found = category.findCategoryById(value[0]);
+      if (!found) return;
+
+      setEditData((prev) => {
+        if (!prev) return prev;
+
         return {
           ...prev,
-          [name]: [val],
+          category: [found], // ✅ this is now Category[]
         };
-      }
+      });
+    }
+
+    setEditData((prev) => {
+      if (!prev) return prev;
       return {
         ...prev,
         [name]: value,
@@ -192,6 +217,7 @@ export function ProfileEdit() {
       setServiceLoading(false);
     }
   };
+
   const handleSaveNewService = async () => {
     try {
       setLoading(true);
@@ -226,6 +252,7 @@ export function ProfileEdit() {
       setLoadingText("");
     }
   };
+
   const saveEditedService = async () => {
     if (!serviceEdit || serviceEditIndex === undefined) return;
 
@@ -260,6 +287,7 @@ export function ProfileEdit() {
       setLoadingText("");
     }
   };
+
   useEffect(() => {
     if (id && auth?.token) {
       loadProfile();
@@ -303,7 +331,21 @@ export function ProfileEdit() {
           value !== null
         ) {
           console.log({ isUpdating: { key, value } });
-          data.append(key, String(value));
+
+          if (Array.isArray(value)) {
+            // Append each item in the array with the same key (e.g., key[])
+
+            if (value.length <= 1) {
+              value.push("");
+              value.push("");
+            }
+            value.forEach((item) => {
+              data.append(`${key}`, String(item));
+            });
+          } else {
+            // Append scalar value
+            data.append(key, String(value));
+          }
         }
       });
     }
@@ -334,6 +376,7 @@ export function ProfileEdit() {
       setLoadingText("");
     }
   };
+
   const handleDeleteService = async (serviceId: string) => {
     try {
       setLoading(true);
@@ -361,6 +404,10 @@ export function ProfileEdit() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log({ editData });
+  }, [editData]);
   return (
     <ContentHOC
       loading={profileLoading}
@@ -397,6 +444,7 @@ export function ProfileEdit() {
                   );
                 })}
               </div>
+
               <div className="flex sm:hidden flex-wrap gap-2 border-b border-gray-200 pb-7 ">
                 <label>Select a section of your profile to edit</label>
                 <Select
@@ -468,74 +516,79 @@ export function ProfileEdit() {
                     </div>
 
                     {/* Profession */}
-                    <div className="flex flex-col">
-                      <label className="mb-2 font-medium">Category</label>
-                      <Select
-                        placeholder="Select a category"
-                        className="!w-full !h-10 !border-royalblue-tint5 !rounded-md !focus:outline-none !focus:ring-1 !focus:ring-royalblue-tint4"
-                        value={Number(editData?.category) || undefined}
-                        onChange={(value) =>
-                          handleChange({
-                            target: { name: "categoryId", value: [value] },
-                          })
-                        }
-                      >
-                        {category.categories?.map((cat: any) => (
-                          <Option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </div>
-                    {/* Profession */}
-                    <div className="flex flex-col">
-                      <label className="mb-2 font-medium">
-                        Add Specialities
-                      </label>
-
-                      <div className="space-y-4 p-4 border border-gray-200 rounded-2xl">
-                        {/* Display existing specialities */}
-                        {/* Divider */}
-                        {/* Input and Add Button */}
-                        <div className="flex gap-2">
-                          <input
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            className="flex-1 border border-gray-300 px-3 py-2 rounded-md text-sm"
-                            placeholder="Add speciality..."
-                          />
-                          <button
-                            type="button"
-                            className="bg-black text-white px-4 py-2 rounded-md text-sm w-max"
-                            onClick={handleAdd}
-                          >
-                            Add
-                          </button>
-                        </div>
-
-                        <div className="border-t border-gray-200 my-2 mb-4" />
-
-                        {specialities.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {specialities.map((item, i) => (
-                              <span
-                                key={i}
-                                className="flex items-center gap-1 bg-white text-gray-700 border border-gray-300 rounded-full px-3 py-1 text-sm"
-                              >
-                                {item}
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemove(i)}
-                                  className="hover:text-red-500"
-                                >
-                                  <X size={14} />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                    {auth.isProvider && (
+                      <div className="flex flex-col">
+                        <label className="mb-2 font-medium">Category</label>
+                        <Select
+                          placeholder="Select a category"
+                          className="!w-full !h-10 !border-royalblue-tint5 !rounded-md !focus:outline-none !focus:ring-1 !focus:ring-royalblue-tint4"
+                          value={Number(editData?.category[0]?.id) || undefined}
+                          onChange={(value) =>
+                            handleChange({
+                              target: { name: "categoryId", value: [value] },
+                            })
+                          }
+                        >
+                          {category.categories?.map((cat: any) => (
+                            <Option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </Option>
+                          ))}
+                        </Select>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Profession */}
+                    {auth.isProvider && (
+                      <div className="flex flex-col">
+                        <label className="mb-2 font-medium">
+                          Add Specialities
+                        </label>
+
+                        <div className="space-y-4 p-4 border border-gray-200 rounded-2xl">
+                          {/* Display existing specialities */}
+                          {/* Divider */}
+                          {/* Input and Add Button */}
+                          <div className="flex gap-2">
+                            <input
+                              value={input}
+                              onChange={(e) => setInput(e.target.value)}
+                              className="flex-1 border border-gray-300 px-3 py-2 rounded-md text-sm"
+                              placeholder="Add speciality..."
+                            />
+                            <button
+                              type="button"
+                              className="bg-black text-white px-4 py-2 rounded-md text-sm w-max"
+                              onClick={handleAdd}
+                            >
+                              Add
+                            </button>
+                          </div>
+
+                          <div className="border-t border-gray-200 my-2 mb-4" />
+
+                          {specialities.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {specialities.map((item, i) => (
+                                <span
+                                  key={i}
+                                  className="flex items-center gap-1 bg-white text-gray-700 border border-gray-300 rounded-full px-3 py-1 text-sm"
+                                >
+                                  {item}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemove(i)}
+                                    className="hover:text-red-500"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Phone Number */}
                     <div className="flex flex-col">
@@ -577,34 +630,38 @@ export function ProfileEdit() {
                     </div>
 
                     {/* Website */}
-                    <div className="flex flex-col">
-                      <label className="mb-2 font-medium">Website</label>
-                      <input
-                        name="website"
-                        type="url"
-                        placeholder="www.yourwebsite.com"
-                        className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4"
-                        value={editData?.website}
-                        onChange={handleChange}
-                      />
-                    </div>
+                    {auth.isProvider && (
+                      <div className="flex flex-col">
+                        <label className="mb-2 font-medium">Website</label>
+                        <input
+                          name="website"
+                          type="url"
+                          placeholder="www.yourwebsite.com"
+                          className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4"
+                          value={editData?.website}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    )}
 
                     {/* Bio */}
-                    <div className="flex flex-col md:col-span-2">
-                      <label className="mb-2 font-medium">Bio</label>
-                      <textarea
-                        name="bio"
-                        rows={4}
-                        maxLength={700}
-                        placeholder="Tell potential clients about yourself and your services..."
-                        className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4 w-full"
-                        value={editData?.bio || ""}
-                        onChange={handleChange}
-                      />
-                      <span className="text-sm text-gray-500 mt-1">
-                        {editData?.bio?.length || 0} / 700 characters
-                      </span>
-                    </div>
+                    {auth.isProvider && (
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="mb-2 font-medium">Bio</label>
+                        <textarea
+                          name="bio"
+                          rows={4}
+                          maxLength={700}
+                          placeholder="Tell potential clients about yourself and your services..."
+                          className="px-4 py-2 border border-royalblue-tint5 rounded-md focus:outline-none focus:ring-1 focus:ring-royalblue-tint4 w-full"
+                          value={editData?.bio || ""}
+                          onChange={handleChange}
+                        />
+                        <span className="text-sm text-gray-500 mt-1">
+                          {editData?.bio?.length || 0} / 700 characters
+                        </span>
+                      </div>
+                    )}
                   </form>
                 </div>
               )}
@@ -903,27 +960,35 @@ export function ProfileEdit() {
                       Available Days
                     </label>
                     <div className="flex flex-wrap gap-2">
-                      {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map(
-                        (day) => {
-                          const availableDays = editData?.availableDays || [];
-                          const isSelected = availableDays.includes(day);
-                          return (
-                            <button
-                              key={day}
-                              type="button"
-                              onClick={() => toggleDay(day)}
-                              className={`px-4 py-2 rounded-full border text-sm capitalize transition 
+                      {[
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday",
+                      ].map((day) => {
+                        const availableDays = editData?.availableDays || [];
+                        const isSelected = availableDays.includes(day);
+                        return (
+                          <button
+                            key={day}
+                            type="button"
+                            onClick={() => {
+                              toggleDay(day);
+                            }}
+                            className={`px-4 py-2 text-[13px] cursor-pointer rounded-full border capitalize transition 
                               ${
                                 isSelected
                                   ? "bg-black text-white"
                                   : "border-gray-300 text-gray-600"
                               }`}
-                            >
-                              {day}
-                            </button>
-                          );
-                        },
-                      )}
+                          >
+                            {day}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -962,23 +1027,26 @@ export function ProfileEdit() {
                 </div>
               )}
 
+              {activeTab === "settings" && (
+                <PasswordChange userId={editData?.id || 0} />
+              )}
               {/* Other tabs to be implemented similarly... */}
             </div>
           </div>
-          <div className="my-5 border-t border-gray-300" />
-
-          <div className="mx-auto px-6 py-2 mb-10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3"></div>
-
-              <div className="flex items-center space-x-3">
-                <Button onClick={handleSave} className="bg-gradient-to-r">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
+          <div className="my-8 border-t border-gray-300" />
+          {activeTab !== "services" && activeTab !== "settings" && (
+            <div className="">
+              <button
+                onClick={handleSave}
+                className="!bg-black cursor-pointer !text-white !h-10 px-4 py-2 rounded-md block text-sm w-full max-w-[400px] mx-auto"
+              >
+                <Save className="inline w-4 h-4 mr-2" />
+                Save Changes
+              </button>
             </div>
-          </div>
+          )}
+
+          <div className="mt-10" />
         </div>
       }
     />
