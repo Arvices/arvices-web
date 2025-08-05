@@ -28,6 +28,10 @@ import {
 } from "../../components/cards/appcards";
 import { getTopProfessionals } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
+import MapView from "../../components/map/map";
+import LocationInput from "../../components/map/LocationInput";
+import { useCategory } from "../../contexts/CategoryContext";
+import { useNavigate } from "react-router-dom";
 //import { SlideUpUI } from "../../components/slideupUI";
 
 export const categoryData: CategoryDataItem[] = [
@@ -73,6 +77,8 @@ const Home: React.FC = () => {
   const [topLoading, setTopLoading] = useState(true);
   const [topError, setTopError] = useState(false);
   const [topProfessionals, setTopProfessionals] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const category = useCategory();
 
   const fetchTopProfessionals = async () => {
     try {
@@ -92,10 +98,23 @@ const Home: React.FC = () => {
   useEffect(() => {
     fetchTopProfessionals();
   }, []);
+
+  const [showModal, setShowModal] = useState(false);
+  const handleSearch = () => {
+    navigate(`/service-providers?filter1=val&filter2=val2`);
+  };
+
   return (
     <section className="min-h-screen text-royalblue-shade5 pt-10">
-      {/* Hero Section 
-      <SlideUpUI > Slide Up content </SlideUpUI>*/}
+      {/* Hero Section */}
+      <LocationInput
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onApply={(locationData) => {
+          console.log("Selected location:", locationData);
+          setShowModal(false);
+        }}
+      />
       <div
         id="hero-section"
         className="pt-14 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto gradient-soft"
@@ -127,9 +146,19 @@ const Home: React.FC = () => {
             <div className="relative flex-1 border border-gray-200 pl-0 sm:pl-3 rounded-4xl h-auto">
               <select className=" w-[calc(100%-120px)] p-4 focus:border-0 hover:border-0 active:border-0">
                 <option value={""}>Select category</option>
+                {category.categories.map((category, index) => {
+                  return (
+                    <option key={index} value={category.id}>
+                      {category.name}
+                    </option>
+                  );
+                })}
               </select>
               <div className="w-max absolute top-[15px] right-2">
-                <button className="w-max font-medium cursor-pointer">
+                <button
+                  className="w-max font-medium cursor-pointer"
+                  onClick={() => setShowModal((prev) => !prev)}
+                >
                   <span>Add Location </span>
                   <span>
                     <Icon className="inline" size={18} icon="map-pin" />
@@ -138,7 +167,10 @@ const Home: React.FC = () => {
               </div>
             </div>
             <div>
-              <button className="p-4 rounded-4xl bg-royalblue-main  text-white dark:text-white cursor-pointer">
+              <button
+                onClick={handleSearch}
+                className="p-4 rounded-4xl bg-royalblue-main  text-white dark:text-white cursor-pointer"
+              >
                 <span className="hidden sm:inline">Search </span>
                 <Icon className="inline" size={18} icon="search" />
               </button>
@@ -175,6 +207,9 @@ const Home: React.FC = () => {
         </div>
       </div>
       {/* Professionals Section */}
+      <div className="mt-14">
+        <MapView />
+      </div>
       <div
         id="home-professional-section"
         className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border-b border-gray-100"

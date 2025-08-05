@@ -37,35 +37,32 @@ type ChangeLikeEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   | { target: { name: string; value: any } };
 
-
-
-
 export function ProfileEdit() {
   const auth = useAuth();
   const id = auth?.user?.id;
   const { setLoading, setLoadingText } = useLoading();
   const { openNotification } = useNotificationContext();
 
-let tabOptions = [
-  { label: "Personal", value: "personal", icon: <UserOutlined /> },
-  { label: "Services", value: "services", icon: <DollarOutlined /> },
-  {
-    label: "Availability",
-    value: "availability",
-    icon: <ClockCircleOutlined />,
-  },
-  {
-    label: "Settings",
-    value: "settings",
-    icon: <Settings size={14} />,
-  },
-];
+  let tabOptions = [
+    { label: "Personal", value: "personal", icon: <UserOutlined /> },
+    { label: "Services", value: "services", icon: <DollarOutlined /> },
+    {
+      label: "Availability",
+      value: "availability",
+      icon: <ClockCircleOutlined />,
+    },
+    {
+      label: "Settings",
+      value: "settings",
+      icon: <Settings size={14} />,
+    },
+  ];
 
-if(auth.isClient){
-  tabOptions = tabOptions.filter((x=>{
-    return !(x.value === "services" || x.value === "availability")
-  }))
-}
+  if (auth.isClient) {
+    tabOptions = tabOptions.filter((x) => {
+      return !(x.value === "services" || x.value === "availability");
+    });
+  }
 
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [editData, setEditData] = useState<UserAccount | null>(null);

@@ -1,7 +1,8 @@
-import { Filter, MapPin } from "feather-icons-react";
+import { Filter, MapPin, X } from "feather-icons-react";
 import { Modal, Input, Select } from "antd";
 import { useState } from "react";
 import { useCategory } from "../../contexts/CategoryContext";
+import LocationInput from "../../components/map/LocationInput";
 
 export interface FilterFormProps {
   filters: {
@@ -10,17 +11,34 @@ export interface FilterFormProps {
     location: string;
   };
   onChange: (name: string, value: string) => void;
+  onApply?: () => void;
+  onClear?: () => void;
+  isFilter?: boolean;
+  setIsFilter?: () => void;
 }
 
 export const FilterComponent = ({
   filters,
   onChange,
+  onApply,
+  onClear,
+  isFilter,
 }: FilterFormProps): React.ReactNode => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const category = useCategory();
   return (
     <div>
-      <div className="hidden lg:flex border rounded-3xl border-gray-300">
+      <LocationInput
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onApply={(locationData) => {
+          console.log("Selected location:", locationData);
+          onChange("location", locationData.address);
+          setShowModal(false);
+        }}
+      />
+      <div className="hidden lg:flex items-center border rounded-3xl border-gray-300">
         {/* Desktop filter UI */}
         <input
           placeholder="Add a search term"
@@ -47,12 +65,32 @@ export const FilterComponent = ({
         </select>
         <input
           placeholder="Location"
-          value={filters.searchTerm}
-          onChange={(e) => onChange("searchTerm", e.target.value)}
+          value={filters.location}
+          onChange={(e) => onChange("location", e.target.value)}
           className="h-13 px-4  w-full active:border-gray-100 focus:border-gray-200"
         />
+
+        <div className="w-max">
+          <button
+            className="w-max font-medium cursor-pointer"
+            onClick={() => setShowModal((prev) => !prev)}
+          >
+            <span>Add Location </span>
+            <span>
+              <MapPin className="inline" size={18} />
+            </span>
+          </button>
+        </div>
+        {isFilter && (
+          <button
+            onClick={onClear}
+            className="h-13 px-5 min-w-[120px] bg-gray-900 text-white rounded-3xl cursor-pointer"
+          >
+            Clear <X className="inline" size={16} />
+          </button>
+        )}
         <button
-          onClick={() => setFilterModalOpen(true)}
+          onClick={onApply}
           className="h-13 px-5 min-w-[120px] bg-gray-900 text-white rounded-3xl cursor-pointer"
         >
           Apply <Filter className="inline" size={16} />
@@ -73,8 +111,12 @@ export const FilterComponent = ({
       <Modal
         title="Apply Filters"
         open={filterModalOpen}
-        onCancel={() => setFilterModalOpen(false)}
-        onOk={() => setFilterModalOpen(false)}
+        onCancel={() => {
+          setFilterModalOpen(false);
+        }}
+        onOk={() => {
+          setFilterModalOpen(false);
+        }}
         okText="Apply"
       >
         <div className="mb-5">

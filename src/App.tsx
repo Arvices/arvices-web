@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { CategoryProvider } from "./contexts/CategoryContext";
+import { LocationProvider } from "./contexts/LocationContext";
 
 function App() {
   useEffect(() => {
@@ -25,7 +26,9 @@ function App() {
                 <AuthProvider>
                   <GoogleOAuthProvider clientId="246891298847-ukttjjfu01ibg3mfj5tr5o8q9h698g2f.apps.googleusercontent.com">
                     <ThemeProvider>
-                      <Navigation />
+                      <LocationProvider>
+                        <Navigation />
+                      </LocationProvider>
                     </ThemeProvider>
                   </GoogleOAuthProvider>
                 </AuthProvider>

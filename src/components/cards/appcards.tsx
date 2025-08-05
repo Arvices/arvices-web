@@ -28,7 +28,12 @@ import { SlideIn } from "../slideupUI";
 import { Input } from "../input";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { useLoading } from "../../contexts/LoadingContext";
-import { createOffer, updateOffer } from "../../api-services/offer.service";
+import {
+  createOffer,
+  deleteOffer,
+  updateOffer,
+} from "../../api-services/offer.service";
+import { Lightbulb } from "lucide-react";
 
 export interface CategoryDataItem {
   title: string;
@@ -123,7 +128,11 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
           </h5>
           <p className="mb-2">
             <span className="block my-3 w-max mx-auto p-1 rounded-2xl text-white bg-gradient-to-r px-4 py-2 from-royalblue-shade4 to-royalblue-main">
-              <Layers className="inline w-4 h-4" /> {provider?.category && provider.category[0] && provider?.category[0]?.name || "Uncategorized"}
+              <Layers className="inline w-4 h-4" />{" "}
+              {(provider?.category &&
+                provider.category[0] &&
+                provider?.category[0]?.name) ||
+                "Uncategorized"}
             </span>
             <span className="inline-block ml-2">
               <FeatherIcon className="inline" size={18} icon="map-pin" />{" "}
@@ -234,15 +243,20 @@ export interface Job {
 
 interface JobCardProp {
   job: Job;
+  handleOfferAction: (
+    action: "delete" | "update",
+    id: number,
+    updatedJob?: any,
+  ) => void;
 }
 
-export const JobCard = ({ job }: JobCardProp) => {
+export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
   const auth = useAuth();
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
   const isMobile = window.innerWidth < 768;
-  const userOffer = job.offer.find((o) => o && o.user?.id === auth?.user?.id);
 
+  const userOffer = job.offer.find((o) => o && o.user?.id === auth?.user?.id);
   const [editMode, setEditMode] = useState(!userOffer);
 
   const direction = isMobile ? "bottom" : "right";
@@ -258,14 +272,15 @@ export const JobCard = ({ job }: JobCardProp) => {
       userOffer?.description
         ?.replace(/includes materials: yes|no/i, "")
         .trim() || "",
-  });
+  })
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setOfferData((prev) => ({ ...prev, [name]: value }));
-  };
+  }
+
   const handleSubmit = async () => {
     if (
       !offerData.price ||
@@ -292,6 +307,7 @@ export const JobCard = ({ job }: JobCardProp) => {
       };
       let response;
       if (userOffer) {
+        console.log({ userOffer });
         response = await updateOffer(auth.token, userOffer.id, {
           price: offerData.price,
           description: offerData.description,
@@ -304,9 +320,9 @@ export const JobCard = ({ job }: JobCardProp) => {
           "Offer Updated successfully",
           "success",
         );
+        handleOfferAction("update", job.id, response.data.response);
       } else {
         response = await createOffer(auth.token, payload);
-
         openNotification(
           "topRight",
           "Success",
@@ -314,7 +330,10 @@ export const JobCard = ({ job }: JobCardProp) => {
           "success",
         );
       }
-      console.log(editMode ? "Offer created:" : "Offer Updated", response.data);
+      console.log(
+        userOffer ? "Offer created:" : "Offer Updated",
+        response.data,
+      );
 
       setOpen(false); // Optionally close slide-in
     } catch (error: any) {
@@ -323,6 +342,35 @@ export const JobCard = ({ job }: JobCardProp) => {
         "topRight",
         "Error",
         error?.response?.data?.message || "Something went wrong",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  }
+
+  const handleCancelOffer = async () => {
+    try {
+      setLoadingText("Cancelling offer...");
+      setLoading(true);
+
+      await deleteOffer(auth.token, userOffer.id);
+
+      openNotification(
+        "topRight",
+        "Success",
+        "Offer cancelled successfully",
+        "success",
+      );
+
+      setOpen(false); // Optionally close slide-in
+    } catch (error: any) {
+      console.error("Error cancelling offer:", error);
+      openNotification(
+        "topRight",
+        "Error",
+        error?.response?.data?.message || "Failed to cancel offer",
         "error",
       );
     } finally {
@@ -369,6 +417,13 @@ export const JobCard = ({ job }: JobCardProp) => {
 
               <div>
                 <p className="flex items-center font-medium text-gray-900">
+                  <Lightbulb className="w-4 h-4 mr-2 text-royalblue-main" />
+                  Proposed Solution
+                </p>
+                <p className="ml-6">{userOffer?.description}</p>
+              </div>
+              <div>
+                <p className="flex items-center font-medium text-gray-900">
                   <Calendar className="w-4 h-4 mr-2 text-royalblue-main" />
                   Offer Made On:
                 </p>
@@ -395,16 +450,30 @@ export const JobCard = ({ job }: JobCardProp) => {
               </div>
             </div>
 
-            <div className="mt-6 text-right">
-              <Button
-                className="w-full !h-12 bg-royalblue-main text-white hover:bg-royalblue-dark"
-                onClick={() => {
-                  setEditMode(true);
-                }}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Update Offer
-              </Button>
+            <div className="mt-6 sm:flex sm:gap-4 sm:space-y-0 space-y-4">
+              <div className="flex-1">
+                <Button
+                  type="default"
+                  danger
+                  className="w-full !h-12 !border-red-500 !text-red-600 hover:!border-red-600 hover:!text-red-700"
+                  onClick={handleCancelOffer}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Cancel Offer
+                </Button>
+              </div>
+
+              <div className="flex-1">
+                <Button
+                  className="w-full !h-12 bg-royalblue-main text-white hover:bg-royalblue-dark"
+                  onClick={() => {
+                    setEditMode(true);
+                  }}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Update Offer
+                </Button>
+              </div>
             </div>
           </div>
         ) : (

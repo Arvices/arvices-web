@@ -25,8 +25,24 @@ const ArvicesProviders = (): React.ReactNode => {
     location: "",
   });
 
+  const [isFilter, setIsFilter] = useState(false);
+
   const handleFilterChange = (name: string, value: string) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFilterApply = () => {
+    fetchProfessionals();
+    setIsFilter(true);
+  };
+
+  const handeClearFilter = () => {
+    setFilters({
+      searchTerm: "",
+      category: "",
+      location: "",
+    });
+    setIsFilter(false);
   };
 
   const fetchProfessionals = async () => {
@@ -41,10 +57,12 @@ const ArvicesProviders = (): React.ReactNode => {
         page: currentPage,
         limit: 10,
       });
+
       if (res?.data?.response?.length === 0) {
         openNotification("topRight", "No More Content To Show", "", "info");
         return;
       }
+
       setProfessionals(res?.data?.response || []);
 
       console.log({ res });
@@ -57,13 +75,19 @@ const ArvicesProviders = (): React.ReactNode => {
 
   useEffect(() => {
     fetchProfessionals();
-  }, [filters, currentPage]);
+  }, []);
   return (
     <section className="min-h-screen pt-14 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto pb-15">
         {/* Page Starts*/}
         <div className="mt-5">
-          <FilterComponent onChange={handleFilterChange} filters={filters} />
+          <FilterComponent
+            isFilter={isFilter}
+            onApply={handleFilterApply}
+            onClear={handeClearFilter}
+            onChange={handleFilterChange}
+            filters={filters}
+          />
         </div>
         <div className="mt-13">
           <h3 className="text-royalblue-shade5 text-2xl font-medium tracking-tight md:text-3xl mb-4">

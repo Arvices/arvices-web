@@ -21,12 +21,95 @@ const AvailableJobPostings = (): React.ReactNode => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [jobPostings, setJobPostings] = useState<any[]>([]); // Replace `any` with your actual type if available
+  const [jobPostings, setJobPostings] = useState<Job[]>([]); // Replace `any` with your actual type if available
 
   const handleFilterChange = (name: string, value: string) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  const [isFilter, setIsFilter] = useState(false);
+
+  const handleFilterApply = () => {
+    loadServiceRequest();
+    setIsFilter(true);
+  };
+
+  const handeClearFilter = () => {
+    setFilters({
+      searchTerm: "",
+      category: "",
+      location: "",
+    });
+    setIsFilter(false);
+  };
+  // Add an offer to a specific job by jobId
+  const addOfferToJob = (jobId: number, newOffer: any) => {
+    setJobPostings((prev) =>
+      prev.map((job) =>
+        job.id === jobId
+          ? {
+              ...job,
+              offer: job.offer ? [...job.offer, newOffer] : [newOffer],
+            }
+          : job,
+      ),
+    );
+  };
+
+  // Update an offer in a specific job by jobId and offerId
+  const updateOfferInJob = (
+    jobId: number,
+    offerId: number,
+    updatedOffer: any,
+  ) => {
+    let job = jobPostings.find((x) => x.id === jobId);
+    const jobOffers = job?.offer || [];
+    const filtered = jobOffers?.filter((x) => x.id !== offerId);
+    const newOffers = [...filtered, updatedOffer];
+    console.log({ newOffers });
+    setJobPostings((prev) =>
+      prev.map((job) =>
+        job.id === jobId
+          ? {
+              ...job,
+              offer: (job.offer || []).map((offer: any) =>
+                offer.id === offerId ? { ...offer, ...updatedOffer } : offer,
+              ),
+            }
+          : job,
+      ),
+    );
+  };
+
+  // Remove an offer from a specific job by jobId and offerId
+  const removeOfferFromJob = (jobId: number, offerId: number) => {
+    setJobPostings((prev) =>
+      prev.map((job) =>
+        job.id === jobId
+          ? {
+              ...job,
+              offer: job.offer?.filter((offer: any) => offer.id !== offerId),
+            }
+          : job,
+      ),
+    );
+  };
+
+  // Unified handler to be used by children
+  const handleOfferAction = (
+    action: "add" | "update" | "delete",
+    jobId: number,
+    offer: any,
+  ) => {
+    console.log({ action, jobId, offer });
+    if (action === "add") {
+      addOfferToJob(jobId, offer);
+    } else if (action === "update") {
+      updateOfferInJob(jobId, offer.id, offer);
+    } else if (action === "delete") {
+      removeOfferFromJob(jobId, offer.id);
+    }
+  };
   const loadServiceRequest = async () => {
     setLoading(true);
     setError(null);
@@ -59,6 +142,8 @@ const AvailableJobPostings = (): React.ReactNode => {
     }
   };
 
+  console.log({ jobPostings });
+
   useEffect(() => {
     if (auth.token) {
       loadServiceRequest();
@@ -70,7 +155,13 @@ const AvailableJobPostings = (): React.ReactNode => {
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         {/* Page Starts*/}
         <div className="mt-5">
-          <FilterComponent onChange={handleFilterChange} filters={filters} />
+          <FilterComponent
+            isFilter={isFilter}
+            onApply={handleFilterApply}
+            onClear={handeClearFilter}
+            onChange={handleFilterChange}
+            filters={filters}
+          />
         </div>
         <div className="mt-13">
           <h3 className="text-royalblue-shade5 text-2xl font-medium tracking-tight md:text-3xl mb-4">
@@ -104,7 +195,10 @@ const AvailableJobPostings = (): React.ReactNode => {
                           key={index}
                           className="max-w-[400px] min-w-[300px] flex-1"
                         >
-                          <JobCard job={job} />
+                          <JobCard
+                            handleOfferAction={handleOfferAction}
+                            job={job}
+                          />
                         </div>
                       );
                     })}
