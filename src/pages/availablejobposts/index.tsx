@@ -110,6 +110,7 @@ const AvailableJobPostings = (): React.ReactNode => {
       removeOfferFromJob(jobId, offer.id);
     }
   };
+
   const loadServiceRequest = async () => {
     setLoading(true);
     setError(null);

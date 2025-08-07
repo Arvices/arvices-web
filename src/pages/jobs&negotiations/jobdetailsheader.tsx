@@ -35,7 +35,10 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
         </div>
         <div className="text-sm mt-0.5 text-gray-500">
           {timeAgo} &mdash;{" "}
-          <span className="capitalize">{job.category.name}</span> category
+          <span className="capitalize">
+            {job?.category?.name || "Uncategorized"}
+          </span>{" "}
+          category
         </div>
 
         <div className="max-w-max text-[14px] mt-1.5">

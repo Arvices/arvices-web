@@ -75,7 +75,7 @@ export const getAcceptedOfferForRequest = async (
 export const deleteOffer = async (token: string, id: number) => {
   const config = {
     method: "delete",
-    url: `${baseUrl}/offer/deleteoffer`,
+    url: `${baseUrl}/offer/deleteoffer/${id}`,
     params: { id },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ export const updateOffer = async (
 ) => {
   const config = {
     method: "put",
-    url: `${baseUrl}/offer/updateoffer/${id}`,
+    url: `${baseUrl}/offer/updateoffer/${id}?id=${id}`,
     data,
     headers: {
       Authorization: `Bearer ${token}`,

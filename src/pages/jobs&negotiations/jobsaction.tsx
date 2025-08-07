@@ -49,6 +49,7 @@ export const providerJobActions_array: JobActionsMap_array<ProviderJobState> = {
   ongoing: ["Send Update", "Upload Work", "Request Completion"],
   completed: ["View Feedback", "Message Client", "Rate Client"],
 };
+
 export const buttonClasses = {
   neutral:
     "cursor-pointer bg-gray-100 text-gray-700 hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-gray-300",
@@ -145,12 +146,6 @@ export const clientJobActions: JobActionsMap<ClientJobState> = {
   all: [],
   open: [
     {
-      label: "View Offers",
-      action: () => console.log("Viewing offers"),
-      styleClass: "primary",
-      icon: ArrowUpRight,
-    },
-    {
       label: "Edit Job",
       action: () => console.log("Editing job"),
       styleClass: "neutral",
@@ -224,3 +219,27 @@ export const clientJobActions: JobActionsMap<ClientJobState> = {
     },
   ],
 };
+
+
+interface ActionButtonsProps {
+  actions: JobActionItem[];
+}
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({ actions }) => {
+  return (
+    <div className="flex gap-3">
+      {actions.map(({ label, action, styleClass, icon: Icon }) => (
+        <button
+          key={label}
+          onClick={action}
+          className={`flex-1 rounded-lg transition ${buttonClasses[styleClass]}`}
+        >
+          {Icon && <Icon className="inline h-11" size={16} />}
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+export default ActionButtons;

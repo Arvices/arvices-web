@@ -4,7 +4,7 @@ import {
   JobActionsProps,
   providerJobActions,
   ProviderJobState,
-} from "./jobsaction";
+} from "../jobsaction";
 
 const ProviderJobActions: React.FC<JobActionsProps> = ({ job }) => {
   let action = "pending" as ProviderJobState;

@@ -1,6 +1,8 @@
+
+import React from "react";
 import "./cards.css";
 import { Button, Rate } from "antd";
-
+import { Modal} from "antd";
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
 import FeatherIcon, {
   ArrowUpRight,
@@ -18,7 +20,7 @@ import FeatherIcon, {
   User,
 } from "feather-icons-react";
 import { UserAccount } from "../../api-services/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { followUser, unfollowUser } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
@@ -34,6 +36,13 @@ import {
   updateOffer,
 } from "../../api-services/offer.service";
 import { Lightbulb } from "lucide-react";
+import { Offer } from "../../types/main.types";
+import ActionButtons, {
+  buttonClasses,
+  clientJobActions,
+  ClientJobState,
+} from "../../pages/jobs&negotiations/jobsaction";
+import EditJob from "../../pages/jobs&negotiations/client_components/editjob";
 
 export interface CategoryDataItem {
   title: string;
@@ -66,8 +75,10 @@ interface ProviderCardInterface {
 }
 
 export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
+  const { openNotification } = useNotificationContext();
   const auth = useAuth();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const currentUserId = auth?.user?.id ?? -1;
   const isUserFollowing =
     Array.isArray(provider.followers) &&
@@ -76,6 +87,18 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
   const [isFollowing, setIsFollowing] = useState(isUserFollowing);
 
   const handleFollowToggle = async () => {
+    if (!auth.isAuthenticated) {
+      openNotification(
+        "topRight",
+        "Logging before you can follow this user, you must sign in.",
+        "You will be redirected to the login page",
+        "info",
+      );
+      setTimeout(() => {
+        navigate("/login");
+      }, 200);
+      return;
+    }
     try {
       setLoading(true);
       if (isFollowing) {
@@ -220,6 +243,16 @@ export const ActivityCard: React.FC = () => {
     </div>
   );
 };
+export const JobStatus = {
+  Open: "Open",
+  Negotiating: "Negotiating",
+  Assigned: "Assigned",
+  Ongoing: "Ongoing",
+  Completed: "Completed",
+  Cancelled: "Cancelled",
+} as const;
+
+export type JobStatusType = keyof typeof JobStatus;
 
 export interface Job {
   id: number;
@@ -234,9 +267,9 @@ export interface Job {
   createdDate: string;
   description: string;
   images: string[]; // Adjust if images have an object structure
-  offer: any[]; // Specify type if offer items have a defined structure
+  offer: Offer[]; // Specify type if offer items have a defined structure
   position: any | null; // Define more specifically if known
-  status: string;
+  status: JobStatusType;
   type: string;
   user?: UserAccount;
 }
@@ -244,7 +277,7 @@ export interface Job {
 interface JobCardProp {
   job: Job;
   handleOfferAction: (
-    action: "delete" | "update",
+    action: "add" | "delete" | "update",
     id: number,
     updatedJob?: any,
   ) => void;
@@ -272,14 +305,14 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       userOffer?.description
         ?.replace(/includes materials: yes|no/i, "")
         .trim() || "",
-  })
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setOfferData((prev) => ({ ...prev, [name]: value }));
-  }
+  };
 
   const handleSubmit = async () => {
     if (
@@ -321,6 +354,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
           "success",
         );
         handleOfferAction("update", job.id, response.data.response);
+        setEditMode(false);
       } else {
         response = await createOffer(auth.token, payload);
         openNotification(
@@ -329,13 +363,19 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
           "Offer sent successfully",
           "success",
         );
+
+        setEditMode(false);
+        console.log({
+          add: "add",
+          jobId: job.id,
+          response: response.data.response,
+        });
+        handleOfferAction("add", job.id, response.data.response);
       }
       console.log(
         userOffer ? "Offer created:" : "Offer Updated",
         response.data,
       );
-
-      setOpen(false); // Optionally close slide-in
     } catch (error: any) {
       console.error("Error creating offer:", error);
       openNotification(
@@ -348,14 +388,14 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       setLoading(false);
       setLoadingText("");
     }
-  }
+  };
 
   const handleCancelOffer = async () => {
     try {
       setLoadingText("Cancelling offer...");
       setLoading(true);
 
-      await deleteOffer(auth.token, userOffer.id);
+      await deleteOffer(auth.token, userOffer?.id || 0);
 
       openNotification(
         "topRight",
@@ -365,6 +405,12 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       );
 
       setOpen(false); // Optionally close slide-in
+      handleOfferAction("delete", job.id, userOffer);
+      const [offerData, setOfferData] = useState({
+        price: "",
+        includesMaterials: false,
+        description: "",
+      });
     } catch (error: any) {
       console.error("Error cancelling offer:", error);
       openNotification(
@@ -523,6 +569,8 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
             </div>
 
             <div className="border-t my-7 border-gray-200" />
+            {/*
+              
             <div>
               <label className="block tracking-tight font-medium mb-1">
                 Does this include materials needed for the job?
@@ -583,6 +631,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
                 </div>
               </div>
             </div>
+              */}
           </div>
         )}
       </SlideIn>
@@ -634,6 +683,149 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
         </div>
       </div>
       <div className="meta"></div>
+    </div>
+  );
+};
+
+interface CancelJobModalProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+const CancelJobModal: React.FC<CancelJobModalProps> = ({
+  open,
+  onClose,
+  onConfirm,
+}) => {
+  return (
+    <Modal
+      open={open}
+      title="Cancel Job"
+      onCancel={onClose}
+      footer={[
+        <Button key="back" onClick={onClose}>
+          No, go back
+        </Button>,
+        <Button key="submit" type="primary" danger onClick={onConfirm}>
+          Yes, cancel job
+        </Button>,
+      ]}
+    >
+      <p>
+        Are you sure you want to cancel this job? This action cannot be undone.
+      </p>
+    </Modal>
+  );
+};
+
+export default CancelJobModal;
+
+export const JobCardView = ({ job }: { job: Job }) => {
+  const auth = useAuth();
+  const open = job.status === JobStatus.Open;
+  let action: ClientJobState = "open"; // This would typically come from business logic
+  let actions = clientJobActions[action];
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showEditView, setShowEditView] = useState(false);
+
+  const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
+  const toggleEditView = () => setShowEditView((prev) => !prev);
+
+  if (action === "open") {
+    actions = actions.map((action, index) => {
+      if (action.label === "Edit Job") {
+        action.action = () => setShowEditView(true);
+      } else if (action.label === "Close Job") {
+        action.action = () => setShowCancelModal(true);
+      }
+      return action;
+    });
+  }
+  
+  const handleCancelJob = () => {
+    // Add actual cancel logic here
+    console.log("Job cancelled");
+    setShowCancelModal(false);
+  };
+
+  const handleEditSubmit = (data: any) => {
+    console.log("Edited offer submitted:", data);
+    toggleEditView();
+  };
+
+  const handleEditCancel = () => {
+    console.log("Edit cancelled");
+    toggleEditView();
+  };
+
+   if (showEditView) {
+    return (
+      <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
+        <EditJob
+          initialData={{
+            description: job.description,
+            address: job.address,
+          }}
+          onSubmit={handleEditSubmit}
+          onCancel={handleEditCancel}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
+      
+      <CancelJobModal
+        open={showCancelModal}
+        onClose={toggleCancelModal}
+        onConfirm={handleCancelJob}
+      />
+      {/* Top Row: User + Timestamp */}
+
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-gray-100 rounded-full">
+            <User className="w-4 h-4 text-gray-600" />
+          </div>
+          <span className="text-sm font-medium text-gray-800">
+            {job.user?.fullName || "Unknown User"}
+          </span>
+        </div>
+        <p className="text-xs text-gray-500">
+          Job Posted {moment(job.createdDate).fromNow()}
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 mb-4" />
+
+      {/* Address and Category */}
+      <div className="mb-4 space-y-1">
+        <p className="text-sm text-royalblue-main font-semibold flex items-center gap-1">
+          <MapPin className="w-4 h-4" />
+          {job.address || job.user?.address || "No address provided"}
+        </p>
+        <p className="text-sm text-gray-600 font-medium">
+          {job.category?.name || "Uncategorized"}
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 mb-4" />
+
+      {/* Description */}
+      <div className="text-sm text-gray-800 leading-relaxed ">
+        {job.description || "No description provided."}
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 my-4" />
+      {
+        open && <ActionButtons actions={actions} />
+      }
     </div>
   );
 };

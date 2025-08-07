@@ -1,11 +1,11 @@
 import React from "react";
-import { Job } from "../../components/cards/appcards";
+import { Job } from "../../../components/cards/appcards";
 import {
   buttonClasses,
   clientJobActions,
   ClientJobState,
   JobActionsProps,
-} from "./jobsaction";
+} from "../jobsaction";
 
 const ClientJobActions: React.FC<JobActionsProps> = ({ job }) => {
   let action = "open" as ClientJobState;

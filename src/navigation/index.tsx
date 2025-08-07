@@ -31,6 +31,7 @@ import Transactions from "../pages/transactionhistory";
 import BaseLayout from "../pages/base";
 import { ProfileEdit } from "../pages/profile/profile.edit";
 import ManageJob from "../pages/jobs&negotiations";
+import JobView from "../pages/jobs&negotiations/jobview";
 
 // Import pages
 
@@ -88,6 +89,8 @@ function NavigationContent() {
         <Route path="/jobs" Component={Transactions} />
         <Route path="/provider/manage-jobs" Component={ManageJob} />
         <Route path="/client/manage-jobs" Component={ManageJob} />
+        <Route path="/provider/manage-jobs/:id/:offerId" Component={JobView} />
+        <Route path="/client/manage-jobs/:id" Component={JobView} />
         <Route path="/client/new-job" Component={NewJobPosting} />
         <Route
           path="/client/favourite-service-providers"

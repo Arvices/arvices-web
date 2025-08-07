@@ -29,36 +29,35 @@ export const getAllServiceRequests = ({
   endDate,
   orderBy,
 }: GetAllServiceRequestParams) => {
+  const params: Record<string, any> = {};
+  if (page) params.page = page;
+  if (limit) params.limit = limit;
+  if (search) params.search = search;
+  if (category) params.category = category;
+  if (user) params.user = user;
+  if (status) params.status = status;
+  if (type) params.type = type;
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  if (orderBy) params.orderBy = orderBy;
+
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getallservicerequest`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    params: {
-      page,
-      limit,
-      ...(search && { search }),
-      ...(category && { category }),
-      ...(user && { user }),
-      ...(status && { status }),
-      ...(type && { type }),
-      ...(startDate && { startDate }),
-      ...(endDate && { endDate }),
-      ...(orderBy && { orderBy }),
-    },
+    params,
   };
+  console.log({ config });
 
   return axios(config);
 };
-export const getServiceRequest = (
-  params: { [key: string]: any },
-  token: string,
-) => {
+export const getServiceRequest = (id: string, token: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getservicerequest`,
     method: "GET",
-    params,
+    params: { id },
     headers: {
       Authorization: `Bearer ${token}`,
     },
