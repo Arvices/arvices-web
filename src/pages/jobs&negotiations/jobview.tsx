@@ -23,10 +23,11 @@ const JobView = (): React.ReactNode => {
     setError(null);
 
     try {
-      if (id && !offerId) {
-        const response = await getServiceRequest(id, auth.token);
+      if (auth.isClient) {
+        const response = await getServiceRequest(id as string, auth.token);
+        console.log({ fetchingallloffers: true });
         const allOffers = await getAllOffers(auth.token, {
-          servicerequest: job?.id,
+          servicerequest: Number(id),
           page: 1,
           limit: 10,
         });
@@ -48,6 +49,24 @@ const JobView = (): React.ReactNode => {
     }
   };
 
+  const onJobChange = (data: Job) => {
+    setJob(data);
+    console.log("Job updated:", data);
+  };
+
+  const onOfferChange = (data: Offer) => {
+    setJobOffers((prev) => {
+      if (!prev) return prev; // If no offers yet, just return
+
+      return prev.map((offer) => (offer.id === data.id ? data : offer));
+    });
+
+    console.log("On Offer Change", { data });
+  };
+  const onEvent = (data: any) => {
+    console.log("On Job Change", { data });
+  };
+
   useEffect(() => {
     loadJobOrOffer();
   }, [id, offerId]);
@@ -65,7 +84,12 @@ const JobView = (): React.ReactNode => {
           UIComponent={
             auth?.isClient ? (
               job ? (
-                <ClientView jobOffers={allJobOffers || []} job={job} />
+                <ClientView
+                  onJobChange={onJobChange}
+                  jobOffers={allJobOffers || []}
+                  job={job}
+                  onOfferChange={onOfferChange}
+                />
               ) : null
             ) : offer ? (
               <ProviderView offer={offer} />

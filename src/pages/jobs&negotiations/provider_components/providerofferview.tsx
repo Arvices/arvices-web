@@ -3,12 +3,9 @@ import { formatDistanceToNow } from "date-fns";
 import { CalendarDays, Layers, User2 } from "lucide-react";
 import { Modal } from "antd";
 import { Offer } from "../../../types/main.types";
-import {
-  buttonClasses,
-  providerJobActions,
-  ProviderJobState,
-} from "../jobsaction"; // Adjust import path if needed
+import { buttonClasses, offerActions } from "../jobsaction"; // Adjust import path if needed
 import EditOffer, { OfferData } from "./editoffer";
+import { OfferStatus } from "../../../components/cards/appcards";
 
 interface Props {
   offer: Offer;
@@ -23,10 +20,10 @@ const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
     accepted,
   } = offer;
 
-  let action: ProviderJobState = "pending"; // This would typically come from business logic
-  let actions = providerJobActions[action];
+  let action: OfferStatus = "Pending";
+  let actions = offerActions[action];
 
-  if (action === "pending") {
+  if (action === "Pending") {
     actions = actions.map((action, index) => {
       if (action.label === "Edit Offer") {
         action.action = () => setShowEditView(true);

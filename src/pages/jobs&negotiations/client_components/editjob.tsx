@@ -11,7 +11,11 @@ interface EditJobProps {
   onCancel?: () => void;
 }
 
-const EditJob: React.FC<EditJobProps> = ({ initialData, onSubmit, onCancel }) => {
+const EditJob: React.FC<EditJobProps> = ({
+  initialData,
+  onSubmit,
+  onCancel,
+}) => {
   const [form, setForm] = useState<EditJobData>(initialData);
 
   useEffect(() => {
@@ -19,7 +23,7 @@ const EditJob: React.FC<EditJobProps> = ({ initialData, onSubmit, onCancel }) =>
   }, [initialData]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -34,7 +38,7 @@ const EditJob: React.FC<EditJobProps> = ({ initialData, onSubmit, onCancel }) =>
   };
 
   return (
-    <form onSubmit={handleSubmit}  className="">
+    <form onSubmit={handleSubmit} className="">
       <h2 className="text-xl font-semibold text-gray-800 tracking-tight mb-4">
         Edit Job Details
       </h2>

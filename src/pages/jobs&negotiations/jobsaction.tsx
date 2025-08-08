@@ -1,12 +1,16 @@
-import { ArrowUpRight, LucideIcon } from "lucide-react";
 import {
   MessageCircle,
   FileEdit,
   Upload,
   CheckCheck,
   Trash2,
+  LucideIcon,
+  MessageSquare,
+  Handshake,
 } from "lucide-react";
+
 import { Star, Repeat, FileText } from "lucide-react";
+import { JobStatus, OfferStatus } from "../../components/cards/appcards";
 
 export interface JobActionItem {
   label: string;
@@ -16,39 +20,6 @@ export interface JobActionItem {
 }
 
 // Define job states for clarity
-export type ClientJobState =
-  | "all"
-  | "open"
-  | "negotiating"
-  | "ongoing"
-  | "completed";
-export type ProviderJobState =
-  | "all"
-  | "pending"
-  | "negotiating"
-  | "ongoing"
-  | "completed";
-
-// Action type: now representing an array of action labels
-type JobActionsMap_array<State extends string> = Record<State, string[]>;
-
-// Client-specific job actions map
-export const clientJobActions_array: JobActionsMap_array<ClientJobState> = {
-  all: [],
-  open: ["View Offers", "Edit Job", "Close Job"],
-  negotiating: ["Chat with Provider", "Accept Offer", "Decline Offer"],
-  ongoing: ["Request Update", "Cancel Job", "Mark as Completed"],
-  completed: ["View Summary", "Rehire Provider", "Rate Provider"],
-};
-
-// Provider-specific job actions map
-export const providerJobActions_array: JobActionsMap_array<ProviderJobState> = {
-  all: [],
-  pending: ["Edit Offer", "Withdraw Offer"],
-  negotiating: ["Continue Chat", "Update Offer", "Withdraw Offer"],
-  ongoing: ["Send Update", "Upload Work", "Request Completion"],
-  completed: ["View Feedback", "Message Client", "Rate Client"],
-};
 
 export const buttonClasses = {
   neutral:
@@ -61,6 +32,16 @@ export const buttonClasses = {
     "cursor-pointer border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 focus:bg-gray-100 focus:ring-2 focus:ring-gray-300",
   subtle:
     "cursor-pointer bg-white text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:ring-2 focus:ring-gray-200",
+  mutedBlue:
+    "cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-100 focus:bg-blue-100 focus:ring-2 focus:ring-blue-200",
+  mutedGreen:
+    "cursor-pointer bg-green-50 text-green-600 hover:bg-green-100 focus:bg-green-100 focus:ring-2 focus:ring-green-200",
+  mutedYellow:
+    "cursor-pointer bg-yellow-50 text-yellow-700 hover:bg-yellow-100 focus:bg-yellow-100 focus:ring-2 focus:ring-yellow-200",
+  mutedPurple:
+    "cursor-pointer bg-purple-50 text-purple-600 hover:bg-purple-100 focus:bg-purple-100 focus:ring-2 focus:ring-purple-200",
+  mutedSlate:
+    "cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200 focus:bg-slate-200 focus:ring-2 focus:ring-slate-300",
 } as const;
 
 export type ButtonStyleName = keyof typeof buttonClasses;
@@ -68,12 +49,11 @@ export type ButtonStyleName = keyof typeof buttonClasses;
 export type JobActionsMap<T extends string> = Record<T, JobActionItem[]>;
 
 export interface JobActionsProps {
-  job: any; // Adjust to your actual job type
+  job: any;
 }
 
-export const providerJobActions: JobActionsMap<ProviderJobState> = {
-  all: [],
-  pending: [
+export const offerActions: JobActionsMap<OfferStatus> = {
+  Pending: [
     {
       label: "Edit Offer",
       action: () => console.log("Editing offer"),
@@ -87,7 +67,7 @@ export const providerJobActions: JobActionsMap<ProviderJobState> = {
       icon: Trash2,
     },
   ],
-  negotiating: [
+  Negotiating: [
     {
       label: "Continue Chat",
       action: () => console.log("Continuing chat"),
@@ -107,7 +87,7 @@ export const providerJobActions: JobActionsMap<ProviderJobState> = {
       icon: Trash2,
     },
   ],
-  ongoing: [
+  Ongoing: [
     {
       label: "Send Update",
       action: () => console.log("Sending update"),
@@ -127,7 +107,7 @@ export const providerJobActions: JobActionsMap<ProviderJobState> = {
       icon: CheckCheck,
     },
   ],
-  completed: [
+  Completed: [
     {
       label: "View Feedback",
       action: () => console.log("Viewing feedback"),
@@ -142,9 +122,8 @@ export const providerJobActions: JobActionsMap<ProviderJobState> = {
   ],
 };
 
-export const clientJobActions: JobActionsMap<ClientJobState> = {
-  all: [],
-  open: [
+export const jobActions: JobActionsMap<JobStatus> = {
+  Open: [
     {
       label: "Edit Job",
       action: () => console.log("Editing job"),
@@ -158,27 +137,15 @@ export const clientJobActions: JobActionsMap<ClientJobState> = {
       icon: Trash2,
     },
   ],
-  negotiating: [
+  Negotiating: [
     {
-      label: "Chat with Provider",
-      action: () => console.log("Chatting with provider"),
-      styleClass: "primary",
-      icon: MessageCircle,
-    },
-    {
-      label: "Accept Offer",
-      action: () => console.log("Accepting offer"),
-      styleClass: "primary",
-      icon: CheckCheck,
-    },
-    {
-      label: "Decline Offer",
-      action: () => console.log("Declining offer"),
+      label: "Close Job",
+      action: () => console.log("Closing job"),
       styleClass: "danger",
       icon: Trash2,
-    },
+    }
   ],
-  ongoing: [
+  Ongoing: [
     {
       label: "Request Update",
       action: () => console.log("Requesting update"),
@@ -198,7 +165,7 @@ export const clientJobActions: JobActionsMap<ClientJobState> = {
       icon: CheckCheck,
     },
   ],
-  completed: [
+  Completed: [
     {
       label: "View Summary",
       action: () => console.log("Viewing summary"),
@@ -218,8 +185,42 @@ export const clientJobActions: JobActionsMap<ClientJobState> = {
       icon: Star,
     },
   ],
+  Closed: [
+    {
+      label: "Re-Open This Job",
+      action: () => console.log("Viewing summary"),
+      styleClass: "mutedYellow",
+      icon: FileText,
+    },
+  ],
 };
 
+export const clientOfferActions: JobActionsMap<OfferStatus> = {
+  Pending: [
+    {
+      label: "Start Negotiation",
+      action: () => {
+        // handle accept logic here
+      },
+      styleClass: "primary",
+      icon: Handshake,
+    },
+    {
+      label: "Message Provider",
+      action: () => {
+        // handle message logic here
+      },
+      styleClass: "outline",
+      icon: MessageSquare,
+    },
+  ],
+  Negotiating: [
+  ],
+  Ongoing: [],
+  Completed: [],
+};
+
+let openAction: JobActionItem[] = [];
 
 interface ActionButtonsProps {
   actions: JobActionItem[];

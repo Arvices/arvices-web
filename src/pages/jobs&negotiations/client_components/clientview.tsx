@@ -3,11 +3,12 @@ import { Job, JobCard, JobCardView } from "../../../components/cards/appcards";
 import OfferCardClient from "./clientoffercard";
 import { Offer } from "../../../types/main.types";
 
-const ClientView: React.FC<{ job: Job; jobOffers: Offer[] }> = ({
-  job,
-  jobOffers,
-}): React.ReactNode => {
-  console.log({ jobOffers });
+const ClientView: React.FC<{
+  job: Job;
+  jobOffers: Offer[];
+  onJobChange: (data: any) => void;
+  onOfferChange: (data: any) => void;
+}> = ({ job, jobOffers, onJobChange, onOfferChange }): React.ReactNode => {
   return (
     <section>
       {/* Client Page Starts */}
@@ -24,7 +25,7 @@ const ClientView: React.FC<{ job: Job; jobOffers: Offer[] }> = ({
           <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
           Job Details
         </p>
-        <JobCardView job={job} />
+        <JobCardView job={job} onJobChange={onJobChange} />
       </div>
       <div className="mt-10">
         <p className="mb-2 text-gray-600 flex items-center gap-2">
@@ -34,7 +35,12 @@ const ClientView: React.FC<{ job: Job; jobOffers: Offer[] }> = ({
         {jobOffers && jobOffers.length > 0 ? (
           jobOffers.map((offer, index) => (
             <div className="py-2" key={index}>
-              <OfferCardClient job={job} offer={offer} />
+              <OfferCardClient
+                onJobChange={onJobChange}
+                onOfferChange={onOfferChange}
+                job={job}
+                offer={offer}
+              />
             </div>
           ))
         ) : (

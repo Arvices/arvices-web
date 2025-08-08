@@ -1,5 +1,6 @@
 import React from "react";
 import { JobStatusType } from "../../components/cards/appcards";
+import { buttonClasses, ButtonStyleName } from "./jobsaction";
 
 // ---- Status Enum Replacement ----
 
@@ -23,11 +24,6 @@ const jobStatusTagMap: Record<Role, Record<JobStatusType, TagMeta>> = {
       className:
         "bg-blue-100 text-blue-600 border border-blue-500 text-xs px-2 py-1 rounded-full",
     },
-    Assigned: {
-      label: "Provider Assigned",
-      className:
-        "bg-purple-100 text-purple-600 border border-purple-500 text-xs px-2 py-1 rounded-full",
-    },
     Ongoing: {
       label: "In Progress",
       className:
@@ -38,8 +34,8 @@ const jobStatusTagMap: Record<Role, Record<JobStatusType, TagMeta>> = {
       className:
         "bg-green-100 text-green-600 border border-green-500 text-xs px-2 py-1 rounded-full",
     },
-    Cancelled: {
-      label: "Cancelled",
+    Closed: {
+      label: "Closed",
       className:
         "bg-red-100 text-red-600 border border-red-500 text-xs px-2 py-1 rounded-full",
     },
@@ -55,11 +51,6 @@ const jobStatusTagMap: Record<Role, Record<JobStatusType, TagMeta>> = {
       className:
         "bg-blue-100 text-blue-600 border border-blue-500 text-xs px-2 py-1 rounded-full",
     },
-    Assigned: {
-      label: "You Got the Job",
-      className:
-        "bg-purple-100 text-purple-600 border border-purple-500 text-xs px-2 py-1 rounded-full",
-    },
     Ongoing: {
       label: "Working on It",
       className:
@@ -70,8 +61,8 @@ const jobStatusTagMap: Record<Role, Record<JobStatusType, TagMeta>> = {
       className:
         "bg-green-100 text-green-600 border border-green-500 text-xs px-2 py-1 rounded-full",
     },
-    Cancelled: {
-      label: "Client Cancelled",
+    Closed: {
+      label: "Closed",
       className:
         "bg-red-100 text-red-600 border border-red-500 text-xs px-2 py-1 rounded-full",
     },
@@ -99,5 +90,23 @@ export const StatusTag: React.FC<StatusTagProps> = ({
 
   return (
     <span className={`${defaultClassName} ${className || ""}`}>{label}</span>
+  );
+};
+
+interface GenericTagProps {
+  label: string;
+  buttonStyle: ButtonStyleName;
+}
+
+export const GenericTag: React.FC<GenericTagProps> = ({
+  label,
+  buttonStyle,
+}) => {
+  return (
+    <span
+      className={`${buttonClasses[buttonStyle]} text-sm font-medium py-1 rounded-2xl px-4`}
+    >
+      {label}
+    </span>
   );
 };

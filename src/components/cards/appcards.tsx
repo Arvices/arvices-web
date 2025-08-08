@@ -1,8 +1,7 @@
-
 import React from "react";
 import "./cards.css";
 import { Button, Rate } from "antd";
-import { Modal} from "antd";
+import { Modal } from "antd";
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
 import FeatherIcon, {
   ArrowUpRight,
@@ -39,10 +38,11 @@ import { Lightbulb } from "lucide-react";
 import { Offer } from "../../types/main.types";
 import ActionButtons, {
   buttonClasses,
-  clientJobActions,
-  ClientJobState,
+  jobActions,
 } from "../../pages/jobs&negotiations/jobsaction";
 import EditJob from "../../pages/jobs&negotiations/client_components/editjob";
+import { updateServiceRequest } from "../../api-services/servicerequests.service";
+import { GenericTag } from "../../pages/jobs&negotiations/statustag";
 
 export interface CategoryDataItem {
   title: string;
@@ -243,14 +243,36 @@ export const ActivityCard: React.FC = () => {
     </div>
   );
 };
+
 export const JobStatus = {
   Open: "Open",
   Negotiating: "Negotiating",
-  Assigned: "Assigned",
   Ongoing: "Ongoing",
   Completed: "Completed",
-  Cancelled: "Cancelled",
+  Closed: "Closed",
 } as const;
+
+export type JobStatus = keyof typeof JobStatus; // Optional: if you want keys, or use `typeof JobStatus[keyof typeof JobStatus]` for values
+
+export const OfferStatus = {
+  Pending: "Pending",
+  Negotiating: "Negotiating",
+  Ongoing: "Ongoing",
+  Completed: "Completed",
+} as const;
+
+export type OfferStatus = (typeof OfferStatus)[keyof typeof OfferStatus];
+
+export function getOfferStatusStyle(status: OfferStatus): keyof typeof buttonClasses {
+  const statusMap: Record<OfferStatus, keyof typeof buttonClasses> = {
+    [OfferStatus.Pending]: "mutedYellow",
+    [OfferStatus.Negotiating]: "primary",
+    [OfferStatus.Ongoing]: "mutedBlue",
+    [OfferStatus.Completed]: "mutedGreen",
+  };
+
+  return statusMap[status] || "neutral";
+}
 
 export type JobStatusType = keyof typeof JobStatus;
 
@@ -701,19 +723,19 @@ const CancelJobModal: React.FC<CancelJobModalProps> = ({
   return (
     <Modal
       open={open}
-      title="Cancel Job"
+      title="Close Job"
       onCancel={onClose}
       footer={[
         <Button key="back" onClick={onClose}>
           No, go back
         </Button>,
         <Button key="submit" type="primary" danger onClick={onConfirm}>
-          Yes, cancel job
+          Yes, close job
         </Button>,
       ]}
     >
       <p>
-        Are you sure you want to cancel this job? This action cannot be undone.
+        Are you sure you want to close this job? This action cannot be undone.
       </p>
     </Modal>
   );
@@ -721,11 +743,18 @@ const CancelJobModal: React.FC<CancelJobModalProps> = ({
 
 export default CancelJobModal;
 
-export const JobCardView = ({ job }: { job: Job }) => {
+interface JobCardViewProp {
+  job: Job;
+  onJobChange: (data: any) => void;
+}
+
+export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
   const auth = useAuth();
-  const open = job.status === JobStatus.Open;
-  let action: ClientJobState = "open"; // This would typically come from business logic
-  let actions = clientJobActions[action];
+
+  const { openNotification } = useNotificationContext();
+  const { setLoading, setLoadingText } = useLoading();
+
+  let actions = jobActions[job.status];
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEditView, setShowEditView] = useState(false);
@@ -733,34 +762,41 @@ export const JobCardView = ({ job }: { job: Job }) => {
   const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
   const toggleEditView = () => setShowEditView((prev) => !prev);
 
-  if (action === "open") {
-    actions = actions.map((action, index) => {
-      if (action.label === "Edit Job") {
-        action.action = () => setShowEditView(true);
-      } else if (action.label === "Close Job") {
-        action.action = () => setShowCancelModal(true);
-      }
-      return action;
-    });
-  }
-  
-  const handleCancelJob = () => {
-    // Add actual cancel logic here
-    console.log("Job cancelled");
-    setShowCancelModal(false);
-  };
-
-  const handleEditSubmit = (data: any) => {
+  const handleEditSubmit = async (data: any) => {
     console.log("Edited offer submitted:", data);
-    toggleEditView();
+    setLoading(true);
+    setLoadingText("Updating service request...");
+
+    try {
+      let response = await updateServiceRequest(
+        String(job.id),
+        data,
+        auth.token,
+      );
+      onJobChange(response.data.response);
+
+      openNotification("topRight", "Service Request Updated", "", "success");
+      toggleEditView();
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Failed to Update Request",
+        "Please try again later.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
   };
 
   const handleEditCancel = () => {
     console.log("Edit cancelled");
+
     toggleEditView();
   };
 
-   if (showEditView) {
+  if (showEditView) {
     return (
       <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
         <EditJob
@@ -775,13 +811,95 @@ export const JobCardView = ({ job }: { job: Job }) => {
     );
   }
 
+  const handleCloseJob = async () => {
+    try {
+      console.log("Edit cancelled");
+      setLoading(true);
+      setLoadingText("Cancelling...");
+
+      const response = await updateServiceRequest(
+        String(job?.id),
+        { status: "Closed" },
+        auth.token,
+      );
+      onJobChange(response.data.response);
+
+      toggleCancelModal();
+      openNotification("topRight", "Service Request Updated", "", "success");
+    } catch (error) {
+      console.error("Error cancelling request:", error);
+      openNotification(
+        "topRight",
+        "Update Failed",
+        "Failed to cancel the request. Please try again.",
+        "error",
+      );
+      toggleCancelModal();
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  const handleOpenJob = async () => {
+    try {
+      console.log("Reopening job");
+      setLoading(true);
+      setLoadingText("Reopening...");
+
+      const response = await updateServiceRequest(
+        String(job?.id),
+        { status: "Open" },
+        auth.token,
+      );
+
+      onJobChange(response.data.response);
+
+      openNotification("topRight", "Service Request Reopened", "", "success");
+    } catch (error) {
+      console.error("Error reopening request:", error);
+      openNotification(
+        "topRight",
+        "Update Failed",
+        "Failed to reopen the request. Please try again.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  // SET NEW ACTION FUNCTIONS FOR ALL THE BUTTONS.
+  if (job.status === "Open") {
+    actions = actions.map((action) => {
+      if (action.label === "Edit Job") {
+        action.action = () => setShowEditView(true);
+      } else if (action.label === "Close Job") {
+        action.action = () => setShowCancelModal(true);
+      }
+      return action;
+    });
+  } else if (job.status === "Closed") {
+    actions = actions.map((action) => {
+      if (action.label === "Re-Open This Job") {
+        action.action = handleOpenJob;
+      }
+      return action;
+    });
+  } else if (job.status === "Completed") {
+  } else if (job.status === "Negotiating") {
+  } else {
+    // ongoing status
+    job.status;
+  }
+
   return (
     <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
-      
       <CancelJobModal
         open={showCancelModal}
         onClose={toggleCancelModal}
-        onConfirm={handleCancelJob}
+        onConfirm={handleCloseJob}
       />
       {/* Top Row: User + Timestamp */}
 
@@ -791,7 +909,7 @@ export const JobCardView = ({ job }: { job: Job }) => {
             <User className="w-4 h-4 text-gray-600" />
           </div>
           <span className="text-sm font-medium text-gray-800">
-            {job.user?.fullName || "Unknown User"}
+            {auth.isClient ? "You Posted" : job.user?.fullName || "Unknown User"}
           </span>
         </div>
         <p className="text-xs text-gray-500">
@@ -800,7 +918,7 @@ export const JobCardView = ({ job }: { job: Job }) => {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-gray-100 mb-4" />
+      <div className="border-t border-gray-100 my-4" />
 
       {/* Address and Category */}
       <div className="mb-4 space-y-1">
@@ -814,7 +932,7 @@ export const JobCardView = ({ job }: { job: Job }) => {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-gray-100 mb-4" />
+      <div className="border-t border-gray-100 my-4" />
 
       {/* Description */}
       <div className="text-sm text-gray-800 leading-relaxed ">
@@ -823,9 +941,11 @@ export const JobCardView = ({ job }: { job: Job }) => {
 
       {/* Divider */}
       <div className="border-t border-gray-100 my-4" />
-      {
-        open && <ActionButtons actions={actions} />
-      }
+      <GenericTag buttonStyle="primary" label={`Job Status: ${job.status}`} />
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 my-4" />
+      {<ActionButtons actions={actions} />}
     </div>
   );
 };

@@ -94,11 +94,14 @@ export const createServiceRequest = (data: any, token: string) => {
   return axios(config);
 };
 
-export const updateServiceRequest = (id: string, data: any) => {
+export const updateServiceRequest = (id: string, data: any, token: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/updateservicerequest/${id}`,
     method: "PUT",
     data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };

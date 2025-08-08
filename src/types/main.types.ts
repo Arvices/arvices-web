@@ -1,5 +1,5 @@
 import { UserAccount } from "../api-services/auth";
-import { Job } from "../components/cards/appcards";
+import { Job, OfferStatus } from "../components/cards/appcards";
 
 /**
  * Interface representing an offer or proposal made for a service request.
@@ -12,4 +12,5 @@ export interface Offer {
   price: string; // Price is a string in your example
   serviceRequest: Job; // The service request this offer is for
   user: UserAccount; // The user who made this offer
+  status: OfferStatus;
 }

@@ -34,6 +34,8 @@ export const getAllOffers = async (
     limit: number;
   },
 ) => {
+  console.log({ params });
+
   const config = {
     method: "get",
     url: `${baseUrl}/offer/getalloffer`,
@@ -42,6 +44,7 @@ export const getAllOffers = async (
       Authorization: `Bearer ${token}`,
     },
   };
+
   return await axios(config);
 };
 

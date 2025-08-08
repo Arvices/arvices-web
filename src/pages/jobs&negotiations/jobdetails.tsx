@@ -5,7 +5,7 @@ import { JobDescription, JobDetailsHeader } from "./jobdetailsheader";
 
 import ClientJobActions from "./client_components/clientactions";
 import ProviderJobActions from "./provider_components/provideractions";
-import { StatusTag } from "./statustag";
+import { GenericTag, StatusTag } from "./statustag";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "feather-icons-react";
 
