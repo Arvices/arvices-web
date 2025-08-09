@@ -7,7 +7,7 @@ import { getServiceRequest } from "../../api-services/servicerequests.service";
 import { getAllOffers, getOfferById } from "../../api-services/offer.service";
 import { ContentHOC } from "../../components/nocontent";
 import { Job } from "../../components/cards/appcards";
-import { Offer } from "../../types/main.types";
+import { CounterOffer, Offer } from "../../types/main.types";
 
 const JobView = (): React.ReactNode => {
   const auth = useAuth();
@@ -17,27 +17,29 @@ const JobView = (): React.ReactNode => {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const loadJobOrOffer = async () => {
     setLoading(true);
     setError(null);
 
     try {
       if (auth.isClient) {
-        const response = await getServiceRequest(id as string, auth.token);
+        const jobRes = await getServiceRequest(id as string, auth.token);
         console.log({ fetchingallloffers: true });
         const allOffers = await getAllOffers(auth.token, {
           servicerequest: Number(id),
           page: 1,
           limit: 10,
         });
-        setJob(response?.data?.response || null);
-        setJobOffers(allOffers?.data?.response || []);
-        setOffer(null);
+        setJob(jobRes?.data?.response);
+        setJobOffers(allOffers?.data?.response);
+        console.log({ jobOffersRes: allOffers });
+      
       } else if (offerId) {
+         const jobRes = await getServiceRequest(id as string, auth.token);
+        setJob(jobRes?.data?.response);
+        console.log({ fetchingallloffers: true });
         const response = await getOfferById(auth.token, Number(offerId));
-        setOffer(response?.data?.response || null);
-        setJob(null); // Optional: Clear job when loading from offer
+        setOffer(response?.data?.response);
       }
     } catch (err: any) {
       console.error(err);
@@ -63,6 +65,37 @@ const JobView = (): React.ReactNode => {
 
     console.log("On Offer Change", { data });
   };
+
+
+const onOfferCounterChange = (offerId: number, counter: CounterOffer[]) => {
+  console.log({ counter, offerId });
+
+  if (auth.isProvider) {
+    // Update current offer if it's loaded
+    setOffer(prev => {
+      if (!prev) return prev; // Guard against null
+      return { ...prev, counterOffer: counter };
+    });
+  } else {
+    // Update job offers list
+    setJobOffers(prev => {
+      if (!prev) return prev;
+      const updatedOffers = prev.map(o => {
+        if (o.id === offerId) {
+          const updatedOffer = { ...o, counterOffer: counter };
+          console.log({ updatedOfferCounter: updatedOffer });
+          return updatedOffer;
+        }
+        return o;
+      });
+      return updatedOffers;
+    });
+  }
+};
+
+
+  console.log({job, offer})
+
   const onEvent = (data: any) => {
     console.log("On Job Change", { data });
   };
@@ -89,10 +122,11 @@ const JobView = (): React.ReactNode => {
                   jobOffers={allJobOffers || []}
                   job={job}
                   onOfferChange={onOfferChange}
+                  onOfferCounterChange={onOfferCounterChange}
                 />
               ) : null
             ) : offer ? (
-              <ProviderView offer={offer} />
+              <ProviderView job={job} onOfferChange={onOfferChange} onOfferCounterChange={onOfferCounterChange} onJobChange={onJobChange} offer={offer} />
             ) : null
           }
         />

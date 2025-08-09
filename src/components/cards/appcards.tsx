@@ -34,7 +34,7 @@ import {
   deleteOffer,
   updateOffer,
 } from "../../api-services/offer.service";
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, Snowflake } from "lucide-react";
 import { Offer } from "../../types/main.types";
 import ActionButtons, {
   buttonClasses,
@@ -263,12 +263,28 @@ export const OfferStatus = {
 
 export type OfferStatus = (typeof OfferStatus)[keyof typeof OfferStatus];
 
-export function getOfferStatusStyle(status: OfferStatus): keyof typeof buttonClasses {
+export function getOfferStatusStyle(
+  status: OfferStatus,
+): keyof typeof buttonClasses {
   const statusMap: Record<OfferStatus, keyof typeof buttonClasses> = {
     [OfferStatus.Pending]: "mutedYellow",
     [OfferStatus.Negotiating]: "primary",
     [OfferStatus.Ongoing]: "mutedBlue",
     [OfferStatus.Completed]: "mutedGreen",
+  };
+
+  return statusMap[status] || "neutral";
+}
+
+export function getJobStatusStyle(
+  status: JobStatus,
+): keyof typeof buttonClasses {
+  const statusMap: Record<JobStatus, keyof typeof buttonClasses> = {
+    [JobStatus.Open]: "mutedYellow",
+    [JobStatus.Negotiating]: "primary",
+    [JobStatus.Ongoing]: "mutedBlue",
+    [JobStatus.Completed]: "mutedGreen",
+    [JobStatus.Closed]: "danger",
   };
 
   return statusMap[status] || "neutral";
@@ -311,7 +327,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
   const { setLoading, setLoadingText } = useLoading();
   const isMobile = window.innerWidth < 768;
 
-  const userOffer = job.offer.find((o) => o && o.user?.id === auth?.user?.id);
+  const userOffer = job?.offer.find((o) => o && o.user?.id === auth?.user?.id);
   const [editMode, setEditMode] = useState(!userOffer);
 
   const direction = isMobile ? "bottom" : "right";
@@ -322,7 +338,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
     includesMaterials:
       userOffer?.description
         ?.toLowerCase()
-        .includes("includes materials: yes") || false,
+        .includes("includes materials: yes") || true,
     description:
       userOffer?.description
         ?.replace(/includes materials: yes|no/i, "")
@@ -358,7 +374,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       const payload = {
         price: offerData.price,
         description: `${offerData.description}\n\nIncludes materials: ${offerData.includesMaterials}`,
-        servicerequestId: job.id,
+        servicerequestId: job?.id,
       };
       let response;
       if (userOffer) {
@@ -375,7 +391,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
           "Offer Updated successfully",
           "success",
         );
-        handleOfferAction("update", job.id, response.data.response);
+        handleOfferAction("update", job?.id, response.data.response);
         setEditMode(false);
       } else {
         response = await createOffer(auth.token, payload);
@@ -389,10 +405,10 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
         setEditMode(false);
         console.log({
           add: "add",
-          jobId: job.id,
+          jobId: job?.id,
           response: response.data.response,
         });
-        handleOfferAction("add", job.id, response.data.response);
+        handleOfferAction("add", job?.id, response.data.response);
       }
       console.log(
         userOffer ? "Offer created:" : "Offer Updated",
@@ -427,7 +443,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       );
 
       setOpen(false); // Optionally close slide-in
-      handleOfferAction("delete", job.id, userOffer);
+      handleOfferAction("delete", job?.id, userOffer);
       const [offerData, setOfferData] = useState({
         price: "",
         includesMaterials: false,
@@ -462,7 +478,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
                   <Briefcase className="w-4 h-4 mr-2 text-royalblue-main" />
                   Job Category:
                 </p>
-                <p className="ml-6">{job.category?.name ?? "Uncategorized"}</p>
+                <p className="ml-6">{job?.category?.name ?? "Uncategorized"}</p>
               </div>
 
               <div>
@@ -471,7 +487,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
                   Location:
                 </p>
                 <p className="ml-6">
-                  {job.user?.address ?? "No address provided"}
+                  {job?.user?.address ?? "No address provided"}
                 </p>
               </div>
 
@@ -480,7 +496,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
                   <FileText className="w-4 h-4 mr-2 text-royalblue-main" />
                   Description:
                 </p>
-                <p className="ml-6 whitespace-pre-line">{job.description}</p>
+                <p className="ml-6 whitespace-pre-line">{job?.description}</p>
               </div>
 
               <div>
@@ -552,7 +568,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
               </h2>
               <p className="mt-2 text-royalblue-shade5">
                 Let the client know why you're the best professional for this
-                job. Highlight your skills and experience to stand out.
+                job?. Highlight your skills and experience to stand out.
               </p>
             </div>
             <div className="border-t my-7 border-gray-200" />
@@ -621,41 +637,42 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
                   <span>No, the client will get quoted price later on</span>
                 </label>
               </div>
-              <div className="border-t my-7 border-gray-200" />
-              <div className="pt-2 mb-8 flex gap-x-4">
-                {userOffer && (
-                  <div className="flex-1">
-                    <Button
-                      className="w-full !h-12 bg-royalblue-main text-white hover:bg-royalblue-dark"
-                      onClick={() => {
-                        setEditMode(false);
-                      }}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Cancel Update
-                    </Button>
-                  </div>
-                )}
-                <div className="flex-1">
-                  <button
-                    onClick={handleSubmit}
-                    className="w-full !h-12 bg-royalblue-shade6 cursor-pointer text-white py-2 rounded-md font-medium hover:bg-gray-900 transition"
-                  >
-                    {userOffer ? (
-                      <span>
-                        Update{" "}
-                        <ArrowUpRight className="inline w-6 h-6 relative bottom-0.5" />
-                      </span>
-                    ) : (
-                      "Send Offer"
-                    )}
-                  </button>
-                </div>
-              </div>
+              
             </div>
               */}
           </div>
         )}
+        <div className="border-t my-7 border-gray-200" />
+        <div className="pt-2 mb-8 flex gap-x-4">
+          {userOffer && (
+            <div className="flex-1">
+              <Button
+                className="w-full !h-12 bg-royalblue-main text-white hover:bg-royalblue-dark"
+                onClick={() => {
+                  setEditMode(false);
+                }}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Cancel Update
+              </Button>
+            </div>
+          )}
+          <div className="flex-1">
+            <button
+              onClick={handleSubmit}
+              className="w-full !h-12 bg-royalblue-shade6 cursor-pointer text-white py-2 rounded-md font-medium hover:bg-gray-900 transition"
+            >
+              {userOffer ? (
+                <span>
+                  Update{" "}
+                  <ArrowUpRight className="inline w-6 h-6 relative bottom-0.5" />
+                </span>
+              ) : (
+                "Send Offer"
+              )}
+            </button>
+          </div>
+        </div>
       </SlideIn>
 
       <div className="flex items-center ">
@@ -664,13 +681,13 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
             <span className="inline-block w-max p-2 py-1 rounded-full border border-gray-200">
               <User className={"inline-block mx-auto w-4 h-4"} />
             </span>{" "}
-            {job.user?.fullName || "Unknown"}
+            {job?.user?.fullName || "Unknown"}
           </h6>
         </div>
         <div className="flex-1"></div>
         <div>
           <p className="text-[13px] text-gray-600 mt-1">
-            {moment(job.createdDate).fromNow()}
+            {moment(job?.createdDate).fromNow()}
           </p>
         </div>
       </div>
@@ -679,22 +696,22 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
         <p className="text-royalblue-main font-medium cursor-pointer tracking-tight">
           {" "}
           <MapPin className="inline" size={16} />{" "}
-          {job.user?.address ?? "No address"}
+          {job?.user?.address ?? "No address"}
         </p>
         <p className="text-[14px] text-gray-600 mt-1 font-medium ">
-          {job.category?.name ?? "Uncategorized"}
+          {job?.category?.name ?? "Uncategorized"}
         </p>
       </div>
       <div className="my-2 md:my-3 border-t border-gray-100" />
       <div>
-        <p>{job.description}</p>
+        <p>{job?.description}</p>
       </div>
       <div className="mt-6 flex gap-2 text-[14px] bg-gray-100 px-4 py-[8px] rounded">
         <div className="w-max hidden">
           <Eye size={16} className="inline" /> 203
         </div>
         <div className="w-max pl-2 font-medium tracking-tight cursor-pointer">
-          {job.offer.length} Offer{job.offer.length > 0 && "s"} Sent
+          {job?.offer.length} Offer{job?.offer.length > 0 && "s"} Sent
         </div>
         <div className="flex-1"></div>
         <div
@@ -744,7 +761,7 @@ const CancelJobModal: React.FC<CancelJobModalProps> = ({
 export default CancelJobModal;
 
 interface JobCardViewProp {
-  job: Job;
+  job: Job | null;
   onJobChange: (data: any) => void;
 }
 
@@ -754,7 +771,7 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
 
-  let actions = jobActions[job.status];
+  let actions = jobActions[job?.status || "Open"];
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEditView, setShowEditView] = useState(false);
@@ -769,7 +786,7 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
 
     try {
       let response = await updateServiceRequest(
-        String(job.id),
+        String(job?.id),
         data,
         auth.token,
       );
@@ -801,8 +818,8 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
       <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
         <EditJob
           initialData={{
-            description: job.description,
-            address: job.address,
+            description: job?.description || "",
+            address: job?.address || "",
           }}
           onSubmit={handleEditSubmit}
           onCancel={handleEditCancel}
@@ -871,7 +888,7 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
   };
 
   // SET NEW ACTION FUNCTIONS FOR ALL THE BUTTONS.
-  if (job.status === "Open") {
+  if (job?.status === "Open") {
     actions = actions.map((action) => {
       if (action.label === "Edit Job") {
         action.action = () => setShowEditView(true);
@@ -880,72 +897,91 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
       }
       return action;
     });
-  } else if (job.status === "Closed") {
+  } else if (job?.status === "Closed") {
     actions = actions.map((action) => {
       if (action.label === "Re-Open This Job") {
         action.action = handleOpenJob;
       }
       return action;
     });
-  } else if (job.status === "Completed") {
-  } else if (job.status === "Negotiating") {
+  } else if (job?.status === "Completed") {
+  } else if (job?.status === "Negotiating") {
+    actions = actions.map((action) => {
+      if (action.label === "Close Job") {
+        action.action = () => setShowCancelModal(true);
+      }
+      return action;
+    });
   } else {
-    // ongoing status
-    job.status;
+    // 
   }
 
   return (
-    <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
+    <div className="w-full rounded-lg bg-white border border-neutral-200 shadow-sm p-5 sm:p-6">
       <CancelJobModal
         open={showCancelModal}
         onClose={toggleCancelModal}
         onConfirm={handleCloseJob}
       />
+
       {/* Top Row: User + Timestamp */}
-
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-5">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-gray-100 rounded-full">
-            <User className="w-4 h-4 text-gray-600" />
+          <div className="p-2 bg-neutral-100 rounded-full">
+            <User className="w-4 h-4 text-neutral-600" />
           </div>
-          <span className="text-sm font-medium text-gray-800">
-            {auth.isClient ? "You Posted" : job.user?.fullName || "Unknown User"}
-          </span>
+          <div>
+            <span className="text-sm font-medium text-neutral-900">
+              {auth.isClient
+                ? "You Posted"
+                : job?.user?.fullName || "Unknown User"}
+            </span>
+            <p className="text-xs text-neutral-500">
+              Job Posted {moment(job?.createdDate).fromNow()}
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-gray-500">
-          Job Posted {moment(job.createdDate).fromNow()}
-        </p>
-      </div>
 
-      {/* Divider */}
-      <div className="border-t border-gray-100 my-4" />
+        {/* Status */}
+        <div className="mb-5 w-max">
+          <GenericTag
+            buttonStyle={getJobStatusStyle(job?.status || "Open")}
+            label={`${job?.status}`}
+          />
+        </div>
+      </div>
 
       {/* Address and Category */}
-      <div className="mb-4 space-y-1">
-        <p className="text-sm text-royalblue-main font-semibold flex items-center gap-1">
-          <MapPin className="w-4 h-4" />
-          {job.address || job.user?.address || "No address provided"}
-        </p>
-        <p className="text-sm text-gray-600 font-medium">
-          {job.category?.name || "Uncategorized"}
-        </p>
+      <div className="p-3 bg-gray-100 rounded-[10px]">
+        <div className="mb-5 space-y-1">
+          <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
+            <MapPin className="w-4 h-4 text-neutral-500" />
+            Location:{" "}
+            {job?.address || job?.user?.address || "No address provided"}
+          </p>
+          <p className="text-sm text-neutral-600">
+            {job?.category?.name || "Uncategorized"}
+          </p>
+        </div>
+
+        {/* Description */}
+        <div className="mb-0">
+          <p className="text-sm text-neutral-800 leading-relaxed">
+            <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
+              <Snowflake className="w-4 h-4 text-neutral-500" />
+              Job Description{" "}
+            </p>
+            {job?.description || "No description provided."}
+          </p>
+        </div>
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-gray-100 my-4" />
-
-      {/* Description */}
-      <div className="text-sm text-gray-800 leading-relaxed ">
-        {job.description || "No description provided."}
-      </div>
-
-      {/* Divider */}
-      <div className="border-t border-gray-100 my-4" />
-      <GenericTag buttonStyle="primary" label={`Job Status: ${job.status}`} />
-
-      {/* Divider */}
-      <div className="border-t border-gray-100 my-4" />
-      {<ActionButtons actions={actions} />}
+      {/* Actions (Client Only) */}
+      {auth.isClient && (
+        <div className="pt-4 border-t border-neutral-100">
+          <ActionButtons actions={actions} />
+        </div>
+      )}
     </div>
   );
 };

@@ -3,15 +3,39 @@ import { formatDistanceToNow } from "date-fns";
 import { CalendarDays, Layers, User2 } from "lucide-react";
 import { Modal } from "antd";
 import { Offer } from "../../../types/main.types";
-import { buttonClasses, offerActions } from "../jobsaction"; // Adjust import path if needed
+import ActionButtons, { buttonClasses, offerActions } from "../jobsaction"; // Adjust import path if needed
 import EditOffer, { OfferData } from "./editoffer";
-import { OfferStatus } from "../../../components/cards/appcards";
+import {
+  getOfferStatusStyle,
+  OfferStatus,
+} from "../../../components/cards/appcards";
+import { GenericTag } from "../statustag";
+import { OfferHistory } from "../offerdetails";
+import NegotiationPanel from "../negotiationpanel";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useNotificationContext } from "../../../contexts/NotificationContext";
+import { useLoading } from "../../../contexts/LoadingContext";
+import { useNavigate } from "react-router-dom";
+import {
+  createCounterOffer,
+  getAllCounterOffers,
+  updateOffer,
+} from "../../../api-services/offer.service";
+import { getLatestCounterOffer } from "../../../util/jobutils";
+import { updateServiceRequest } from "../../../api-services/servicerequests.service";
 
 interface Props {
   offer: Offer;
+  onJobChange: (data:any)=> void;
+  onOfferChange: (data:any) =>void;
+  onOfferCounterChange: (offerId:number,data:any)=>void;
 }
 
-const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
+const ProviderOfferCard: React.FC<Props> = ({ offer, onOfferChange, onOfferCounterChange, onJobChange }) => {
+  const auth = useAuth();
+  const { openNotification } = useNotificationContext();
+  const { setLoading, setLoadingText } = useLoading();
+  const navigate = useNavigate();
   const {
     serviceRequest: job,
     price,
@@ -20,11 +44,86 @@ const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
     accepted,
   } = offer;
 
-  let action: OfferStatus = "Pending";
-  let actions = offerActions[action];
+  let actions = offerActions[offer.status];
 
-  if (action === "Pending") {
-    actions = actions.map((action, index) => {
+  const goToMessageClient = () => {
+    navigate(`/messaging/conversations`);
+  };
+
+  const getCounterOffers = async () => {
+    try {
+      const response = await getAllCounterOffers(auth.token, {
+        page: 1,
+        limit: 10,
+        offer: offer.id,
+      });
+      let counterOffers = response?.data?.response;
+
+      console.log("Counter offers:", counterOffers);
+      onOfferCounterChange(offer.id, counterOffers);
+    } catch (error) {
+      console.error("Failed to fetch counter offers:", error);
+      openNotification(
+        "topRight",
+        "Failed to fetch counter offers",
+        "Please try again later.",
+        "error",
+      );
+    }
+  };
+  const handleUpdateJob = async (data: any) => {
+    console.log("Edited offer submitted:", data);
+    setLoading(true);
+    setLoadingText("Updating service request...");
+
+    try {
+      let response = await updateServiceRequest(
+        String(job.id),
+        data,
+        auth.token,
+      );
+      onJobChange(response.data.response);
+
+      openNotification("topRight", "Service Request Updated", "", "success");
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Failed to update Service request",
+        "Please try again later.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+  const handleUpdateOffer = async (data: any) => {
+    console.log("Update offer submitted:", data);
+    setLoading(true);
+    setLoadingText("Updating service request...");
+
+    try {
+      let response = await updateOffer(auth.token, offer.id, data);
+      onOfferChange(response.data.response);
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Failed update offer status",
+        "Please try again later.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+  // Get latest ones
+  const latestOffer = getLatestCounterOffer(offer.counterOffer);
+
+  const showBtns = latestOffer && latestOffer.type === "Client";
+
+  if (offer.status === "Pending") {
+    actions = actions.map((action) => {
       if (action.label === "Edit Offer") {
         action.action = () => setShowEditView(true);
       } else if (action.label === "Withdraw Offer") {
@@ -32,6 +131,32 @@ const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
       }
       return action;
     });
+  } else if (offer.status === "Negotiating") {
+    console.log({ showBtns });
+
+    actions = actions.map((action) => {
+      if (action.label === "Message Client") {
+        action.action = goToMessageClient;
+      } else if (action.label === "Accept Client's Offer" && showBtns) {
+        // define accept logic
+        action.action = () => {
+          handleUpdateOffer({ status: "Ongoing", accepted: true });
+          handleUpdateJob({ status: "Ongoing", accepted: true });
+        };
+      } else if (action.label === "Make Counter Offer" && showBtns) {
+        action.action = () => {
+          setShowCounterForm(true);
+        };
+      }
+      return action;
+    });
+
+    // Only filter if `showBtns` is true
+    if (!showBtns) {
+      actions = actions.filter(
+        (x) => x.label == "Message Client", // remove Message Client button if showing counter/accept buttons
+      );
+    }
   }
 
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -39,6 +164,8 @@ const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
 
   const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
   const toggleEditView = () => setShowEditView((prev) => !prev);
+
+  const [showCounterForm, setShowCounterForm] = useState(false);
 
   const handleCancelOffer = () => {
     // Add actual cancel logic here
@@ -55,6 +182,39 @@ const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
     console.log("Edit cancelled");
     toggleEditView();
   };
+
+  const handleCreateCounterOffer = async (
+    price: number,
+    description: string,
+  ) => {
+    setLoading(true);
+    setLoadingText("Creating counter offer...");
+
+    let data = {
+      price: String(price),
+      description,
+      offerId: offer.id,
+    };
+    try {
+      let response = await createCounterOffer(auth.token, data);
+      console.log({ counterOfferResponse: response });
+      onOfferChange(response.data.response);
+      setShowCounterForm(false);
+      getCounterOffers();
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Failed to create counter offer",
+        "Please try again later.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  const dummy = () => console.log("dummy called");
 
   // Check if editing
   if (showEditView) {
@@ -82,62 +242,44 @@ const ProviderOfferCard: React.FC<Props> = ({ offer }) => {
             Offer Sent {formatDistanceToNow(new Date(createdDate))} ago
           </span>
         </div>
-        <div
-          className={`text-sm font-medium px-3 py-1 rounded-full ${
-            accepted
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
-        >
-          {action.toUpperCase()}
+        <div className="w-max">
+          <GenericTag
+            label={offer.status}
+            buttonStyle={getOfferStatusStyle(offer.status)}
+          />
         </div>
       </div>
 
       {/* Divider */}
       <div className="border-t border-gray-100 mb-4" />
 
-      {/* Offer Description */}
-      <div className="mb-4">
-        <p className="text-gray-900 text-sm font-medium">Your Solution</p>
-        <p className="text-sm text-gray-600">{description}</p>
-      </div>
+      <OfferHistory offer={offer} />
 
-      <div className="border-t border-gray-100 mb-4" />
-
-      {/* Footer */}
-      <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <User2 size={16} />
-          <span>Client: {job?.user?.fullName || "N/A"}</span>
+      {offer.status === "Negotiating" && showCounterForm && (
+        <div>
+          <div className="border-t border-gray-100 mb-4" />
+          <NegotiationPanel
+            job={job}
+            offer={offer}
+            isClient={auth.isClient}
+            onAccept={dummy}
+            onCancel={() => {
+              setShowCounterForm(false);
+            }}
+            onCounter={handleCreateCounterOffer}
+            onUpdate={dummy}
+          />
         </div>
+      )}
 
-        <div className="flex items-center gap-2 text-sm font-semibold text-royalblue-dark">
-          <Layers size={16} />₦{price}
-        </div>
-      </div>
-
+      {!showBtns && (
+        <p className="text-gray-600 text-sm font-medium tracking-tight mb-4">
+          Awaiting client response on your submitted offer.
+        </p>
+      )}
       <div className="border-t border-gray-100 mb-4" />
-
       {/* Actions */}
-      <div className="flex gap-3">
-        {actions.map(({ label, action, styleClass, icon: Icon }) => {
-          const isEdit = label.toLowerCase() === "edit";
-          const isCancel = label.toLowerCase().includes("cancel");
-
-          return (
-            <button
-              key={label}
-              onClick={
-                isEdit ? toggleEditView : isCancel ? toggleCancelModal : action
-              }
-              className={`flex-1 rounded-lg transition ${buttonClasses[styleClass]}`}
-            >
-              {Icon && <Icon className="inline h-11" size={16} />}
-              {label}
-            </button>
-          );
-        })}
-      </div>
+      <ActionButtons actions={actions} />
 
       {/* Cancel Confirmation Modal */}
       <Modal

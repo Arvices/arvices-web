@@ -8,7 +8,14 @@ const ClientView: React.FC<{
   jobOffers: Offer[];
   onJobChange: (data: any) => void;
   onOfferChange: (data: any) => void;
-}> = ({ job, jobOffers, onJobChange, onOfferChange }): React.ReactNode => {
+  onOfferCounterChange: (offerId: any, data: any) => void;
+}> = ({
+  job,
+  jobOffers,
+  onJobChange,
+  onOfferChange,
+  onOfferCounterChange,
+}): React.ReactNode => {
   return (
     <section>
       {/* Client Page Starts */}
@@ -38,6 +45,7 @@ const ClientView: React.FC<{
               <OfferCardClient
                 onJobChange={onJobChange}
                 onOfferChange={onOfferChange}
+                onOfferCounterChange={onOfferCounterChange}
                 job={job}
                 offer={offer}
               />

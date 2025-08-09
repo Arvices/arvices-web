@@ -1,5 +1,6 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
+import { Offer } from "../types/main.types";
 
 export const createOffer = async (
   token: string,
@@ -51,7 +52,7 @@ export const getAllOffers = async (
 export const getOfferById = async (token: string, id: number) => {
   const config = {
     method: "get",
-    url: `${baseUrl}/offer/getoffer`,
+    url: `${baseUrl}/offer/getoffer/${id}`,
     params: { id },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -91,9 +92,14 @@ export const updateOffer = async (
   token: string,
   id: number,
   data: {
-    price: string;
-    description: string;
-    accepted: boolean;
+    price?: string;
+    description?: string;
+    accepted?: boolean;
+    counterOffer?: {
+      price: number;
+      description: string;
+      offerId: number;
+    };
   },
 ) => {
   const config = {
@@ -103,6 +109,51 @@ export const updateOffer = async (
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  };
+  return await axios(config);
+};
+
+export const createCounterOffer = async (
+  token: string,
+  data: {
+    description: string;
+    price: string;
+    offerId: number;
+  },
+) => {
+  const config = {
+    method: "post",
+    url: `${baseUrl}/offer/createcounteroffer`,
+    data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  return await axios(config);
+};
+
+export const getAllCounterOffers = async (
+  token: string,
+  params: {
+    search?: string;
+    type?: string;
+    offer?: number;
+    user?: number;
+    startDate?: string; // ISO date-time string
+    endDate?: string; // ISO date-time string
+    accepted?: number;
+    orderBy?: string; // e.g., "ASC" | "DESC"
+    page: number;
+    limit: number;
+  },
+) => {
+  const config = {
+    method: "get",
+    url: `${baseUrl}/offer/getallcounteroffer`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params, // Axios will automatically serialize this into query params
   };
   return await axios(config);
 };

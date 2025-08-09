@@ -7,6 +7,7 @@ import {
   LucideIcon,
   MessageSquare,
   Handshake,
+  CheckCircle,
 } from "lucide-react";
 
 import { Star, Repeat, FileText } from "lucide-react";
@@ -17,6 +18,7 @@ export interface JobActionItem {
   action: () => void;
   styleClass: ButtonStyleName;
   icon?: LucideIcon;
+  show?: boolean;
 }
 
 // Define job states for clarity
@@ -69,22 +71,22 @@ export const offerActions: JobActionsMap<OfferStatus> = {
   ],
   Negotiating: [
     {
-      label: "Continue Chat",
+      label: "Message Client",
       action: () => console.log("Continuing chat"),
       styleClass: "primary",
       icon: MessageCircle,
     },
     {
-      label: "Update Offer",
+      label: "Accept Client's Offer",
       action: () => console.log("Updating offer"),
-      styleClass: "primary",
-      icon: FileEdit,
+      styleClass: "mutedGreen",
+      icon: CheckCircle,
     },
     {
-      label: "Withdraw Offer",
+      label: "Make Counter Offer",
       action: () => console.log("Withdrawing offer"),
-      styleClass: "danger",
-      icon: Trash2,
+      styleClass: "neutral",
+      icon: Repeat,
     },
   ],
   Ongoing: [
@@ -143,7 +145,7 @@ export const jobActions: JobActionsMap<JobStatus> = {
       action: () => console.log("Closing job"),
       styleClass: "danger",
       icon: Trash2,
-    }
+    },
   ],
   Ongoing: [
     {
@@ -215,12 +217,34 @@ export const clientOfferActions: JobActionsMap<OfferStatus> = {
     },
   ],
   Negotiating: [
+    {
+      label: "Message Provider",
+      action: () => {
+        // handle message logic here
+      },
+      styleClass: "mutedBlue",
+      icon: MessageSquare,
+    },
+    {
+      label: "Accept This Proposal",
+      action: () => {
+        // handle accept proposal logic here
+      },
+      styleClass: "mutedGreen",
+      icon: CheckCircle,
+    },
+    {
+      label: "Make Counter Offer",
+      action: () => {
+        // handle counter offer logic here
+      },
+      styleClass: "primary",
+      icon: Repeat,
+    },
   ],
   Ongoing: [],
   Completed: [],
 };
-
-let openAction: JobActionItem[] = [];
 
 interface ActionButtonsProps {
   actions: JobActionItem[];
@@ -232,10 +256,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ actions }) => {
       {actions.map(({ label, action, styleClass, icon: Icon }) => (
         <button
           key={label}
+          type="button"
           onClick={action}
-          className={`flex-1 rounded-lg transition ${buttonClasses[styleClass]}`}
+          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${buttonClasses[styleClass]}`}
         >
-          {Icon && <Icon className="inline h-11" size={16} />}
+          {Icon && <Icon className="w-4 h-4" />}
           {label}
         </button>
       ))}
