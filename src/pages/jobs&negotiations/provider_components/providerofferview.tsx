@@ -26,12 +26,17 @@ import { updateServiceRequest } from "../../../api-services/servicerequests.serv
 
 interface Props {
   offer: Offer;
-  onJobChange: (data:any)=> void;
-  onOfferChange: (data:any) =>void;
-  onOfferCounterChange: (offerId:number,data:any)=>void;
+  onJobChange: (data: any) => void;
+  onOfferChange: (data: any) => void;
+  onOfferCounterChange: (offerId: number, data: any) => void;
 }
 
-const ProviderOfferCard: React.FC<Props> = ({ offer, onOfferChange, onOfferCounterChange, onJobChange }) => {
+const ProviderOfferCard: React.FC<Props> = ({
+  offer,
+  onOfferChange,
+  onOfferCounterChange,
+  onJobChange,
+}) => {
   const auth = useAuth();
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
@@ -117,6 +122,15 @@ const ProviderOfferCard: React.FC<Props> = ({ offer, onOfferChange, onOfferCount
       setLoadingText("");
     }
   };
+
+  const handleNotifyForCompletion = async () => {
+    openNotification(
+      "topRight",
+      "Cient will be notified that you have completed the job.",
+      "After the client confirms completion, payment would be disbursed.",
+      "info",
+    );
+  };
   // Get latest ones
   const latestOffer = getLatestCounterOffer(offer.counterOffer);
 
@@ -157,6 +171,15 @@ const ProviderOfferCard: React.FC<Props> = ({ offer, onOfferChange, onOfferCount
         (x) => x.label == "Message Client", // remove Message Client button if showing counter/accept buttons
       );
     }
+  } else if (offer.status === "Ongoing") {
+    actions = actions.map((action) => {
+      if (action.label === "Notify Client Of Job Completion") {
+        action.action = handleNotifyForCompletion;
+        //handleUpdateJob({ status: "Completed" });
+        //handleUpdateOffer({ status: "Completed" });
+      }
+      return action;
+    });
   }
 
   const [showCancelModal, setShowCancelModal] = useState(false);

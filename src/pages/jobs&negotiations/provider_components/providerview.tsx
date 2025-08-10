@@ -6,11 +6,19 @@ import { Offer } from "../../../types/main.types";
 const ProviderView: React.FC<{
   offer: Offer;
   onJobChange: (data: any) => void;
-  onOfferChange: (data:any) => void;
-  onOfferCounterChange: (offerId:number, data:any) => void;
+  onOfferChange: (data: any) => void;
+  onOfferCounterChange: (offerId: number, data: any) => void;
   job: Job | null;
-}> = ({ job, offer, onJobChange, onOfferChange, onOfferCounterChange }): React.ReactNode => {
-  console.log({jobInPView: job})
+  load: () => void;
+}> = ({
+  job,
+  offer,
+  onJobChange,
+  onOfferChange,
+  onOfferCounterChange,
+  load,
+}): React.ReactNode => {
+  console.log({ jobInPView: job });
   return (
     <section>
       {/* Provider Page Starts */}
@@ -29,7 +37,12 @@ const ProviderView: React.FC<{
           <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
           Job Details
         </p>
-        <JobCardView onJobChange={onJobChange} job={job} />
+        <JobCardView
+          onOfferChange={onOfferChange}
+          onJobChange={onJobChange}
+          job={job}
+          load={load}
+        />
       </div>
 
       {/* Job Offer View */}
@@ -39,7 +52,12 @@ const ProviderView: React.FC<{
           Your Offer
         </p>
 
-        <ProviderOfferCard onOfferCounterChange={onOfferCounterChange} onJobChange={onJobChange} onOfferChange={onOfferChange} offer={offer} />
+        <ProviderOfferCard
+          onOfferCounterChange={onOfferCounterChange}
+          onJobChange={onJobChange}
+          onOfferChange={onOfferChange}
+          offer={offer}
+        />
       </div>
     </section>
   );

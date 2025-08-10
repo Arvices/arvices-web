@@ -33,9 +33,8 @@ const JobView = (): React.ReactNode => {
         setJob(jobRes?.data?.response);
         setJobOffers(allOffers?.data?.response);
         console.log({ jobOffersRes: allOffers });
-      
       } else if (offerId) {
-         const jobRes = await getServiceRequest(id as string, auth.token);
+        const jobRes = await getServiceRequest(id as string, auth.token);
         setJob(jobRes?.data?.response);
         console.log({ fetchingallloffers: true });
         const response = await getOfferById(auth.token, Number(offerId));
@@ -66,38 +65,30 @@ const JobView = (): React.ReactNode => {
     console.log("On Offer Change", { data });
   };
 
+  const onOfferCounterChange = (offerId: number, counter: CounterOffer[]) => {
+    console.log({ counter, offerId });
 
-const onOfferCounterChange = (offerId: number, counter: CounterOffer[]) => {
-  console.log({ counter, offerId });
-
-  if (auth.isProvider) {
-    // Update current offer if it's loaded
-    setOffer(prev => {
-      if (!prev) return prev; // Guard against null
-      return { ...prev, counterOffer: counter };
-    });
-  } else {
-    // Update job offers list
-    setJobOffers(prev => {
-      if (!prev) return prev;
-      const updatedOffers = prev.map(o => {
-        if (o.id === offerId) {
-          const updatedOffer = { ...o, counterOffer: counter };
-          console.log({ updatedOfferCounter: updatedOffer });
-          return updatedOffer;
-        }
-        return o;
+    if (auth.isProvider) {
+      // Update current offer if it's loaded
+      setOffer((prev) => {
+        if (!prev) return prev; // Guard against null
+        return { ...prev, counterOffer: counter };
       });
-      return updatedOffers;
-    });
-  }
-};
-
-
-  console.log({job, offer})
-
-  const onEvent = (data: any) => {
-    console.log("On Job Change", { data });
+    } else {
+      // Update job offers list
+      setJobOffers((prev) => {
+        if (!prev) return prev;
+        const updatedOffers = prev.map((o) => {
+          if (o.id === offerId) {
+            const updatedOffer = { ...o, counterOffer: counter };
+            console.log({ updatedOfferCounter: updatedOffer });
+            return updatedOffer;
+          }
+          return o;
+        });
+        return updatedOffers;
+      });
+    }
   };
 
   useEffect(() => {
@@ -123,10 +114,18 @@ const onOfferCounterChange = (offerId: number, counter: CounterOffer[]) => {
                   job={job}
                   onOfferChange={onOfferChange}
                   onOfferCounterChange={onOfferCounterChange}
+                  load={loadJobOrOffer}
                 />
               ) : null
             ) : offer ? (
-              <ProviderView job={job} onOfferChange={onOfferChange} onOfferCounterChange={onOfferCounterChange} onJobChange={onJobChange} offer={offer} />
+              <ProviderView
+                job={job}
+                onOfferChange={onOfferChange}
+                onOfferCounterChange={onOfferCounterChange}
+                onJobChange={onJobChange}
+                offer={offer}
+                load={loadJobOrOffer}
+              />
             ) : null
           }
         />

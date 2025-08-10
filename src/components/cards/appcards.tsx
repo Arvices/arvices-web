@@ -41,8 +41,12 @@ import ActionButtons, {
   jobActions,
 } from "../../pages/jobs&negotiations/jobsaction";
 import EditJob from "../../pages/jobs&negotiations/client_components/editjob";
-import { updateServiceRequest } from "../../api-services/servicerequests.service";
+import {
+  getServiceRequest,
+  updateServiceRequest,
+} from "../../api-services/servicerequests.service";
 import { GenericTag } from "../../pages/jobs&negotiations/statustag";
+import { initializeServiceRequestTransaction } from "../../api-services/wallet.services";
 
 export interface CategoryDataItem {
   title: string;
@@ -763,14 +767,22 @@ export default CancelJobModal;
 interface JobCardViewProp {
   job: Job | null;
   onJobChange: (data: any) => void;
+  onOfferChange: (data: any) => void;
+  load: () => void;
 }
 
-export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
+export const JobCardView = ({
+  job,
+  onJobChange,
+  onOfferChange,
+  load,
+}: JobCardViewProp) => {
   const auth = useAuth();
 
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
-
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   let actions = jobActions[job?.status || "Open"];
 
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -778,6 +790,7 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
 
   const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
   const toggleEditView = () => setShowEditView((prev) => !prev);
+  console.log({ jobCardView: job });
 
   const handleEditSubmit = async (data: any) => {
     console.log("Edited offer submitted:", data);
@@ -807,26 +820,112 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
     }
   };
 
-  const handleEditCancel = () => {
-    console.log("Edit cancelled");
+  const handlePayment = async () => {
+    setLoading(true);
+    setLoadingText("Initializing payment...");
 
-    toggleEditView();
+    try {
+      const response = await initializeServiceRequestTransaction(
+        { servicerequestId: job?.id || -1, method: "Non Wallet" },
+        { token: auth.token },
+      );
+
+      console.log({ paymentInitializationResponse: response });
+
+      const { authorization_url } = response.data.response.data;
+
+      if (authorization_url) {
+        setPaymentUrl(authorization_url);
+        setShowPaymentModal(true);
+      } else {
+        openNotification(
+          "topRight",
+          "Payment initialization failed",
+          "No checkout URL was returned.",
+          "error",
+        );
+      }
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Failed to initialize payment",
+        "Please try again later.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
   };
 
-  if (showEditView) {
-    return (
-      <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
-        <EditJob
-          initialData={{
-            description: job?.description || "",
-            address: job?.address || "",
-          }}
-          onSubmit={handleEditSubmit}
-          onCancel={handleEditCancel}
-        />
-      </div>
-    );
-  }
+  const handleUpdateOffer = async (offerId: number) => {
+    console.log("Update offer submitted:");
+    setLoading(true);
+    setLoadingText("Updating service request...");
+
+    try {
+      let response = await updateOffer(auth.token, offerId, {
+        status: "Completed",
+      });
+      console.log({ responseUpdateOffer: response.data.response });
+      onOfferChange(response.data.response);
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Failed update offer status",
+        "Please try again later.",
+        "error",
+      );
+      console.log({ error });
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  const handleCancel = async () => {
+    setLoading(true);
+    setLoadingText("Verifying payment...");
+
+    try {
+      const response = await getServiceRequest(
+        job?.id ? String(job.id) : String(-1),
+        auth.token,
+      );
+      let updatedJob = response.data.response;
+      console.log({ UPDDDDATEDjOBBBBBB: updatedJob });
+      let acceptedOffer = updatedJob?.offer?.filter((x: any) => x.accepted);
+      onJobChange(response.data.response);
+
+      if (response?.data?.response?.status === "Completed") {
+        load();
+      }
+      openNotification(
+        "topRight",
+        "Payment verified",
+        "Your payment has been confirmed successfully.",
+        "success",
+      );
+
+      setShowPaymentModal(false);
+    } catch (error) {
+      openNotification(
+        "topRight",
+        "Verification failed",
+        "Unable to verify payment. Please try again later.",
+        "error",
+      );
+      console.log({ error });
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  const handleEditCancel = () => {
+    console.log("Edit cancelled");
+    toggleEditView();
+  };
 
   const handleCloseJob = async () => {
     try {
@@ -904,6 +1003,13 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
       }
       return action;
     });
+  } else if (job?.status === "Ongoing") {
+    actions.map((action) => {
+      if (action.label === "Pay For This Job") {
+        action.action = handlePayment;
+      }
+      return action;
+    });
   } else if (job?.status === "Completed") {
   } else if (job?.status === "Negotiating") {
     actions = actions.map((action) => {
@@ -913,9 +1019,23 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
       return action;
     });
   } else {
-    // 
+    //
   }
 
+  if (showEditView) {
+    return (
+      <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
+        <EditJob
+          initialData={{
+            description: job?.description || "",
+            address: job?.address || "",
+          }}
+          onSubmit={handleEditSubmit}
+          onCancel={handleEditCancel}
+        />
+      </div>
+    );
+  }
   return (
     <div className="w-full rounded-lg bg-white border border-neutral-200 shadow-sm p-5 sm:p-6">
       <CancelJobModal
@@ -924,6 +1044,27 @@ export const JobCardView = ({ job, onJobChange }: JobCardViewProp) => {
         onConfirm={handleCloseJob}
       />
 
+      <Modal
+        title="Complete Your Payment"
+        open={showPaymentModal}
+        onCancel={handleCancel}
+        footer={null}
+        width={400} // match iframe max-width
+        bodyStyle={{ padding: 0 }}
+        centered
+      >
+        {paymentUrl ? (
+          <iframe
+            src={paymentUrl}
+            className="w-full max-w-[400px] h-[600px] border-0 rounded-lg"
+            allow="payment"
+          />
+        ) : (
+          <div className="w-full max-w-[400px] h-[600px] flex items-center justify-center">
+            Loading payment...
+          </div>
+        )}
+      </Modal>
       {/* Top Row: User + Timestamp */}
       <div className="flex justify-between items-start mb-5">
         <div className="flex items-center gap-2">

@@ -9,13 +9,17 @@ const ClientView: React.FC<{
   onJobChange: (data: any) => void;
   onOfferChange: (data: any) => void;
   onOfferCounterChange: (offerId: any, data: any) => void;
+  load: () => void;
 }> = ({
   job,
   jobOffers,
   onJobChange,
   onOfferChange,
   onOfferCounterChange,
+  load,
 }): React.ReactNode => {
+  const finalStages = job.status === "Ongoing" || job.status === "Completed";
+  const acceptedOffer = jobOffers.filter((x) => x.accepted)[0];
   return (
     <section>
       {/* Client Page Starts */}
@@ -32,27 +36,59 @@ const ClientView: React.FC<{
           <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
           Job Details
         </p>
-        <JobCardView job={job} onJobChange={onJobChange} />
+        <JobCardView
+          onOfferChange={onOfferChange}
+          job={job}
+          onJobChange={onJobChange}
+          load={load}
+        />
       </div>
       <div className="mt-10">
-        <p className="mb-2 text-gray-600 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
-          Offers Received
-        </p>
-        {jobOffers && jobOffers.length > 0 ? (
-          jobOffers.map((offer, index) => (
-            <div className="py-2" key={index}>
-              <OfferCardClient
-                onJobChange={onJobChange}
-                onOfferChange={onOfferChange}
-                onOfferCounterChange={onOfferCounterChange}
-                job={job}
-                offer={offer}
-              />
-            </div>
-          ))
-        ) : (
-          <NoOffer />
+        {!finalStages && (
+          <div>
+            <p className="mb-2 text-gray-600 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
+              Offers Received
+            </p>
+            {job.status !== "Ongoing" &&
+            job.status !== "Completed" &&
+            jobOffers &&
+            jobOffers.length > 0 ? (
+              jobOffers.map((offer, index) => (
+                <div className="py-2" key={index}>
+                  <OfferCardClient
+                    onJobChange={onJobChange}
+                    onOfferChange={onOfferChange}
+                    onOfferCounterChange={onOfferCounterChange}
+                    job={job}
+                    offer={offer}
+                  />
+                </div>
+              ))
+            ) : (
+              <NoOffer />
+            )}
+          </div>
+        )}
+        {finalStages && (
+          <div>
+            {acceptedOffer && (
+              <div>
+                <p className="mb-2 text-gray-600 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
+                  Accepted Offer
+                </p>
+
+                <OfferCardClient
+                  onJobChange={onJobChange}
+                  onOfferChange={onOfferChange}
+                  onOfferCounterChange={onOfferCounterChange}
+                  job={job}
+                  offer={acceptedOffer}
+                />
+              </div>
+            )}
+          </div>
         )}
       </div>
     </section>

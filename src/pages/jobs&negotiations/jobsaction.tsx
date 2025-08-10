@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Handshake,
   CheckCircle,
+  Wallet,
 } from "lucide-react";
 
 import { Star, Repeat, FileText } from "lucide-react";
@@ -90,6 +91,7 @@ export const offerActions: JobActionsMap<OfferStatus> = {
     },
   ],
   Ongoing: [
+    /**
     {
       label: "Send Update",
       action: () => console.log("Sending update"),
@@ -101,9 +103,9 @@ export const offerActions: JobActionsMap<OfferStatus> = {
       action: () => console.log("Uploading work"),
       styleClass: "primary",
       icon: Upload,
-    },
+    }, */
     {
-      label: "Request Completion",
+      label: "Notify Client Of Job Completion",
       action: () => console.log("Requesting completion"),
       styleClass: "primary",
       icon: CheckCheck,
@@ -149,25 +151,15 @@ export const jobActions: JobActionsMap<JobStatus> = {
   ],
   Ongoing: [
     {
-      label: "Request Update",
-      action: () => console.log("Requesting update"),
-      styleClass: "neutral",
-      icon: MessageCircle,
-    },
-    {
-      label: "Cancel Job",
-      action: () => console.log("Cancelling job"),
-      styleClass: "danger",
-      icon: Trash2,
-    },
-    {
-      label: "Mark as Completed",
-      action: () => console.log("Marking job as completed"),
+      label: "Pay For This Job",
+      action: () => console.log("Requesting completion"),
       styleClass: "primary",
       icon: CheckCheck,
     },
   ],
   Completed: [
+    /*
+    
     {
       label: "View Summary",
       action: () => console.log("Viewing summary"),
@@ -180,6 +172,7 @@ export const jobActions: JobActionsMap<JobStatus> = {
       styleClass: "primary",
       icon: Repeat,
     },
+    */
     {
       label: "Rate Provider",
       action: () => console.log("Rating provider"),

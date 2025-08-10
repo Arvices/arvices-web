@@ -24,6 +24,7 @@ import NegotiationPanel from "../negotiationpanel";
 import { GenericTag } from "../statustag";
 import { getLatestCounterOffer } from "../../../util/jobutils";
 import { OfferDetails, OfferHistory } from "../offerdetails";
+import { initializeServiceRequestTransaction } from "../../../api-services/wallet.services";
 
 interface Props {
   offer: Offer;
@@ -48,13 +49,6 @@ const OfferCardClient: React.FC<Props> = ({
 
   const { user, price, description, createdDate, accepted } = offer;
 
-  let clientOffers = offer.counterOffer.filter((x) => x.type === "Client");
-  let providerOffers = offer.counterOffer.filter(
-    (x) => x.type === "Service Provider",
-  );
-
-  let latestClientOffer = getLatestCounterOffer(clientOffers);
-  let latestProviderOffer = getLatestCounterOffer(providerOffers) || offer;
   let latestOffer = getLatestCounterOffer(offer.counterOffer);
 
   let actions = clientOfferActions[offer.status];
@@ -107,6 +101,7 @@ const OfferCardClient: React.FC<Props> = ({
       setLoadingText("");
     }
   };
+
   const getCounterOffers = async () => {
     try {
       const response = await getAllCounterOffers(auth.token, {
@@ -201,13 +196,6 @@ const OfferCardClient: React.FC<Props> = ({
       }
       return action;
     });
-  } else if (offer.status === "Ongoing") {
-    actions.map((action) => {
-      if (action.label === "") {
-      } else if (action.label === "") {
-      }
-      return action;
-    });
   } else {
     actions.map((action) => {
       if (action.label === "") {
@@ -216,7 +204,7 @@ const OfferCardClient: React.FC<Props> = ({
       return action;
     });
   }
-  if (!showBtns) {
+  if (!showBtns && status === "Negotiating") {
     console.log({ showBtns, actions });
     actions = actions.filter(
       (x) => x.label == "Message Provider", // remove Message Client button if showing counter/accept buttons
@@ -277,7 +265,8 @@ const OfferCardClient: React.FC<Props> = ({
 
       {offer.status === "Ongoing" && (
         <p className="text-gray-600 text-sm font-medium tracking-tight mb-4">
-          You will be notified to review when the provider marks the job as completed. 
+          You will be notified to review when the provider marks the job as
+          completed.
         </p>
       )}
 

@@ -94,6 +94,7 @@ export const updateOffer = async (
   data: {
     price?: string;
     description?: string;
+    status?: string;
     accepted?: boolean;
     counterOffer?: {
       price: number;
