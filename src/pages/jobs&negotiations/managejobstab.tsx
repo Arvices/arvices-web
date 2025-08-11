@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Dropdown, Menu } from "antd";
+import React from "react";
+import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import {
   FilePlus,
@@ -21,27 +21,27 @@ type TabItem = {
 // Tabs for client
 const clientTabs: TabItem[] = [
   {
-    key: "all",
+    key: "All",
     label: "All",
     icon: <ListChecks className="w-4 h-4" />,
   },
   {
-    key: "open",
+    key: "Open",
     label: "Open",
     icon: <FilePlus className="w-4 h-4" />,
   },
   {
-    key: "negotiating",
+    key: "Negotiating",
     label: "Negotiating",
     icon: <MessagesSquare className="w-4 h-4" />,
   },
   {
-    key: "ongoing",
+    key: "Ongoing",
     label: "Ongoing",
     icon: <RefreshCcw className="w-4 h-4" />,
   },
   {
-    key: "completed",
+    key: "Completed",
     label: "Completed",
     icon: <CheckCircle className="w-4 h-4" />,
   },
@@ -50,27 +50,27 @@ const clientTabs: TabItem[] = [
 // Tabs for provider
 const providerTabs: TabItem[] = [
   {
-    key: "all",
+    key: "All",
     label: "All",
     icon: <ListChecks className="w-4 h-4" />,
   },
   {
-    key: "pending",
+    key: "Pending",
     label: "Pending Offers",
     icon: <Clock className="w-4 h-4" />,
   },
   {
-    key: "negotiating",
+    key: "Negotiating",
     label: "Negotiating",
     icon: <MessagesSquare className="w-4 h-4" />,
   },
   {
-    key: "ongoing",
+    key: "Ongoing",
     label: "Ongoing",
     icon: <RefreshCcw className="w-4 h-4" />,
   },
   {
-    key: "completed",
+    key: "Completed",
     label: "Completed",
     icon: <CheckCircle className="w-4 h-4" />,
   },
@@ -78,21 +78,21 @@ const providerTabs: TabItem[] = [
 
 interface ManageJobsTabsProps {
   isClient: boolean;
-  onTabChange?: (key: string) => void;
+  setActiveTab: (key: string) => void;
+  activeTab: string;
 }
 
 export const ManageJobsTabs: React.FC<ManageJobsTabsProps> = ({
   isClient,
-  onTabChange,
+  setActiveTab,
+  activeTab,
 }) => {
-  const [activeTab, setActiveTab] = useState("all");
   const tabs = isClient ? clientTabs : providerTabs;
 
   const isMobile = window.innerWidth < 768;
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
-    onTabChange?.(key);
   };
 
   const mobileMenu: MenuProps = {

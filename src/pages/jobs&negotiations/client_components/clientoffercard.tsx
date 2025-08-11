@@ -1,12 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import {
-  User2,
-  Layers,
-  CalendarDays,
-  MessageSquare,
-  Handshake,
-} from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { CounterOffer, Offer } from "../../../types/main.types";
 import { getOfferStatusStyle, Job } from "../../../components/cards/appcards";
 import ActionButtons, { clientOfferActions } from "../jobsaction";
@@ -23,8 +17,7 @@ import { useNavigate } from "react-router-dom";
 import NegotiationPanel from "../negotiationpanel";
 import { GenericTag } from "../statustag";
 import { getLatestCounterOffer } from "../../../util/jobutils";
-import { OfferDetails, OfferHistory } from "../offerdetails";
-import { initializeServiceRequestTransaction } from "../../../api-services/wallet.services";
+import { OfferHistory } from "../offerdetails";
 
 interface Props {
   offer: Offer;
@@ -47,12 +40,11 @@ const OfferCardClient: React.FC<Props> = ({
   const navigate = useNavigate();
   const [showCounterForm, setShowCounterForm] = useState(false);
 
-  const { user, price, description, createdDate, accepted } = offer;
+  const { createdDate } = offer;
 
   let latestOffer = getLatestCounterOffer(offer.counterOffer);
 
   let actions = clientOfferActions[offer.status];
-  console.log({ actions });
 
   const handleUpdateJob = async (data: any) => {
     console.log("Edited offer submitted:", data);
@@ -111,7 +103,6 @@ const OfferCardClient: React.FC<Props> = ({
       });
       let counterOffers = response?.data?.response;
 
-      console.log("Counter offers:", counterOffers);
       onOfferCounterChange(offer.id, counterOffers);
     } catch (error) {
       console.error("Failed to fetch counter offers:", error);
@@ -196,16 +187,9 @@ const OfferCardClient: React.FC<Props> = ({
       }
       return action;
     });
-  } else {
-    actions.map((action) => {
-      if (action.label === "") {
-      } else if (action.label === "") {
-      }
-      return action;
-    });
   }
-  if (!showBtns && status === "Negotiating") {
-    console.log({ showBtns, actions });
+
+  if (!showBtns && offer.status === "Negotiating") {
     actions = actions.filter(
       (x) => x.label == "Message Provider", // remove Message Client button if showing counter/accept buttons
     );

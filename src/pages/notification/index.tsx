@@ -13,7 +13,6 @@ import {
   UserPlus,
   Check,
   Search,
-  X,
 } from "feather-icons-react";
 
 import imgShape from "../../assets/images/pro-sample-img.png";

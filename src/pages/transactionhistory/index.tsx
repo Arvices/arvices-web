@@ -36,7 +36,7 @@ const Transactions = (): React.ReactNode => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: savedEmail, password: savedPassword }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`Login failed: ${res.status}`);
@@ -80,10 +80,11 @@ const Transactions = (): React.ReactNode => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-      if (!res.ok) throw new Error(`Error ${res.status}: Unauthorized or invalid request`);
+      if (!res.ok)
+        throw new Error(`Error ${res.status}: Unauthorized or invalid request`);
 
       const data = await res.json();
       const txs = data?.response || [];
@@ -118,19 +119,31 @@ const Transactions = (): React.ReactNode => {
               className="border p-2 rounded"
             />
 
-            <select value={paid} onChange={(e) => setPaid(e.target.value)} className="border p-2 rounded">
+            <select
+              value={paid}
+              onChange={(e) => setPaid(e.target.value)}
+              className="border p-2 rounded"
+            >
               <option value="">Paid status</option>
               <option value="true">Paid</option>
               <option value="false">Not Paid</option>
             </select>
 
-            <select value={type} onChange={(e) => setType(e.target.value)} className="border p-2 rounded">
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="border p-2 rounded"
+            >
               <option value="">Type</option>
               <option value="credit">Credit</option>
               <option value="debit">Debit</option>
             </select>
 
-            <select value={method} onChange={(e) => setMethod(e.target.value)} className="border p-2 rounded">
+            <select
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              className="border p-2 rounded"
+            >
               <option value="">Method</option>
               <option value="bank">Bank</option>
               <option value="wallet">Wallet</option>
@@ -150,12 +163,20 @@ const Transactions = (): React.ReactNode => {
               className="border p-2 rounded"
             />
 
-            <select value={orderBy} onChange={(e) => setOrderBy(e.target.value)} className="border p-2 rounded">
+            <select
+              value={orderBy}
+              onChange={(e) => setOrderBy(e.target.value)}
+              className="border p-2 rounded"
+            >
               <option value="DESC">Newest First</option>
               <option value="ASC">Oldest First</option>
             </select>
 
-            <select value={limit} onChange={(e) => setLimit(Number(e.target.value))} className="border p-2 rounded">
+            <select
+              value={limit}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className="border p-2 rounded"
+            >
               <option value={5}>5</option>
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -175,7 +196,9 @@ const Transactions = (): React.ReactNode => {
 
         {loading && <p>Loading transactions...</p>}
         {error && <p className="text-red-500">{error}</p>}
-        {!loading && !error && transactions.length === 0 && <p>No transactions found.</p>}
+        {!loading && !error && transactions.length === 0 && (
+          <p>No transactions found.</p>
+        )}
 
         {!loading && transactions.length > 0 && (
           <ul className="space-y-2">

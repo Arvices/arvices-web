@@ -1,14 +1,12 @@
 import {
   MessageCircle,
   FileEdit,
-  Upload,
   CheckCheck,
   Trash2,
   LucideIcon,
   MessageSquare,
   Handshake,
   CheckCircle,
-  Wallet,
 } from "lucide-react";
 
 import { Star, Repeat, FileText } from "lucide-react";
@@ -112,6 +110,7 @@ export const offerActions: JobActionsMap<OfferStatus> = {
     },
   ],
   Completed: [
+    /*    
     {
       label: "View Feedback",
       action: () => console.log("Viewing feedback"),
@@ -123,6 +122,7 @@ export const offerActions: JobActionsMap<OfferStatus> = {
       styleClass: "outline",
       icon: MessageCircle,
     },
+    */
   ],
 };
 

@@ -181,11 +181,22 @@ const generateVerificationCode = async (email: string) => {
 
 // RATING & REVIEWS
 
-const rateUser = async (id: string, rating: number, token: string) => {
+const rateUser = async (
+  id: number,
+  rating: number,
+  reviewComment: string,
+  token: string,
+) => {
+  const payload = {
+    userId: id,
+    rating: rating,
+    review: reviewComment,
+  };
   const config = {
     url: `${baseUrl}/user/rateuser/${id}/${rating}`,
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
+    data: payload,
   };
   return axios(config);
 };

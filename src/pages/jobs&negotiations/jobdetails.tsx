@@ -1,9 +1,8 @@
 import React from "react";
-import { Job, JobStatus } from "../../components/cards/appcards";
-import { useAuth } from "../../contexts/AuthContext";
+import { Job } from "../../components/cards/appcards";
 import { JobDescription, JobDetailsHeader } from "./jobdetailsheader";
 
-import { GenericTag, StatusTag } from "./statustag";
+import { StatusTag } from "./statustag";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "feather-icons-react";
 

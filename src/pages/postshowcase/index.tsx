@@ -4,7 +4,6 @@ import { MapPin, Image, X } from "feather-icons-react";
 import { getImagePreview } from "../util/getImagePreview";
 import { useLoading } from "../../contexts/LoadingContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { createShowcase } from "../../api-services/showcase.service";
 
@@ -13,7 +12,6 @@ const PostShowcase = (): React.ReactNode => {
   const { setLoading, setLoadingText } = useLoading();
   const auth = useAuth();
   const notify = useNotificationContext();
-  const navigate = useNavigate();
 
   const [experience, setExperience] = useState("");
   const [location, setLocation] = useState("");

@@ -4,7 +4,6 @@ import { categoryData } from "../home";
 import { CategoryCarousel } from "./CategoryCarousel";
 import { ProviderCard } from "../../components/cards/appcards";
 
-import { useAuth } from "../../contexts/AuthContext";
 import { getProfessionals } from "../../api-services/auth-re";
 import { Pagination } from "../../components/pagination";
 import { UserAccount } from "../../api-services/auth";
@@ -12,7 +11,6 @@ import { ContentHOC } from "../../components/nocontent";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 
 const ArvicesProviders = (): React.ReactNode => {
-  let auth = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();

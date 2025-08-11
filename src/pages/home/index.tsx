@@ -79,6 +79,7 @@ const Home: React.FC = () => {
   const [topProfessionals, setTopProfessionals] = useState<any[]>([]);
   const navigate = useNavigate();
   const category = useCategory();
+  console.log({ topLoading, topError });
 
   const fetchTopProfessionals = async () => {
     try {

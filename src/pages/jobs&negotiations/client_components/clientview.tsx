@@ -1,5 +1,5 @@
 import React from "react";
-import { Job, JobCard, JobCardView } from "../../../components/cards/appcards";
+import { Job, JobCardView } from "../../../components/cards/appcards";
 import OfferCardClient from "./clientoffercard";
 import { Offer } from "../../../types/main.types";
 

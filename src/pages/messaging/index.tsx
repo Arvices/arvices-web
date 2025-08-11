@@ -377,10 +377,9 @@ const Conversations = (): React.ReactNode => {
 };
 
 export function ModernMessaging({
-  isOpen,
   onClose,
 }: {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
 }) {
   const [selectedConversation, setSelectedConversation] = useState<

@@ -257,11 +257,7 @@ export function ProfileEdit() {
       setLoading(true);
       setLoadingText("Saving service changes...");
 
-      const updated = await updateProfileService(
-        serviceEdit.id,
-        serviceEdit,
-        auth.token,
-      );
+      await updateProfileService(serviceEdit.id, serviceEdit, auth.token);
 
       setServices((prev) => {
         const copy = [...prev];

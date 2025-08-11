@@ -33,34 +33,3 @@ export interface ServiceOfferingPayload {
   timeUnit: string; // e.g. "hours", "days", etc.
   id: number;
 }
-
-interface profileData {
-  // Personal Info
-  fullName: string;
-  profileImage: string;
-  bio: string;
-  profession: string;
-  location: string;
-  phone: string;
-  email: string;
-  website: string;
-
-  // Professional Details
-  experience: string;
-  specialties: string[];
-  languages: string[];
-
-  // Availability
-  workingHours: {
-    [key: string]: { start: string; end: string; available: boolean };
-  };
-  bookingAdvance: string;
-  mobileService: boolean;
-  serviceRadius: string;
-
-  // Business Settings
-  depositRequired: boolean;
-  depositPercentage: string;
-  cancellationPolicy: string;
-  autoConfirm: boolean;
-}

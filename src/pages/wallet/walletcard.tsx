@@ -6,6 +6,7 @@ import { ArrowDownLeft, ArrowUpRight, ArrowRight } from "feather-icons-react";
 interface WalletCardProps {
   balance: number;
   onWithdraw: () => void;
+  onAddMoney: () => void;
 }
 
 const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
@@ -16,7 +17,9 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [recipientEmail, setRecipientEmail] = useState<string>("");
-  const [transferSource, setTransferSource] = useState<"balance" | "other">("balance");
+  const [transferSource, setTransferSource] = useState<"balance" | "other">(
+    "balance",
+  );
   const [transferLoading, setTransferLoading] = useState(false);
 
   // Get or request token
@@ -40,7 +43,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: savedEmail, password: savedPassword }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`Login failed: ${res.status}`);
@@ -75,7 +78,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ amount }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -121,7 +124,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
               recipient_email: recipientEmail,
               amount: transferAmount,
             }),
-          }
+          },
         );
 
         if (!res.ok) throw new Error(`Transfer failed: ${res.status}`);
@@ -139,7 +142,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ amount: transferAmount }),
-          }
+          },
         );
 
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -205,7 +208,8 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance, onWithdraw }) => {
             onClick={onWithdraw}
             className="!h-12 flex-1 bg-transparent border border-white text-white hover:bg-white hover:text-black"
           >
-            Withdraw <ArrowUpRight className="inline w-5 h-5 relative top-0.5" />
+            Withdraw{" "}
+            <ArrowUpRight className="inline w-5 h-5 relative top-0.5" />
           </Button>
           <Button
             onClick={() => setIsTransferModalOpen(true)}

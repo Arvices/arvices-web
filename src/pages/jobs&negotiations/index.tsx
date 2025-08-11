@@ -19,8 +19,14 @@ const ManageJob = (): React.ReactNode => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const location = useLocation();
+  const hash = location.hash
+    .split("")
+    .filter((x) => x != "#")
+    .join("");
+
   const isClient = location.pathname.indexOf("client") !== -1;
-  const [activeTab, setActiveTab] = useState("all");
+
+  const [activeTab, setActiveTab] = useState(hash);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,13 +36,14 @@ const ManageJob = (): React.ReactNode => {
   const loadServiceRequest = async () => {
     setLoading(true);
     setError(null);
-
+    console.log({ activeTab });
     try {
       const response = await getAllServiceRequests({
         token: auth.token,
         page: currentPage,
         limit: 10,
         user: auth?.user?.id,
+        status: activeTab === "All" ? "" : activeTab,
       });
 
       if (response?.data?.response?.length === 0) {
@@ -44,7 +51,6 @@ const ManageJob = (): React.ReactNode => {
         return;
       }
       setJobPostings(response?.data?.response || []);
-      console.log({ response });
     } catch (err: any) {
       console.error(err);
       setError(
@@ -66,6 +72,7 @@ const ManageJob = (): React.ReactNode => {
         user: auth?.user?.id,
         page: 1,
         limit: 10,
+        status: activeTab === "All" ? "" : activeTab,
       });
 
       if (response?.data?.response?.length === 0) {
@@ -75,7 +82,6 @@ const ManageJob = (): React.ReactNode => {
 
       // Corrected line: We use setSentOffers here, not setJobPostings
       setSentOffers(response?.data?.response || []);
-      console.log({ response });
     } catch (err: any) {
       console.error(err);
       setError(
@@ -98,11 +104,7 @@ const ManageJob = (): React.ReactNode => {
     if (auth.token) {
       load();
     }
-    // Added isClient to the dependency array, as it's a condition for which function runs
-  }, [auth.token, currentPage, isClient]);
-  useEffect(() => {
-    console.log({ activeTab });
-  }, []);
+  }, [auth.token, currentPage, activeTab]);
 
   return (
     <section className="min-h-screen pt-13 ">
@@ -120,11 +122,8 @@ const ManageJob = (): React.ReactNode => {
         <div>
           <ManageJobsTabs
             isClient={isClient}
-            onTabChange={(key) => {
-              console.log("Active tab:", key);
-              setActiveTab(key);
-              // Filter jobs based on this key
-            }}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
         </div>
 

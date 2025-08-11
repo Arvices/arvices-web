@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Badge, Card } from "antd";
+import { Button } from "antd";
 import { Heart, MessageCircle, Eye } from "feather-icons-react";
 import image from "../../assets/images/pro-sample-img.png";
 

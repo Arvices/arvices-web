@@ -1,6 +1,6 @@
 import { Filter, MapPin, X } from "feather-icons-react";
-import { Modal, Input, Select } from "antd";
-import { useState } from "react";
+import { Modal, Select } from "antd";
+import { useEffect, useState } from "react";
 import { useCategory } from "../../contexts/CategoryContext";
 import LocationInput from "../../components/map/LocationInput";
 
@@ -11,8 +11,8 @@ export interface FilterFormProps {
     location: string;
   };
   onChange: (name: string, value: string) => void;
-  onApply?: () => void;
-  onClear?: () => void;
+  onApply: () => void;
+  onClear: () => void;
   isFilter?: boolean;
   setIsFilter?: () => void;
 }
@@ -27,8 +27,102 @@ export const FilterComponent = ({
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const category = useCategory();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  let filterForm = (
+    <div className="border border-neutral-200 rounded-xl bg-white shadow-sm overflow-hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
+      {/* First 4 children */}
+      <div className="bg-neutral-100 rounded-lg h-auto flex items-center justify-center">
+        {/* search input */}
+        <input
+          placeholder="Add a search term"
+          value={filters.searchTerm}
+          onChange={(e) => onChange("searchTerm", e.target.value)}
+          className="px-4 h-12 w-full bg-transparent text-neutral-800 placeholder-neutral-400 focus:outline-none"
+        />
+      </div>
+      <div className="bg-neutral-100 rounded-lg h-auto flex items-center justify-center">
+        <Select
+          value={filters.category}
+          onChange={(value) => onChange("category", value)}
+          className="px-4 h-12 w-full bg-transparent text-neutral-800 placeholder-neutral-400 focus:outline-none"
+          style={{ height: 48 }} // same as h-12
+          placeholder="Select category"
+          options={[{ label: "Select Category", value: "" }].concat(
+            category.categories.map((val) => ({
+              label: val.name,
+              value: JSON.stringify(val),
+            })),
+          )}
+        />
+      </div>
+      <div className="bg-neutral-100 rounded-lg h-auto flex items-center justify-center">
+        {/* location input */}
+        <input
+          placeholder="Location"
+          value={filters.location}
+          onChange={(e) => onChange("location", e.target.value)}
+          className="px-4 h-12 w-full bg-transparent text-neutral-800 placeholder-neutral-400 focus:outline-none"
+        />
+      </div>
+      <div className="bg-neutral-100 rounded-lg h-auto flex items-center justify-center">
+        {/* add location button */}
+        <button
+          className="text-neutral-600 h-12 hover:text-neutral-900 transition flex items-center gap-1"
+          onClick={() => setShowModal((prev) => !prev)}
+        >
+          Add Location <MapPin size={18} />
+        </button>
+      </div>
+
+      {/* Button row — always full width */}
+      <div className="rounded-lg flex items-center justify-end col-span-1 sm:col-span-2 md:col-span-4">
+        <div
+          className={`w-full grid gap-4 ${
+            isFilter ? "grid-cols-2" : "grid-cols-1"
+          }`}
+        >
+          {isFilter && (
+            <button
+              onClick={() => {
+                onClear();
+              }}
+              className="h-12 w-full bg-neutral-200 text-neutral-800 rounded-lg hover:bg-neutral-300 transition flex items-center justify-center gap-1"
+            >
+              Clear <X size={16} />
+            </button>
+          )}
+          <button
+            onClick={() => {
+              if (isMobile) {
+                setFilterModalOpen(false);
+                onApply();
+              } else {
+                onApply();
+              }
+            }}
+            className="h-12 w-full bg-neutral-800 text-white rounded-lg hover:bg-neutral-900 transition flex items-center justify-center gap-1"
+          >
+            Apply <Filter size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
   return (
     <div>
+      {/* Location Input Modal */}
       <LocationInput
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -38,126 +132,38 @@ export const FilterComponent = ({
           setShowModal(false);
         }}
       />
-      <div className="hidden lg:flex items-center border rounded-3xl border-gray-300">
-        {/* Desktop filter UI */}
-        <input
-          placeholder="Add a search term"
-          value={filters.searchTerm}
-          onChange={(e) => onChange("searchTerm", e.target.value)}
-          className="h-13 px-4 w-full active:border-gray-100 focus:border-gray-200"
-        />
-        <select
-          className="h-13 px-4 text-gray-500 w-full active:border-gray-100 focus:border-gray-200"
-          onChange={(e) => onChange("category", e.target.value)}
-          value={filters.category}
-        >
-          {category.categories.map((val, index) => {
-            return (
-              <option
-                className="text-gray-700"
-                key={index}
-                value={JSON.stringify(val)}
-              >
-                {val.name}
-              </option>
-            );
-          })}
-        </select>
-        <input
-          placeholder="Location"
-          value={filters.location}
-          onChange={(e) => onChange("location", e.target.value)}
-          className="h-13 px-4  w-full active:border-gray-100 focus:border-gray-200"
-        />
 
-        <div className="w-max">
+      {/* Desktop filter bar */}
+      {isMobile ? (
+        <div className="lg:hidden w-full mt-3">
           <button
-            className="w-max font-medium cursor-pointer"
-            onClick={() => setShowModal((prev) => !prev)}
+            onClick={() => setFilterModalOpen(true)}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-lg 
+                    bg-neutral-800 text-white font-medium shadow-sm 
+                    hover:bg-neutral-900 active:scale-[0.98] transition-all"
           >
-            <span>Add Location </span>
-            <span>
-              <MapPin className="inline" size={18} />
-            </span>
+            <Filter className="w-5 h-5" />
+            Apply Filters
           </button>
         </div>
-        {isFilter && (
-          <button
-            onClick={onClear}
-            className="h-13 px-5 min-w-[120px] bg-gray-900 text-white rounded-3xl cursor-pointer"
-          >
-            Clear <X className="inline" size={16} />
-          </button>
-        )}
-        <button
-          onClick={onApply}
-          className="h-13 px-5 min-w-[120px] bg-gray-900 text-white rounded-3xl cursor-pointer"
-        >
-          Apply <Filter className="inline" size={16} />
-        </button>
-      </div>
+      ) : (
+        filterForm
+      )}
 
-      {/* Mobile filter button */}
-      <div className="lg:hidden flex justify-end">
-        <button
-          onClick={() => setFilterModalOpen(true)}
-          className="bg-gray-900 px-7  text-white rounded cursor-pointer h-11"
-        >
-          Apply Filters <Filter className="inline" size={16} />
-        </button>
-      </div>
+      {/* Mobile Filter Button */}
 
       {/* Filter Modal */}
       <Modal
-        title="Apply Filters"
+        title={
+          <span className="text-neutral-900 font-medium">Apply Filters</span>
+        }
         open={filterModalOpen}
-        onCancel={() => {
-          setFilterModalOpen(false);
-        }}
-        onOk={() => {
-          setFilterModalOpen(false);
-        }}
-        okText="Apply"
+        onCancel={() => setFilterModalOpen(false)}
+        footer={null} // removes default footer buttons
+        className="rounded-xl"
+        bodyStyle={{ backgroundColor: "#fff" }}
       >
-        <div className="mb-5">
-          <label className="text-gray-700 block mb-1">Search Term</label>
-          <Input
-            value={filters.searchTerm}
-            onChange={(e) => onChange("searchTerm", e.target.value)}
-            className="rounded border-gray-300 h-11 w-full"
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="text-gray-700 block mb-1">Category</label>
-          <Select
-            value={filters.category}
-            style={{ height: "45px" }}
-            onChange={(value) => onChange("category", value)}
-            className="w-full rounded py-2"
-            options={category.categories.map((x) => {
-              return { label: x.name, value: x.id };
-            })}
-            placeholder="Select category"
-          />
-        </div>
-
-        <div className="mb-5 relative">
-          <label className="text-gray-700 block mb-1">Location</label>
-          <Input
-            value={filters.location}
-            onChange={(e) => onChange("location", e.target.value)}
-            className="rounded border-gray-300 h-11 w-full pr-26" // added padding-right to prevent overlap
-          />
-          <div className="w-max absolute top-[35px] right-4">
-            <button className="w-max font-medium cursor-pointer">
-              <span>Add Location </span>
-              <span>
-                <MapPin className="inline" size={16} />
-              </span>
-            </button>
-          </div>
-        </div>
+        {filterForm}
       </Modal>
     </div>
   );

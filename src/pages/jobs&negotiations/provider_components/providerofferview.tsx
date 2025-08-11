@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { CalendarDays, Layers, User2 } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Modal } from "antd";
 import { Offer } from "../../../types/main.types";
-import ActionButtons, { buttonClasses, offerActions } from "../jobsaction"; // Adjust import path if needed
-import EditOffer, { OfferData } from "./editoffer";
-import {
-  getOfferStatusStyle,
-  OfferStatus,
-} from "../../../components/cards/appcards";
+import ActionButtons, { offerActions } from "../jobsaction"; // Adjust import path if needed
+import EditOffer from "./editoffer";
+import { getOfferStatusStyle } from "../../../components/cards/appcards";
 import { GenericTag } from "../statustag";
 import { OfferHistory } from "../offerdetails";
 import NegotiationPanel from "../negotiationpanel";
@@ -41,13 +38,7 @@ const ProviderOfferCard: React.FC<Props> = ({
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
-  const {
-    serviceRequest: job,
-    price,
-    description,
-    createdDate,
-    accepted,
-  } = offer;
+  const { serviceRequest: job, createdDate } = offer;
 
   let actions = offerActions[offer.status];
 
@@ -295,9 +286,14 @@ const ProviderOfferCard: React.FC<Props> = ({
         </div>
       )}
 
-      {!showBtns && (
+      {!showBtns && offer.status === "Negotiating" && (
         <p className="text-gray-600 text-sm font-medium tracking-tight mb-4">
           Awaiting client response on your submitted offer.
+        </p>
+      )}
+      {!showBtns && offer.status === "Completed" && (
+        <p className="text-gray-600 text-sm font-medium tracking-tight mb-4">
+          Job Completed - Client has made payments
         </p>
       )}
       <div className="border-t border-gray-100 mb-4" />

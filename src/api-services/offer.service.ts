@@ -1,6 +1,5 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
-import { Offer } from "../types/main.types";
 
 export const createOffer = async (
   token: string,
@@ -28,6 +27,7 @@ export const getAllOffers = async (
     servicerequest?: number;
     user?: number;
     startDate?: string;
+    status?: string;
     endDate?: string;
     accepted?: number;
     orderBy?: string;

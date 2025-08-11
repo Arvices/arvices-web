@@ -1,19 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Carousel, Avatar, Badge, Card, Button } from "antd";
-import imgShape from "../../assets/images/pro-sample-img.png";
+import { Carousel, Badge, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
 
 import { Heart, MapPin, Star } from "feather-icons-react";
 import { PortfolioFilter } from "./portfoliofilter";
 import { BookingCalendar } from "./bookingcarlendar";
-import { BookingStatus } from "./bookingstatus";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { getAccountById, getAllUsers } from "../../api-services/auth-re";
+import { getAccountById } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
 import { UserAccount } from "../../api-services/auth";
 import { parseHttpError } from "../../api-services/parseReqError";
-import AvailabilitySection, { Availability } from "./Availability";
+import AvailabilitySection from "./Availability";
 import { getInitials } from "../../util/getInitials";
 
 const reviews = [

@@ -1,6 +1,6 @@
 import React from "react";
-import { Empty, Result, Button, Spin } from "antd";
-import { Inbox, X } from "feather-icons-react";
+import { Result, Button, Spin } from "antd";
+import { Inbox } from "feather-icons-react";
 
 interface ContentHOCProps {
   loading: boolean;

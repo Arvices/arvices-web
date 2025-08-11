@@ -1,5 +1,5 @@
-import { Clock, Globe, MapPin, Calendar, UserCheck } from "feather-icons-react";
-import { Dropdown, Menu } from "antd";
+import { Clock, Globe, MapPin, UserCheck } from "feather-icons-react";
+
 export interface AppointmentTime {
   day: string;
   from: string;
@@ -22,8 +22,6 @@ export default function AvailabilitySection({
   mobileService = true,
   location,
   days,
-  appointmentsAvailable,
-  appointmentTimes,
 }: Availability) {
   /**
    

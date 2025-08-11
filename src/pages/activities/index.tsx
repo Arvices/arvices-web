@@ -41,7 +41,7 @@ type ParsedCaption = {
   hashtags: string[];
 };
 
-function extractCaptionAndHashtags(text: string): ParsedCaption {
+export function extractCaptionAndHashtags(text: string): ParsedCaption {
   const hashtagRegex = /#[\w]+/g;
   const hashtags = text.match(hashtagRegex) || [];
 

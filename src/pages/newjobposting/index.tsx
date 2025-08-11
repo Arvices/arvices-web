@@ -4,7 +4,6 @@ import { MapPin } from "feather-icons-react";
 // import utilities
 import { useLoading } from "../../contexts/LoadingContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { Input } from "../../components/input";
 import { createServiceRequest } from "../../api-services/servicerequests.service";
@@ -17,7 +16,6 @@ const NewJobPosting = (): React.ReactNode => {
   const { setLoading, setLoadingText } = useLoading();
   const auth = useAuth();
   const notify = useNotificationContext();
-  const navigate = useNavigate();
 
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -26,7 +24,6 @@ const NewJobPosting = (): React.ReactNode => {
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
-  console.log({ catError: !!catError });
 
   function findCategoryByName(name: string, categories: Category[]) {
     return categories.find((cat) => cat.name === name) || null;
@@ -36,11 +33,9 @@ const NewJobPosting = (): React.ReactNode => {
     setCatError("");
     try {
       const response = await getAllCategory();
-      console.log({ response });
       setCategories(response.data.response); // adjust this if your response shape is different
     } catch (error: any) {
       let errorMsg = parseHttpError(error);
-      console.error("Failed to load categories:", error);
       setCatError(
         (errorMsg || "Failed to load categories") +
           "Use the button below to reload categories",
@@ -51,7 +46,9 @@ const NewJobPosting = (): React.ReactNode => {
   };
 
   useEffect(() => {
-    loadCategories();
+    if (!catLoading) {
+      loadCategories();
+    }
   }, []);
   const handleSubmit = async () => {
     try {
@@ -74,8 +71,7 @@ const NewJobPosting = (): React.ReactNode => {
         type: "Public", // Or "Private" if user can choose
       };
 
-      const response = await createServiceRequest(data, auth.token);
-      console.log("Job post response:", response);
+      await createServiceRequest(data, auth.token);
 
       notify.openNotification(
         "topRight",
@@ -87,7 +83,6 @@ const NewJobPosting = (): React.ReactNode => {
       // Optionally reset form fields
       // setDescription(""); setCategoryId(0); etc.
     } catch (error) {
-      console.error("Failed to post job:", error);
       let errorMsg = parseHttpError(error);
       notify.openNotification(
         "topRight",

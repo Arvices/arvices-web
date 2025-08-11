@@ -13,13 +13,10 @@ interface NegotiationPanelProps {
 }
 
 const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
-  job,
   offer,
   isClient,
   onCounter,
   onCancel,
-  onUpdate,
-  onAccept,
 }) => {
   const [counterPrice, setCounterPrice] = useState(offer.price);
   const [reason, setReason] = useState("");

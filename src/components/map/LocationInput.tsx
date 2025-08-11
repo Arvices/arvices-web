@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Input, Button, message, Select } from "antd";
 import { EnvironmentOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Country, State, City } from "country-state-city";
+import { State, City } from "country-state-city";
 import mapboxgl from "mapbox-gl";
 import MapView from "./map";
 import { useNotificationContext } from "../../contexts/NotificationContext";
@@ -73,6 +73,7 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
   const [cities, setCities] = useState<any[]>([]);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(false);
+  console.log({ locationLoading: loading });
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"manual" | "auto">("manual");
 

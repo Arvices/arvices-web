@@ -20,7 +20,6 @@ import {
   Loader,
   CheckCircle,
   Users,
-  Clock,
   Sun,
   UserCheck,
   CreditCard,
@@ -50,7 +49,7 @@ const Header: React.FC = () => {
         {
           key: "1",
           label: (
-            <Link to={""} className="w-[200px]">
+            <Link to={"/provider/manage-jobs"} className="w-[200px]">
               Manage Your Jobs
             </Link>
           ),
@@ -60,48 +59,40 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to={"/provider/manage-jobs#pending"}>
+            <Link to={"/provider/manage-jobs#Pending"}>
               <Clipboard size={16} className="inline mr-2" />
-              Open Offers
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                3
-              </span>
+              Pending Offers
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "3",
           label: (
-            <Link to={"/provider/manage-jobs#negotiating"}>
+            <Link to={"/provider/manage-jobs#Negotiating"}>
               <MessageCircle size={16} className="inline mr-2" />
               Ongoing Negotiation
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                2
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "4",
           label: (
-            <Link to={"/provider/manage-jobs#ongoing"}>
+            <Link to={"/provider/manage-jobs#Ongoing"}>
               <Loader size={16} className="inline mr-2" />
               Ongoing Jobs
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                1
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "5",
           label: (
-            <Link to={"/provider/manage-jobs#completed"}>
+            <Link to={"/provider/manage-jobs#Completed"}>
               <CheckCircle size={16} className="inline mr-2" />
               Completed Jobs
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                10
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
@@ -138,77 +129,62 @@ const Header: React.FC = () => {
         {
           key: "2",
           label: (
-            <Link to={"/client/manage-jobs#open"}>
+            <Link to={"/client/manage-jobs#Open"}>
               <Briefcase size={16} className="inline mr-2" />
               Open Jobs
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                3
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "3",
           label: (
-            <Link to={"/client/manage-jobs#pending"}>
-              <Clock size={16} className="inline mr-2" />
-              Pending Offers
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                2
-              </span>
+            <Link to={"/client/manage-jobs#Negotiating"}>
+              <MessageCircle size={16} className="inline mr-2" />
+              Ongoing Negotiation
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "4",
           label: (
-            <Link to={"/client/manage-jobs#ongoing"}>
+            <Link to={"/client/manage-jobs#Ongoing"}>
               <Loader size={16} className="inline mr-2" />
               Ongoing Jobs
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                1
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "5",
           label: (
-            <Link to={"/client/manage-jobs#completed"}>
+            <Link to={"/client/manage-jobs#Completed"}>
               <CheckCircle size={16} className="inline mr-2" />
               Completed Jobs
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                10
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
             </Link>
           ),
         },
         {
           key: "6",
           label: (
-            <Link to={"/client/previous-hires"}>
+            <span>
               <Users size={16} className="inline mr-2" />
               Previous Hires
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                10
-              </span>
-            </Link>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
+            </span>
           ),
         },
         { type: "divider" },
         {
           key: "7",
           label: (
-            <Link
-              className="mb-3 inline-block"
-              to={"/client/favourite-service-providers"}
-            >
+            <span className="mb-3 inline-block">
               <Heart className="inline mr-2" size={18} />
               Favourite Service Providers
-              <span className="rounded px-1 bg-gray-100 inline-block ml-2">
-                10
-              </span>
-            </Link>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
+            </span>
           ),
         },
       ]}
@@ -249,20 +225,7 @@ const Header: React.FC = () => {
               className="flex items-center gap-2"
             >
               <UserCheck size={16} /> Profile
-              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                3
-              </span>
-            </Link>
-          ),
-        },
-        {
-          key: "3",
-          label: (
-            <Link to="/" className="flex items-center gap-2">
-              <Sun size={16} /> Customize
-              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                2
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
             </Link>
           ),
         },
@@ -271,31 +234,7 @@ const Header: React.FC = () => {
           label: (
             <Link to="/wallet" className="flex items-center gap-2">
               <CreditCard size={16} /> Wallet
-              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                1
-              </span>
-            </Link>
-          ),
-        },
-        {
-          key: "5",
-          label: (
-            <Link to="/transaction-history" className="flex items-center gap-2">
-              <FileText size={16} /> Transactions
-              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                10
-              </span>
-            </Link>
-          ),
-        },
-        {
-          key: "6",
-          label: (
-            <Link to="/" className="flex items-center gap-2">
-              <BarChart2 size={16} /> Reports
-              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                10
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
             </Link>
           ),
         },

@@ -13,7 +13,7 @@ export const getTimeValue = (str: string | null): string => {
 };
 
 export const formatTimeForSave = (time: string): string => {
-  const [hourStr, minuteStr] = time.split(":");
+  const [hourStr] = time.split(":");
   let hour = parseInt(hourStr, 10);
   const period = hour >= 12 ? "pm" : "am";
   hour = hour % 12 || 12;
@@ -21,7 +21,7 @@ export const formatTimeForSave = (time: string): string => {
 };
 
 export function convertToReadableTime(time: string): string {
-  const [hour, minute] = time.split(":").map(Number);
+  const [hour] = time.split(":").map(Number);
   const isPM = hour >= 12;
   const formattedHour = hour % 12 || 12;
   const suffix = isPM ? "pm" : "am";

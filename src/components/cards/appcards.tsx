@@ -5,7 +5,6 @@ import { Modal } from "antd";
 import placeholderUserImg from "../../assets/images/pro-sample-img.png";
 import FeatherIcon, {
   ArrowUpRight,
-  Box,
   Briefcase,
   Calendar,
   Check,
@@ -14,13 +13,12 @@ import FeatherIcon, {
   FileText,
   Layers,
   MapPin,
-  PenTool,
   Plus,
   User,
 } from "feather-icons-react";
 import { UserAccount } from "../../api-services/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { followUser, unfollowUser } from "../../api-services/auth-re";
+import { followUser, rateUser, unfollowUser } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
 import { getInitials } from "../../util/getInitials";
@@ -47,6 +45,11 @@ import {
 } from "../../api-services/servicerequests.service";
 import { GenericTag } from "../../pages/jobs&negotiations/statustag";
 import { initializeServiceRequestTransaction } from "../../api-services/wallet.services";
+import RateUserModal from "./rateusermodal";
+
+export function findAcceptedObject(arr: Offer[]) {
+  return arr.find((item) => item.accepted === true) || null;
+}
 
 export interface CategoryDataItem {
   title: string;
@@ -113,7 +116,6 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
         setIsFollowing(true);
       }
     } catch (error) {
-      console.error(`${isFollowing ? "Unfollow" : "Follow"} error:`, error);
     } finally {
       setLoading(false);
     }
@@ -448,13 +450,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
 
       setOpen(false); // Optionally close slide-in
       handleOfferAction("delete", job?.id, userOffer);
-      const [offerData, setOfferData] = useState({
-        price: "",
-        includesMaterials: false,
-        description: "",
-      });
     } catch (error: any) {
-      console.error("Error cancelling offer:", error);
       openNotification(
         "topRight",
         "Error",
@@ -767,26 +763,23 @@ export default CancelJobModal;
 interface JobCardViewProp {
   job: Job | null;
   onJobChange: (data: any) => void;
-  onOfferChange: (data: any) => void;
+  onOfferChange?: (data: any) => void;
   load: () => void;
 }
 
-export const JobCardView = ({
-  job,
-  onJobChange,
-  onOfferChange,
-  load,
-}: JobCardViewProp) => {
+export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
   const auth = useAuth();
 
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+
   let actions = jobActions[job?.status || "Open"];
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEditView, setShowEditView] = useState(false);
+  const [showRateModal, setShowRateModal] = useState(false);
 
   const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
   const toggleEditView = () => setShowEditView((prev) => !prev);
@@ -830,8 +823,6 @@ export const JobCardView = ({
         { token: auth.token },
       );
 
-      console.log({ paymentInitializationResponse: response });
-
       const { authorization_url } = response.data.response.data;
 
       if (authorization_url) {
@@ -858,31 +849,6 @@ export const JobCardView = ({
     }
   };
 
-  const handleUpdateOffer = async (offerId: number) => {
-    console.log("Update offer submitted:");
-    setLoading(true);
-    setLoadingText("Updating service request...");
-
-    try {
-      let response = await updateOffer(auth.token, offerId, {
-        status: "Completed",
-      });
-      console.log({ responseUpdateOffer: response.data.response });
-      onOfferChange(response.data.response);
-    } catch (error) {
-      openNotification(
-        "topRight",
-        "Failed update offer status",
-        "Please try again later.",
-        "error",
-      );
-      console.log({ error });
-    } finally {
-      setLoading(false);
-      setLoadingText("");
-    }
-  };
-
   const handleCancel = async () => {
     setLoading(true);
     setLoadingText("Verifying payment...");
@@ -892,9 +858,7 @@ export const JobCardView = ({
         job?.id ? String(job.id) : String(-1),
         auth.token,
       );
-      let updatedJob = response.data.response;
-      console.log({ UPDDDDATEDjOBBBBBB: updatedJob });
-      let acceptedOffer = updatedJob?.offer?.filter((x: any) => x.accepted);
+
       onJobChange(response.data.response);
 
       if (response?.data?.response?.status === "Completed") {
@@ -923,13 +887,11 @@ export const JobCardView = ({
   };
 
   const handleEditCancel = () => {
-    console.log("Edit cancelled");
     toggleEditView();
   };
 
   const handleCloseJob = async () => {
     try {
-      console.log("Edit cancelled");
       setLoading(true);
       setLoadingText("Cancelling...");
 
@@ -943,7 +905,6 @@ export const JobCardView = ({
       toggleCancelModal();
       openNotification("topRight", "Service Request Updated", "", "success");
     } catch (error) {
-      console.error("Error cancelling request:", error);
       openNotification(
         "topRight",
         "Update Failed",
@@ -959,7 +920,6 @@ export const JobCardView = ({
 
   const handleOpenJob = async () => {
     try {
-      console.log("Reopening job");
       setLoading(true);
       setLoadingText("Reopening...");
 
@@ -978,6 +938,40 @@ export const JobCardView = ({
         "topRight",
         "Update Failed",
         "Failed to reopen the request. Please try again.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  const handleRateUser = async (rating: number, reviewComment: string) => {
+    const acceptedOffer = findAcceptedObject(job?.offer ? job.offer : []);
+
+    try {
+      setLoading(true);
+      setLoadingText("Submitting your review...");
+
+      await rateUser(
+        acceptedOffer?.user?.id || -1,
+        rating,
+        reviewComment,
+        auth.token,
+      );
+
+      openNotification(
+        "topRight",
+        "Review Submitted",
+        "Your rating has been recorded successfully.",
+        "success",
+      );
+    } catch (error) {
+      console.error("Error rating user:", error);
+      openNotification(
+        "topRight",
+        "Submission Failed",
+        "We couldn’t submit your review. Please try again later.",
         "error",
       );
     } finally {
@@ -1010,7 +1004,6 @@ export const JobCardView = ({
       }
       return action;
     });
-  } else if (job?.status === "Completed") {
   } else if (job?.status === "Negotiating") {
     actions = actions.map((action) => {
       if (action.label === "Close Job") {
@@ -1018,10 +1011,14 @@ export const JobCardView = ({
       }
       return action;
     });
-  } else {
-    //
+  } else if (job?.status === "Completed") {
+    actions = actions.map((action) => {
+      if (action.label === "Rate Provider") {
+        action.action = () => setShowRateModal(true);
+      }
+      return action;
+    });
   }
-
   if (showEditView) {
     return (
       <div className="w-full rounded-xl bg-white border border-gray-200 shadow-sm p-5 sm:p-6">
@@ -1042,6 +1039,16 @@ export const JobCardView = ({
         open={showCancelModal}
         onClose={toggleCancelModal}
         onConfirm={handleCloseJob}
+      />
+
+      <RateUserModal
+        open={showRateModal}
+        onCancel={() => setShowRateModal(false)}
+        onSubmit={(rating, comment) => {
+          handleRateUser(rating, comment);
+          console.log({ rating, comment });
+          setShowRateModal(false);
+        }}
       />
 
       <Modal

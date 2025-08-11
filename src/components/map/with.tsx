@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Modal, Input, Button, message, Select } from "antd";
 import { EnvironmentOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Country, State, City } from "country-state-city";
+import { State, City } from "country-state-city";
 import mapboxgl from "mapbox-gl";
 import MapView from "./map";
 
@@ -40,6 +40,8 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"manual" | "auto">("manual");
+
+  console.log({ locationLoading: loading });
 
   const handleChange = (field: string, value: string) => {
     setLocationForm((prev) => ({ ...prev, [field]: value }));
