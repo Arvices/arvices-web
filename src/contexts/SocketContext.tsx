@@ -2,7 +2,6 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   ReactNode,
 } from "react";
@@ -46,7 +45,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       console.log("cannot connect socket until user logs in");
       return;
     }
-    console.log("in socketConnect. user has logged in");
+
     const notifications = io(`${backendUrl}notificationgateway`, {
       extraHeaders: {
         authorization: `bearer ${auth.token}`,
@@ -74,12 +73,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     };
   }, [auth.isAuthenticated]);
 
-  const contextValue = useMemo(
-    () => ({ notificationsSocket, messagesSocket }),
-    [notificationsSocket, messagesSocket],
-  );
   return (
-    <SocketContext.Provider value={contextValue}>
+    <SocketContext.Provider value={{notificationsSocket,messagesSocket}}>
       {children}
     </SocketContext.Provider>
   );

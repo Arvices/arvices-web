@@ -21,6 +21,8 @@ const ArvicesProviders = (): React.ReactNode => {
     searchTerm: "",
     category: "",
     location: "",
+    locationData: ""
+    // assuming location maps to "user" or another query param
   });
 
   const [isFilter, setIsFilter] = useState(false);
@@ -39,6 +41,7 @@ const ArvicesProviders = (): React.ReactNode => {
       searchTerm: "",
       category: "",
       location: "",
+      locationData: ""
     });
     setIsFilter(false);
   };
@@ -48,9 +51,15 @@ const ArvicesProviders = (): React.ReactNode => {
     setError(undefined);
 
     try {
+      
+      const parsedCategory = filters?.category
+        ? JSON.parse(filters.category)
+        : null;
+      let id = parsedCategory && parsedCategory.id
+
       const res = await getProfessionals({
         search: filters.searchTerm || undefined,
-        category: filters.category || undefined,
+        category: id,
         orderBy: "DESC",
         page: currentPage,
         limit: 10,

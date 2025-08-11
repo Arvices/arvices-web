@@ -10,6 +10,7 @@ interface GetAllServiceRequestParams {
   search?: string;
   category?: number;
   user?: number;
+  location?: string;
   status?: string;
   type?: string;
   startDate?: string;
@@ -24,6 +25,7 @@ export const getAllServiceRequests = ({
   category,
   user,
   status,
+  location,
   type,
   startDate,
   endDate,
@@ -35,6 +37,7 @@ export const getAllServiceRequests = ({
   if (search) params.search = search;
   if (category) params.category = category;
   if (user) params.user = user;
+  if (location) params.location = location;
   if (status) params.status = status;
   if (type) params.type = type;
   if (startDate) params.startDate = startDate;

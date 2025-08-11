@@ -41,7 +41,7 @@ export const FilterComponent = ({
   }, []);
 
   let filterForm = (
-    <div className="border border-neutral-200 rounded-xl bg-white shadow-sm overflow-hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
+    <div className="border border-neutral-200 rounded-xl bg-white card-shadow overflow-hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
       {/* First 4 children */}
       <div className="bg-neutral-100 rounded-lg h-auto flex items-center justify-center">
         {/* search input */}

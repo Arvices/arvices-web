@@ -28,6 +28,7 @@ import {
   BarChart2,
 } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
+import { BookCheck } from "lucide-react";
 
 let color = "#272727";
 
@@ -229,12 +230,24 @@ const Header: React.FC = () => {
             </Link>
           ),
         },
+
         {
           key: "4",
           label: (
             <Link to="/wallet" className="flex items-center gap-2">
               <CreditCard size={16} /> Wallet
               <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
+            </Link>
+          ),
+        },
+        {
+          key: "5",
+          label: (
+            <Link to="/transaction-history" className="flex items-center gap-2">
+              <FileText size={16} /> Transactions
+              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
+          
+              </span>
             </Link>
           ),
         },
