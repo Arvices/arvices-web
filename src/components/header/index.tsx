@@ -28,7 +28,6 @@ import {
   BarChart2,
 } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
-import { BookCheck } from "lucide-react";
 
 let color = "#272727";
 
