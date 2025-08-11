@@ -12,17 +12,16 @@ import {
   ArviceNotificationRequestPayload,
   setNotifications,
 } from "../store/notificationSlice";
-import {
-  getAllNotifications,
-  //getAllUserNotifications,
-} from "../api-services/notificationservice";
+import { getAllUserNotifications } from "../api-services/notificationservice";
 import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
+import { useNotificationContext } from "./NotificationContext";
+
 // adjust import
 
 interface NotificationRealtimeContextType {
   latestNotification: ArviceNotification | null;
-  getNotifications: () => Promise<void>;
+  getNotifications: (page: number) => Promise<void>;
   notificationLoading: boolean;
   notificationError: string;
   sendNotification: (data: ArviceNotificationRequestPayload) => void;
@@ -49,6 +48,7 @@ interface Props {
 export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
   let auth = useAuth();
   const { notificationsSocket } = useSocket();
+  const { openNotification } = useNotificationContext();
   const [latestNotification, setLatestNotification] = useState<any | null>(
     null,
   );
@@ -58,17 +58,31 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
   const [notificationError, setNotificationError] = useState("");
 
   // WE CAN GET
-  const getNotifications = async () => {
+  const getNotifications = async (page = 1) => {
     setNotificationError("");
     try {
       setNotificationLoading(true);
-      //const response = await getAllUserNotifications(auth?.user?.id || -1,auth.token);
+      const response = await getAllUserNotifications({
+        token: auth.token,
+        page: page,
+        limit: 15,
+      });
 
-      const response = await getAllNotifications(auth.token);
+      //const response = await getAllNotifications(auth.token);
 
       // response.data will contain your notifications
       console.log("Notifications:", response.data);
-      dispatch(setNotifications(response.data.response));
+      let data = response.data.response;
+      if (data.length === 0) {
+        openNotification(
+          "topRight",
+          "No more notifications to show",
+          "",
+          "info",
+        );
+        return;
+      }
+      dispatch(setNotifications(data));
     } catch (error) {
       let message = parseHttpError(error);
       setNotificationError(message);

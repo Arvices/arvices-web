@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ArviceNotification {
-  id: string;
+  id: number;
   header: string;
   message: string;
   read: boolean;
@@ -29,12 +29,14 @@ const notificationSlice = createSlice({
   reducers: {
     setNotifications: (state, action: PayloadAction<ArviceNotification[]>) => {
       console.log({ inSetNotification: action });
-      state.notifications = action.payload;
+      let combined = [...state.notifications, ...action.payload];
+      let unique = removeDuplicateNotifications(combined);
+      state.notifications = unique;
     },
     addNotification: (state, action: PayloadAction<ArviceNotification>) => {
       state.notifications.unshift(action.payload); // put newest at top
     },
-    markAsRead: (state, action: PayloadAction<string>) => {
+    markAsRead: (state, action: PayloadAction<number>) => {
       const notification = state.notifications.find(
         (n) => n.id === action.payload,
       );
@@ -56,3 +58,16 @@ export const {
 } = notificationSlice.actions;
 
 export default notificationSlice.reducer;
+
+export const removeDuplicateNotifications = (
+  notifications: ArviceNotification[],
+): ArviceNotification[] => {
+  const seen = new Set<string | number>();
+  return notifications.filter((n) => {
+    if (seen.has(n.id)) {
+      return false;
+    }
+    seen.add(n.id);
+    return true;
+  });
+};

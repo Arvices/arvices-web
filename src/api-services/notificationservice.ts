@@ -46,14 +46,47 @@ const getNotificationById = async (id: string, token?: string) => {
   return axios(config);
 };
 
-const getAllUserNotifications = async (userId: number, token?: string) => {
+interface GetAllUserNotificationsParams {
+  token?: string;
+  search?: string;
+  type?: string;
+  read?: number;
+  startDate?: string; // ISO date-time string
+  endDate?: string; // ISO date-time string
+  orderBy?: string; // e.g. "ASC" or "DESC"
+  page: number;
+  limit: number;
+}
+
+const getAllUserNotifications = async ({
+  token,
+  search,
+  type,
+  read,
+  startDate,
+  endDate,
+  orderBy,
+  page,
+  limit,
+}: GetAllUserNotificationsParams) => {
   const config: AxiosRequestConfig = {
-    url: `${baseUrl}/notification/getallusernotification/${userId}`,
+    url: `${baseUrl}/notification/getallusernotification`,
     method: "GET",
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
     },
+    params: {
+      ...(search && { search }),
+      ...(type && { type }),
+      ...(read !== undefined && { read }),
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate }),
+      ...(orderBy && { orderBy }),
+      page,
+      limit,
+    },
   };
+  console.log({ notifConfig: config });
   return axios(config);
 };
 

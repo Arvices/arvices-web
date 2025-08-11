@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useState } from "react";
 import { Bell, Star, Clock, Check, Search } from "feather-icons-react";
@@ -9,12 +9,14 @@ import { useNotificationRealtime } from "../../contexts/Realtime_Notification";
 import {
   ArviceNotification,
   ArviceNotificationRequestPayload,
+  markAsRead,
 } from "../../store/notificationSlice";
 import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import moment from "moment";
+import { updateNotificationToRead } from "../../api-services/notificationservice";
 
 interface Notification {
   id: string;
@@ -34,26 +36,44 @@ interface Notification {
   icon?: React.ReactNode;
   color?: string;
 }
-
 const Notification = (): React.ReactNode => {
   let auth = useAuth();
   const [filter, setFilter] = useState<"all" | "unread" | "important">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const dispatch = useDispatch();
 
   const notifications = useSelector(
     (state: RootState) => state.notification.notifications,
   );
+
+  const limit = 15;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const notificationsToShow = notifications.slice(
+    (currentPage - 1) * limit,
+    currentPage * limit,
+  );
+
   console.log({ notifications });
 
   const notificationRealtime = useNotificationRealtime();
+  const markAsReadLocal = async (id: number) => {
+    try {
+      console.log({ id });
 
-  const markAsRead = (id: string) => {
-    console.log({ id });
+      const updated = await updateNotificationToRead(Number(id), auth.token);
+      console.log({ updated });
+
+      // If API call succeeds, update Redux store
+      dispatch(markAsRead(id));
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
   };
-
   const markAllAsRead = () => {};
 
-  const filteredNotifications = notifications?.filter((notif) => {
+  const filteredNotifications = notificationsToShow?.filter((notif) => {
     const matchesFilter =
       filter === "all" ||
       (filter === "unread" && !notif.read) ||
@@ -92,6 +112,10 @@ const Notification = (): React.ReactNode => {
       colorMap[color as keyof typeof colorMap] || "bg-gray-100 text-gray-600"
     );
   };
+
+  useEffect(() => {
+    notificationRealtime.getNotifications(currentPage);
+  }, [currentPage]);
 
   return (
     <section className="min-h-screen pt-13 ">
@@ -214,7 +238,9 @@ const Notification = (): React.ReactNode => {
             loading={notificationRealtime.notificationLoading}
             error={!!notificationRealtime.notificationError}
             errMessage={notificationRealtime.notificationError || ""}
-            actionFn={notificationRealtime.getNotifications}
+            actionFn={() => {
+              notificationRealtime.getNotifications(1);
+            }}
             noContent={false}
             minHScreen={false}
             UIComponent={
@@ -241,7 +267,7 @@ const Notification = (): React.ReactNode => {
                       <div
                         key={notification.id}
                         className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer group ${getNotificationStyle(notification)} ${!notification.read ? "shadow-sm" : ""}`}
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={() => markAsReadLocal(notification.id)}
                       >
                         <div className="flex items-start gap-4">
                           {/* Avatar and Icon */}
@@ -283,7 +309,7 @@ const Notification = (): React.ReactNode => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  markAsRead(notification.id);
+                                  markAsReadLocal(notification.id);
                                 }}
                                 className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs font-medium rounded-full transition-colors"
                               >
@@ -306,8 +332,8 @@ const Notification = (): React.ReactNode => {
         <div className="mt-5 flex justify-center">
           <Pagination
             totalPages={10}
-            currentPage={1}
-            onPageChange={() => console.log("page changed")}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
           />
         </div>
       </div>

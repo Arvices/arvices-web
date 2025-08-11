@@ -28,11 +28,22 @@ import {
   BarChart2,
 } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 let color = "#272727";
 
 const Header: React.FC = () => {
   const auth = useAuth();
+
+  const notifications = useSelector(
+    (state: RootState) => state.notification.notifications,
+  );
+
+  const unreadCount = (() => {
+    const count = notifications.filter((n) => !n.read).length;
+    return count > 10 ? "10+" : count.toString();
+  })();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -365,10 +376,19 @@ const Header: React.FC = () => {
         {auth.isAuthenticated && (
           <ul>
             <li className="inline-block ml-4">
-              <Link to={"/notifications"}>
+              <Link to={"/notifications"} className="relative">
                 <span className="h-7 w-7 flex items-center justify-center rounded-3xl">
                   <Bell className="inline" size={18} />
                 </span>
+                {parseInt(unreadCount) > 0 && (
+                  <span
+                    className="absolute top-[-6px] right-[-3px] bg-gradient-main rounded-2xl 
+             text-[10px] font-light text-white w-5 h-5
+             flex items-center justify-center leading-0"
+                  >
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             </li>
             <li className="inline-block ml-4">
