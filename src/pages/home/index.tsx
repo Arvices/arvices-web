@@ -28,7 +28,6 @@ import {
 } from "../../components/cards/appcards";
 import { getTopProfessionals } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
-import MapView from "../../components/map/map";
 import LocationInput from "../../components/map/LocationInput";
 import { useCategory } from "../../contexts/CategoryContext";
 import { useNavigate } from "react-router-dom";
@@ -208,9 +207,6 @@ const Home: React.FC = () => {
         </div>
       </div>
       {/* Professionals Section */}
-      <div className="mt-14">
-        <MapView />
-      </div>
       <div
         id="home-professional-section"
         className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border-b border-gray-100"

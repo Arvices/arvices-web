@@ -18,7 +18,7 @@ const AvailableJobPostings = (): React.ReactNode => {
     searchTerm: "",
     category: "",
     location: "",
-    locationData: ""
+    locationData: "",
     // assuming location maps to "user" or another query param
   });
   const [loading, setLoading] = useState(false);
@@ -41,7 +41,7 @@ const AvailableJobPostings = (): React.ReactNode => {
       searchTerm: "",
       category: "",
       location: "",
-      locationData: ""
+      locationData: "",
     });
     setIsFilter(false);
   };
@@ -122,14 +122,14 @@ const AvailableJobPostings = (): React.ReactNode => {
       const parsedCategory = filters?.category
         ? JSON.parse(filters.category)
         : null;
-      let id = parsedCategory && parsedCategory.id
+      let id = parsedCategory && parsedCategory.id;
 
       const response = await getAllServiceRequests({
         token: auth.token,
         page: currentPage,
         limit: 10,
         search: filters.searchTerm || undefined,
-        category:id,
+        category: id,
         location: filters.location || undefined,
       });
 

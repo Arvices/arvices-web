@@ -244,9 +244,7 @@ const Header: React.FC = () => {
           label: (
             <Link to="/transaction-history" className="flex items-center gap-2">
               <FileText size={16} /> Transactions
-              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-          
-              </span>
+              <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
             </Link>
           ),
         },

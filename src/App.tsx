@@ -11,6 +11,8 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { CategoryProvider } from "./contexts/CategoryContext";
 import { LocationProvider } from "./contexts/LocationContext";
 import { SocketProvider } from "./contexts/SocketContext";
+import { MessageRealtimeProvider } from "./contexts/Realtime_Messaging";
+import { NotificationRealtimeProvider } from "./contexts/Realtime_Notification";
 
 function App() {
   useEffect(() => {
@@ -29,7 +31,11 @@ function App() {
                     <ThemeProvider>
                       <LocationProvider>
                         <SocketProvider>
-                          <Navigation />
+                          <MessageRealtimeProvider>
+                            <NotificationRealtimeProvider>
+                              <Navigation />
+                            </NotificationRealtimeProvider>
+                          </MessageRealtimeProvider>
                         </SocketProvider>
                       </LocationProvider>
                     </ThemeProvider>

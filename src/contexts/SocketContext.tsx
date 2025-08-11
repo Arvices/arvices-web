@@ -74,7 +74,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   }, [auth.isAuthenticated]);
 
   return (
-    <SocketContext.Provider value={{notificationsSocket,messagesSocket}}>
+    <SocketContext.Provider value={{ notificationsSocket, messagesSocket }}>
       {children}
     </SocketContext.Provider>
   );
