@@ -72,6 +72,26 @@ export const ReqErr: React.FC<ReqErrProps> = ({
   </div>
 );
 
+interface LoaderProps {
+  minHScreen?: boolean;
+  loadingText?: string | React.JSX.Element;
+}
+
+export const Loader: React.FC<LoaderProps> = ({ minHScreen, loadingText }) => {
+  return (
+    <div
+      className={`w-full border border-gray-300 rounded-2xl text-center ${
+        minHScreen ? "min-h-screen" : "py-20"
+      } flex flex-col items-center justify-center`}
+    >
+      <div>
+        <Spin size="small" />
+        <p className="mt-4 text-gray-700">{loadingText || "Loading Content"}</p>
+      </div>
+    </div>
+  );
+};
+
 export const ContentHOC: React.FC<ContentHOCProps> = ({
   loading,
   error,
@@ -86,18 +106,7 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
   loadingText,
 }) => {
   if (loading) {
-    return (
-      <div
-        className={`w-full border border-gray-300 rounded-2xl text-center ${minHScreen ? "min-h-screen" : "py-20"} flex flex-col item-center justify-center`}
-      >
-        <div>
-          <Spin size="small" />
-          <p className="mt-4 text-gray-700">
-            {loadingText || "Loading Content"}
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader minHScreen={minHScreen} loadingText={loadingText} />;
   }
 
   if (error) {

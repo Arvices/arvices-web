@@ -1,37 +1,114 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { UserAccount } from "../api-services/auth";
+
+export interface Conversation {
+  id: number;
+  name: string;
+  conversationdate: string;
+  fullName: string;
+  picture: string | null;
+  lastmessage: Message;
+}
 
 export interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  text: string;
-  createdAt: string;
+  id: number;
+  message: string;
+  read: boolean;
+  createdDate: string; // ISO string from the API
+  user: UserAccount; // sender
+  toUser: UserAccount; // receiver
 }
 
 interface MessageState {
-  messages: Message[];
+  messages: Record<string, Message[]>; // keyed by conversationId
+  conversations: Conversation[];
 }
-
 const initialState: MessageState = {
-  messages: [],
+  messages: {},
+  conversations: [],
 };
 
 const messageSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {
-    setMessages: (state, action: PayloadAction<Message[]>) => {
-      state.messages = action.payload;
+    setMessages: (
+      state,
+      action: PayloadAction<{ conversationId: string; messages: Message[] }>,
+    ) => {
+      const { conversationId, messages } = action.payload;
+      console.log({ conversationId, messages });
+      const existing = state.messages[conversationId] || [];
+      console.log({ existing });
+      const combined = [...existing, ...messages];
+      const unique = removeDuplicateMessages(combined);
+      console.log("UNIQUE : ", unique);
+      state.messages[conversationId] = unique;
     },
-    addMessage: (state, action: PayloadAction<Message>) => {
-      state.messages.push(action.payload);
+
+    // Add a single message to a conversation
+    addMessage: (
+      state,
+      action: PayloadAction<{ conversationId: string; message: Message }>,
+    ) => {
+      const { conversationId, message } = action.payload;
+      const existing = state.messages[conversationId] || [];
+      state.messages[conversationId] = removeDuplicateMessages([
+        message,
+        ...existing,
+      ]);
     },
-    clearMessages: (state) => {
-      state.messages = [];
+
+    // Clear messages for a specific conversation
+    clearMessages: (state, action: PayloadAction<number>) => {
+      const conversationId = action.payload;
+      delete state.messages[conversationId];
+    },
+
+    // ---- Conversations ----
+    setConversations: (state, action: PayloadAction<Conversation[]>) => {
+      console.log({ inSetConversations: action });
+      let combined = [...state.conversations, ...action.payload];
+      let unique = removeDuplicateConversations(combined);
+      state.conversations = unique;
+    },
+    addConversation: (state, action: PayloadAction<Conversation>) => {
+      state.conversations.push(action.payload);
+    },
+    clearConversations: (state) => {
+      state.conversations = [];
     },
   },
 });
 
-export const { setMessages, addMessage, clearMessages } = messageSlice.actions;
+export const {
+  setMessages,
+  addMessage,
+  clearMessages,
+  setConversations,
+  addConversation,
+  clearConversations,
+} = messageSlice.actions;
 
 export default messageSlice.reducer;
+
+// ---- Helpers ----
+const removeDuplicateMessages = (messages: Message[]): Message[] => {
+  const seen = new Set();
+  return messages.filter((msg) => {
+    if (seen.has(msg.id)) return false;
+    seen.add(msg.id);
+    return true;
+  });
+};
+
+const removeDuplicateConversations = (
+  conversations: Conversation[],
+): Conversation[] => {
+  const seen = new Set();
+  return conversations.filter((conv) => {
+    if (seen.has(conv.id)) return false;
+    seen.add(conv.id);
+    return true;
+  });
+};

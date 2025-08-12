@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 
 import { useState } from "react";
-import { Bell, Star, Clock, Check, Search } from "feather-icons-react";
+import { Bell, Clock, Check, Search } from "feather-icons-react";
 
-import imgShape from "../../assets/images/pro-sample-img.png";
 import { Pagination } from "../../components/pagination";
 import { useNotificationRealtime } from "../../contexts/Realtime_Notification";
 import {
@@ -126,13 +125,13 @@ const Notification = (): React.ReactNode => {
         <button
           onClick={() => {
             let payload: ArviceNotificationRequestPayload = {
-              header: "Title",
+              header: "Title vgfwagfewagagfagw",
               message: "Body",
               userId: auth?.user?.id || -1,
             };
             notificationRealtime.sendNotification(payload);
           }}
-          className="hidden items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-full text-sm font-medium transition-colors"
+          className=" items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-full text-sm font-medium transition-colors"
         >
           <Check className="w-4 h-4" />
           Trigger Notification
@@ -261,9 +260,14 @@ const Notification = (): React.ReactNode => {
                           ? "Try adjusting your search terms."
                           : "Your notifications will appear here."}
                     </p>
-                    <button className="bg-gradient-to-r from-purple-500 to-pink-500 rounded px-7 py-2 inline-block mt-10 text-white text-sm tracking-tight" onClick={()=>{
-                      notificationRealtime.getNotifications(1)
-                    }}>Reload Notification</button>
+                    <button
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 rounded px-7 py-2 inline-block mt-10 text-white text-sm tracking-tight"
+                      onClick={() => {
+                        notificationRealtime.getNotifications(1);
+                      }}
+                    >
+                      Reload Notification
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -276,9 +280,9 @@ const Notification = (): React.ReactNode => {
                         <div className="flex items-start gap-4 tracking-tight">
                           {/* Avatar and Icon */}
                           <div className="relative">
-<div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-r from-purple-300 to-pink-300 shadow-sm">
-  <BellRing className="w-6 h-6 text-purple-700" />
-</div>
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-r from-purple-300 to-pink-300 shadow-sm">
+                              <BellRing className="w-6 h-6 text-purple-700" />
+                            </div>
                             <div
                               className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${getIconStyle("blue")} shadow-sm`}
                             >
@@ -294,15 +298,15 @@ const Notification = (): React.ReactNode => {
                               </h3>
                               <div className="flex items-center gap-2 ml-4">
                                 <span className="text-xs text-gray-500 flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  {moment(notification.createdAt).fromNow()}
+                                  <Clock className="w-5 h-5" />
+                                  {moment(notification.createdAt).format("lll")}
                                 </span>
                                 {!notification.read && (
                                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                                 )}
                               </div>
                             </div>
-                            <p className="text-gray-600 text-sm leading-relaxed mb-2">
+                            <p className=" text-gray-600 text-sm leading-relaxed mb-2">
                               {notification.message}
                             </p>
                             {!notification.read && (

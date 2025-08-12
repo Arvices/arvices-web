@@ -34,7 +34,18 @@ const notificationSlice = createSlice({
       state.notifications = unique;
     },
     addNotification: (state, action: PayloadAction<ArviceNotification>) => {
-      state.notifications.unshift(action.payload); // put newest at top
+      console.log({ inSliceAddNotification: action.payload });
+
+      // Prepend the new notification
+      const newArr = [action.payload, ...state.notifications];
+
+      // Remove duplicates by ID (assuming each notification has a unique `id`)
+      const unique = newArr.filter(
+        (notif, index, self) =>
+          index === self.findIndex((n) => n.id === notif.id),
+      );
+
+      state.notifications = unique;
     },
     markAsRead: (state, action: PayloadAction<number>) => {
       const notification = state.notifications.find(

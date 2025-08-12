@@ -8,6 +8,7 @@ import React, {
 import { useSocket } from "./SocketContext"; // adjust import
 import { useDispatch } from "react-redux";
 import {
+  addNotification,
   ArviceNotification,
   ArviceNotificationRequestPayload,
   setNotifications,
@@ -111,6 +112,7 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
     // Example: listen to new notifications
     notificationsSocket.on("notificationsent", (data) => {
       console.log("Received notification:", data);
+      dispatch(addNotification(data));
       setLatestNotification(data);
     });
 

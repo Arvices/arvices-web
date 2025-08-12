@@ -58,6 +58,9 @@ function Navigation(): React.JSX.Element {
 // Move useLocation inside a separate component inside Router
 // How to implement page not found?
 function NavigationContent() {
+  const location = useLocation();
+  const isChat = location.pathname.includes("conversations");
+
   return (
     <div className="overflow-x-auto  text-royalblue-shade6 ">
       <Header />
@@ -102,7 +105,7 @@ function NavigationContent() {
         {/* 404 Route - must be last */}
         <Route path="*" Component={PageNotFound} />
       </Routes>
-      <Footer />
+      {!isChat && <Footer />}
     </div>
   );
 }
