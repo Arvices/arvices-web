@@ -122,21 +122,6 @@ const Notification = (): React.ReactNode => {
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto mb-10">
         {/* Page Starts*/}
 
-        <button
-          onClick={() => {
-            let payload: ArviceNotificationRequestPayload = {
-              header: "Title vgfwagfewagagfagw",
-              message: "Body",
-              userId: auth?.user?.id || -1,
-            };
-            notificationRealtime.sendNotification(payload);
-          }}
-          className=" items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-full text-sm font-medium transition-colors"
-        >
-          <Check className="w-4 h-4" />
-          Trigger Notification
-        </button>
-
         <div className="w-full overflow-hidden flex flex-col">
           {/* Header */}
           <div className="mt-10 p-6 border-b border-gray-100 bg-gradient-to-r from-purple-500 to-pink-500 text-white mb-0">
