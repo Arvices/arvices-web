@@ -33,6 +33,7 @@ const RenderChats: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const messageRealTime = useMessageRealtime();
+  
   const conversations = useSelector(
     (state: RootState) => state.message.conversations,
   );
@@ -71,8 +72,15 @@ const RenderChats: React.FC = () => {
       console.log("Retrieved by id", response);
       setConversation(data);
     } catch (error) {
-      const message = parseHttpError(error);
+      const message = parseHttpError(error)
+      if(message === 'conversation not found'){
+
+      }
+      else {
+        
+      }
       setConversationError(message);
+
       console.error("Failed to fetch conversation:", error);
     } finally {
       setConversationLoading(false);
@@ -171,6 +179,7 @@ const RenderChats: React.FC = () => {
     <div
       className={`${Number(chattingWith) ? "flex" : "hidden md:flex"}  h-[calc(100vh-60px)] overflow-y-auto w-full md:w-2/3 flex-col`}
     >
+        
       {(conversationLoading || messagesLoading) && (
         <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 m-10 border border-gray-300 rounded">
           <div className="text-center">
