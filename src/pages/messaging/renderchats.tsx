@@ -16,7 +16,11 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { Conversation, setMessages } from "../../store/messageSlice";
+import {
+  Conversation,
+  setConversations,
+  setMessages,
+} from "../../store/messageSlice";
 import moment from "moment";
 import {
   getAllMessagesInUserConversation,
@@ -25,37 +29,36 @@ import {
 import { parseHttpError } from "../../api-services/parseReqError";
 import { getInitials } from "../../util/getInitials";
 import { reverseArray } from "../util/arrayUils";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+import { generateConversation } from "../../util/mainutils";
+import { getAccountById } from "../../api-services/auth-re";
+import { UserAccount } from "../../api-services/auth";
 
 const RenderChats: React.FC = () => {
   const auth = useAuth();
   const [SearchParam] = useSearchParams();
+  const { openNotification } = useNotificationContext();
   const chattingWith = SearchParam.get("with");
+  const userId = Number(auth?.user?.id);
+  const toUser = Number(chattingWith);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const messageRealTime = useMessageRealtime();
-  
+
   const conversations = useSelector(
     (state: RootState) => state.message.conversations,
   );
 
-  // FUNCTIONAL SCOPE OF THE MESSAGING.
-
   const messages = useSelector((state: RootState) => state.message.messages);
   console.log({ messages });
-
   let userConvoMessages = messages[Number(chattingWith)] || [];
   let reversed = reverseArray(userConvoMessages);
 
   const [conversation, setConversation] = useState<Conversation | null>(null);
-
   const [conversationLoading, setConversationLoading] =
     useState<boolean>(false);
   const [conversationError, setConversationError] = useState("");
-  console.log({conversationError})
-
-  // New state for messages
-  const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
-  const [messagesError, setMessagesError] = useState("");
 
   const fetchConversation = async () => {
     setConversationError("");
@@ -63,29 +66,34 @@ const RenderChats: React.FC = () => {
       if (!chattingWith) return;
       setConversationLoading(true);
       console.log("Fetching user convo:", auth.user);
-      const response = await getUserConversation(
-        Number(auth?.user?.id),
-        Number(chattingWith),
-        auth.token,
-      );
+      let userId = Number(auth?.user?.id);
+      const toUser = Number(chattingWith);
+      console.log({ userId, toUser });
+      const response = await getUserConversation(userId, toUser, auth.token);
       let data = response.data.response;
       console.log("Retrieved by id", response);
       setConversation(data);
+      fetchMessages();
     } catch (error) {
-      const message = parseHttpError(error)
-      if(message === 'conversation not found'){
-
+      const message = parseHttpError(error);
+      if (message === "conversation not found") {
+        // if not found. then trigger the initialization.
+        // first fetch user.
+        initializeConversation();
+      } else {
+        openNotification("topRight", message.toString(), "", "error");
+        setConversationError(message);
       }
-      else {
-        
-      }
-      setConversationError(message);
 
       console.error("Failed to fetch conversation:", error);
     } finally {
       setConversationLoading(false);
     }
   };
+
+  // FUNCTIONAL SCOPE OF THE MESSAGING.
+  const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
+  const [messagesError, setMessagesError] = useState("");
 
   const fetchMessages = async () => {
     setMessagesError("");
@@ -115,13 +123,43 @@ const RenderChats: React.FC = () => {
     }
   };
 
-  // Example of using the fetch functions
-  useEffect(() => {
-    if (auth.user) {
-      fetchConversation();
-      fetchMessages();
+  const [initializeError, setInitializeError] = useState("");
+  const [initializeLoading, setInitializeLoading] = useState(false);
+
+  const initializeConversation = async () => {
+    setInitializeLoading(true);
+    setInitializeError("");
+
+    try {
+      console.log({ initializingConversation: true });
+
+      const response = await getAccountById(
+        chattingWith ? chattingWith : "",
+        auth.token,
+      );
+
+      const data = response.data.response as UserAccount;
+      console.log({ userData: data, response });
+
+      const newConvo = generateConversation(
+        Number(chattingWith),
+        new Date().toDateString(),
+        data.fullName,
+        data.picture,
+        null,
+      );
+
+      dispatch(setConversations([newConvo]));
+      setConversation(newConvo);
+    } catch (error: any) {
+      console.error("Error initializing conversation:", error);
+      setInitializeError(
+        error?.response?.data?.message || error.message || "An error occurred",
+      );
+    } finally {
+      setInitializeLoading(false);
     }
-  }, [chattingWith, auth.user]);
+  };
 
   const goBack = () => {
     navigate(-1);
@@ -145,28 +183,6 @@ const RenderChats: React.FC = () => {
     setNewMessage("");
   };
 
-  useEffect(() => {
-    if (chattingWith) {
-      // check the conversations and check it i'm already chatting with that user.
-
-      let existingConvo = conversations.find((convo) => {
-        console.log(
-          "Conversation ID in find:",
-          convo.id,
-          "Chatting With in find:",
-          chattingWith,
-        );
-
-        return Number(convo.id) === parseInt(chattingWith);
-      });
-      console.log({ existingConvo });
-      if (existingConvo) {
-        setConversation(existingConvo);
-      } else {
-        fetchConversation();
-      }
-    }
-  }, [chattingWith]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -175,32 +191,54 @@ const RenderChats: React.FC = () => {
     }
   }, [messages]);
 
+  useEffect(() => {
+    console.log({ userId, toUser });
+    if (chattingWith) {
+      // check the conversations and check it i'm already chatting with that user.
+      let existingConvo = conversations.find((convo) => {
+        return Number(convo.id) === toUser;
+      });
+      if (existingConvo) {
+        setConversation(existingConvo);
+      } else if (!Number.isNaN(userId) && !Number.isNaN(toUser)) {
+        fetchConversation();
+      }
+    }
+  }, [chattingWith, auth.user]);
+
+  console.log({ conversationLoading, messagesLoading, initializeLoading });
+
   return (
     <div
       className={`${Number(chattingWith) ? "flex" : "hidden md:flex"}  h-[calc(100vh-60px)] overflow-y-auto w-full md:w-2/3 flex-col`}
     >
-        
-      {(conversationLoading || messagesLoading) && (
-        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 m-10 border border-gray-300 rounded">
-          <div className="text-center">
-            <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-spin">
-              <span className="text-3xl">⏳</span>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Loading conversations...
-            </h3>
-            <p className="text-gray-600">
-              Please wait while we fetch your conversation and messages.
-            </p>
-          </div>
-        </div>
+      {conversationLoading && (
+        <ChatReqLoading message={"Fetching conversation details..."} />
+      )}
+      {initializeLoading && (
+        <ChatReqLoading message={"Initializing chat, please wait..."} />
       )}
 
+      {conversationError && (
+        <ChatReqErrorView
+          message="Failed to load conversation details. Please try again."
+          reloadBtnText="Reload Conversation"
+          reloadFunction={fetchConversation}
+        />
+      )}
+      {initializeError && (
+        <ChatReqErrorView
+          message="There was a problem starting this chat. Please try again."
+          reloadBtnText="Re-Start Conversation"
+          reloadFunction={initializeConversation}
+        />
+      )}
       {chattingWith &&
         !conversationLoading &&
-        !messagesLoading &&
-        conversation &&
-        !messagesError && (
+        !conversationError &&
+        !initializeLoading &&
+        !initializeError &&
+        conversation && (
           <>
             {/* Chat Header */}
             <div className="p-6 border-b border-gray-100 bg-gradient-to-r bg-gray-400 text-white">
@@ -234,8 +272,25 @@ const RenderChats: React.FC = () => {
             </div>
 
             {/* Messages */}
-            <div  ref={containerRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-purple-50/30">
-              {userConvoMessages &&
+            <div
+              ref={containerRef}
+              className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-purple-50/30"
+            >
+              {messagesLoading && (
+                <ChatReqLoading message={"Loading messages..."} />
+              )}
+
+              {messagesError && (
+                <ChatReqErrorView
+                  message="Couldn't retrieve messages for this conversation."
+                  reloadBtnText="Reload Messages"
+                  reloadFunction={fetchMessages}
+                />
+              )}
+
+              {!messagesLoading &&
+                !messagesError &&
+                userConvoMessages &&
                 reversed.map((message) => {
                   let isOwn = message.user.id === auth?.user?.id;
                   return (
@@ -354,3 +409,81 @@ const RenderChats: React.FC = () => {
 };
 
 export default RenderChats;
+
+interface ChatReqLoadingProps {
+  message: string;
+}
+
+const ChatReqLoading: React.FC<ChatReqLoadingProps> = ({ message }) => {
+  return (
+    <div className="flex-1 flex items-center justify-center p-4 h-full">
+      <div className="w-full h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 animate-spin">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-slate-500 dark:text-slate-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 4v5h.582m15.356-2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2.126M15 15H9"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
+          Loading
+        </h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">{message}</p>
+      </div>
+    </div>
+  );
+};
+
+interface ChatReqErrorViewProps {
+  message: string;
+  reloadFunction: () => void;
+  reloadBtnText: string;
+}
+
+const ChatReqErrorView: React.FC<ChatReqErrorViewProps> = ({
+  message,
+  reloadFunction,
+  reloadBtnText,
+}) => {
+  return (
+    <div className="flex-1 h-full p-4 flex items-center justify-center">
+      <div className="w-full h-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center gap-4">
+        <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-red-600 dark:text-red-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.918-.816 1.994-1.85L21 17V7c0-1.054-.816-1.918-1.85-1.994L19 5H5c-1.054 0-1.918.816-1.994 1.85L3 7v10c0 1.054.816 1.918 1.85 1.994L5 19z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">
+          Something went wrong
+        </h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">{message}</p>
+        <button
+          className="px-4 py-2 mt-2 font-medium text-sm text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-900 focus:ring-slate-400 dark:focus:ring-slate-600"
+          onClick={reloadFunction}
+        >
+          {reloadBtnText}
+        </button>
+      </div>
+    </div>
+  );
+};

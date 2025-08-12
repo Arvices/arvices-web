@@ -3,11 +3,10 @@ import { UserAccount } from "../api-services/auth";
 
 export interface Conversation {
   id: number;
-  name: string;
   conversationdate: string;
   fullName: string;
   picture: string | null;
-  lastmessage: Message;
+  lastmessage: Message | null;
 }
 
 export interface Message {
@@ -47,16 +46,30 @@ const messageSlice = createSlice({
     },
 
     // Add a single message to a conversation
+    // Add a single message to a conversation
     addMessage: (
       state,
       action: PayloadAction<{ conversationId: string; message: Message }>,
     ) => {
       const { conversationId, message } = action.payload;
+
+      // Update messages list for this conversation
       const existing = state.messages[conversationId] || [];
       state.messages[conversationId] = removeDuplicateMessages([
         message,
         ...existing,
       ]);
+
+      // Also update the conversation's last message
+      const convoIndex = state.conversations.findIndex(
+        (c) => String(c.id) === String(conversationId),
+      );
+      if (convoIndex !== -1) {
+        state.conversations[convoIndex] = {
+          ...state.conversations[convoIndex],
+          lastmessage: message,
+        };
+      }
     },
 
     // Clear messages for a specific conversation

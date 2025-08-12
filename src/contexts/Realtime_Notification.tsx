@@ -75,12 +75,7 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
       console.log("Notifications:", response.data);
       let data = response.data.response;
       if (data.length === 0) {
-        openNotification(
-          "topRight",
-          "No more notifications to show",
-          "",
-          "info",
-        );
+        openNotification("topRight", "No notifications to show", "", "info");
         return;
       }
       dispatch(setNotifications(data));

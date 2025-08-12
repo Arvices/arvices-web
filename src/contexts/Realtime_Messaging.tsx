@@ -10,11 +10,7 @@ import { useDispatch } from "react-redux"; // adjust import
 import { getAllUserConversations } from "../api-services/messageservice";
 import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
-import {
-  addMessage,
-  Message,
-  setConversations
-} from "../store/messageSlice";
+import { addMessage, Message, setConversations } from "../store/messageSlice";
 import { useNotificationContext } from "./NotificationContext";
 import { UserAccount } from "../api-services/auth";
 
@@ -78,12 +74,7 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
       console.log("Conversations:", conversations);
       dispatch(setConversations(conversations));
       if (conversations.length === 0) {
-        openNotification(
-          "topRight",
-          "No more notifications to show",
-          "",
-          "info",
-        );
+        openNotification("topRight", "No messages to show", "", "info");
         return;
       }
     } catch (error) {

@@ -158,14 +158,17 @@ const RenderConversations: React.FC = () => {
                       <span
                         className={`text-xs ${Number(chattingWith) === Number(conversation.id) ? "text-white/80" : "text-gray-500"}`}
                       >
-                        {moment(conversation.lastmessage.createdDate).fromNow()}
+                        {moment(
+                          conversation?.lastmessage?.createdDate,
+                        ).fromNow()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <p
                         className={`text-sm truncate ${Number(chattingWith) === Number(conversation.id) ? "text-white/90" : "text-gray-600"}`}
                       >
-                        {conversation.lastmessage.message}
+                        {conversation?.lastmessage?.message ||
+                          "Start New Conversation"}
                       </p>
                       {unreadCount > 0 && (
                         <div className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] text-center">
