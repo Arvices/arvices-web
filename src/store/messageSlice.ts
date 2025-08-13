@@ -7,6 +7,7 @@ export interface Conversation {
   fullName: string;
   picture: string | null;
   lastmessage: Message | null;
+  unreadCount: number | null;
 }
 
 export interface Message {
@@ -22,6 +23,7 @@ interface MessageState {
   messages: Record<string, Message[]>; // keyed by conversationId
   conversations: Conversation[];
 }
+
 const initialState: MessageState = {
   messages: {},
   conversations: [],
@@ -91,6 +93,29 @@ const messageSlice = createSlice({
     clearConversations: (state) => {
       state.conversations = [];
     },
+
+    // New reducer to update the unread count
+    updateUnreadCount: (
+      state,
+      action: PayloadAction<{ conversationId: number; count: number | null }>
+    ) => {
+      const { conversationId, count } = action.payload;
+      const conversation = state.conversations.find(c => c.id === conversationId);
+      if (conversation) {
+        conversation.unreadCount = count;
+      }
+    },    // Corrected reducer to increase the unread count
+    increaseUnreadCount: (
+      state,
+      action: PayloadAction<{ conversationId: number }>
+    ) => {
+      const { conversationId } = action.payload;
+      const conversation = state.conversations.find(c => c.id === conversationId);
+      if (conversation) {
+        // Correctly handle null or 0 unreadCount and then increment
+        conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+      }
+    },
   },
 });
 
@@ -101,6 +126,8 @@ export const {
   setConversations,
   addConversation,
   clearConversations,
+  updateUnreadCount,
+  increaseUnreadCount
 } = messageSlice.actions;
 
 export default messageSlice.reducer;

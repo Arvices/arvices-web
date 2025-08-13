@@ -7,8 +7,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import moment from "moment";
 import { getInitials } from "../../util/getInitials";
+import { useAuth } from "../../contexts/AuthContext";
 
 const RenderConversations: React.FC = () => {
+  let auth = useAuth();
   const [SearchParam] = useSearchParams();
   const chattingWith = SearchParam.get("with");
   const navigate = useNavigate();
@@ -18,8 +20,6 @@ const RenderConversations: React.FC = () => {
   );
 
   let isOnline = true;
-
-  let unreadCount = 4;
 
   const goToConversation = (id: number) => {
     let url = `/messaging/conversations?with=${id}`;
@@ -125,7 +125,13 @@ const RenderConversations: React.FC = () => {
         !messageRealTime.conversationLoadError &&
         conversations.length > 0 && (
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {conversations.map((conversation) => (
+            {conversations.map((conversation) => {
+              
+  const lastMessageByMe =
+    conversation?.lastmessage?.user?.id === auth?.user?.id;
+    console.log("Render conversation", {lastMessageByMe, user: conversation?.lastmessage?.user.fullName})
+
+              return (
               <div
                 key={Number(conversation.id)}
                 onClick={() => goToConversation(Number(conversation.id))}
@@ -170,16 +176,16 @@ const RenderConversations: React.FC = () => {
                         {conversation?.lastmessage?.message ||
                           "Start New Conversation"}
                       </p>
-                      {unreadCount > 0 && (
-                        <div className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] text-center">
-                          {unreadCount}
-                        </div>
-                      )}
+                        {conversation.unreadCount !== null && conversation.unreadCount > 0 && !lastMessageByMe && (
+                          <div className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] text-center">
+                            {conversation.unreadCount}
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
     </div>

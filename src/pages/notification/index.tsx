@@ -5,11 +5,7 @@ import { Bell, Clock, Check, Search } from "feather-icons-react";
 
 import { Pagination } from "../../components/pagination";
 import { useNotificationRealtime } from "../../contexts/Realtime_Notification";
-import {
-  ArviceNotification,
-  ArviceNotificationRequestPayload,
-  markAsRead,
-} from "../../store/notificationSlice";
+import { ArviceNotification, markAsRead } from "../../store/notificationSlice";
 import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
 import { useDispatch, useSelector } from "react-redux";

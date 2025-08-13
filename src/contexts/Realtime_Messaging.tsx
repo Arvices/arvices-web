@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux"; // adjust import
 import { getAllUserConversations } from "../api-services/messageservice";
 import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
-import { addMessage, Message, setConversations } from "../store/messageSlice";
+import { addMessage, increaseUnreadCount, Message, setConversations } from "../store/messageSlice";
 import { useNotificationContext } from "./NotificationContext";
 import { UserAccount } from "../api-services/auth";
 
@@ -113,6 +113,7 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
       dispatch(
         addMessage({ conversationId: String(data?.user?.id), message: data }),
       );
+      dispatch(increaseUnreadCount({conversationId: Number(data?.user?.id)}))
     });
 
     return () => {

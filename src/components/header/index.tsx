@@ -40,9 +40,19 @@ const Header: React.FC = () => {
     (state: RootState) => state.notification.notifications,
   );
 
+  const conversations = useSelector(
+    (state: RootState) => state.message.conversations,
+  );
+
   const unreadCount = (() => {
     const count = notifications.filter((n) => !n.read).length;
     return count > 10 ? "10+" : count.toString();
+  })();
+
+  const msgUnreadCount = ((): number => {
+    return conversations.reduce((total, conv) => {
+      return total + (conv.unreadCount || 0);
+    }, 0);
   })();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -393,10 +403,20 @@ const Header: React.FC = () => {
                 </Link>
               </li>
               <li className="inline-block ml-4">
-                <Link to={"/messaging/conversations"}>
+                <Link to={"/messaging/conversations"} className="relative">
                   <span className="h-7 w-7 flex items-center justify-center rounded-3xl">
                     <MessageSquare className="inline" size={18} />
                   </span>
+
+                  {msgUnreadCount > 0 && (
+                    <span
+                      className="absolute top-[-6px] right-[-3px] bg-gradient-main rounded-2xl 
+             text-[10px] font-light text-white w-5 h-5
+             flex items-center justify-center leading-0"
+                    >
+                      {msgUnreadCount}
+                    </span>
+                  )}
                 </Link>
               </li>
 
