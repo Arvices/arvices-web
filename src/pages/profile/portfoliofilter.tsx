@@ -96,8 +96,8 @@ export function PortfolioFilter() {
   return (
     <section className="py-16 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
-          Portfolio
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 text-center mb-8">
+          Latest Updates
         </h2>
 
         {/* Filter Buttons */}
@@ -143,7 +143,7 @@ export function PortfolioFilter() {
 
               {/* Content */}
               <div className="p-4">
-                <h3 className="font-semibold text-base mb-2 group-hover:text-royalblue-main-600 transition-colors duration-300">
+                <h3 className="font-semibold tracking-tight text-base mb-2 group-hover:text-royalblue-main-600 transition-colors duration-300">
                   {item.title}
                 </h3>
                 <div className="text-gray-800 text-sm mb-4 cursor-auto">

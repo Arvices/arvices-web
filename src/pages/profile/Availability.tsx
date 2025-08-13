@@ -1,4 +1,5 @@
 import { Clock, Globe, MapPin, UserCheck } from "feather-icons-react";
+import { formatTimeWithAmPm } from "../../util/mainutils";
 
 export interface AppointmentTime {
   day: string;
@@ -42,7 +43,8 @@ export default function AvailabilitySection({
       <div className="flex items-center space-x-3">
         <Clock className="w-5 h-5 text-purple-600" />
         <span>
-          Available {startTime} - {endTime}
+          Available {formatTimeWithAmPm(startTime)} -{" "}
+          {formatTimeWithAmPm(endTime)}
         </span>
       </div>
 

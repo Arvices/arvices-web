@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   UserOutlined,
-  DollarOutlined,
   ClockCircleOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -43,9 +42,10 @@ export function ProfileEdit() {
   const { setLoading, setLoadingText } = useLoading();
   const { openNotification } = useNotificationContext();
 
+  // add this tab later.  { label: "Services", value: "services", icon: <DollarOutlined /> }
+
   let tabOptions = [
     { label: "Personal", value: "personal", icon: <UserOutlined /> },
-    { label: "Services", value: "services", icon: <DollarOutlined /> },
     {
       label: "Availability",
       value: "availability",
@@ -233,7 +233,7 @@ export function ProfileEdit() {
         "",
         "success",
       );
-
+      fetchServices();
       // refetch services or notify success
     } catch (error) {
       console.error(error);

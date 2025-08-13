@@ -12,8 +12,9 @@ import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
 import {
   addMessage,
+  increaseUnreadCount,
   Message,
-  setConversations
+  setConversations,
 } from "../store/messageSlice";
 import { useNotificationContext } from "./NotificationContext";
 import { UserAccount } from "../api-services/auth";
@@ -78,12 +79,7 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
       console.log("Conversations:", conversations);
       dispatch(setConversations(conversations));
       if (conversations.length === 0) {
-        openNotification(
-          "topRight",
-          "No more notifications to show",
-          "",
-          "info",
-        );
+        openNotification("topRight", "No messages to show", "", "info");
         return;
       }
     } catch (error) {
@@ -122,6 +118,7 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
       dispatch(
         addMessage({ conversationId: String(data?.user?.id), message: data }),
       );
+      dispatch(increaseUnreadCount({ conversationId: Number(data?.user?.id) }));
     });
 
     return () => {

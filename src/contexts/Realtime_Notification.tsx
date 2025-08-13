@@ -16,7 +16,6 @@ import {
 import { getAllUserNotifications } from "../api-services/notificationservice";
 import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
-import { useNotificationContext } from "./NotificationContext";
 
 // adjust import
 
@@ -49,7 +48,6 @@ interface Props {
 export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
   let auth = useAuth();
   const { notificationsSocket } = useSocket();
-  const { openNotification } = useNotificationContext();
   const [latestNotification, setLatestNotification] = useState<any | null>(
     null,
   );
@@ -75,19 +73,12 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
       console.log("Notifications:", response.data);
       let data = response.data.response;
       if (data.length === 0) {
-        openNotification(
-          "topRight",
-          "No more notifications to show",
-          "",
-          "info",
-        );
         return;
       }
       dispatch(setNotifications(data));
     } catch (error) {
       let message = parseHttpError(error);
       setNotificationError(message);
-      console.error("Error fetching notifications:", error);
     } finally {
       setNotificationLoading(false);
     }

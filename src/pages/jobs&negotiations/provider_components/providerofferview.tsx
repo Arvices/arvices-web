@@ -43,7 +43,7 @@ const ProviderOfferCard: React.FC<Props> = ({
   let actions = offerActions[offer.status];
 
   const goToMessageClient = () => {
-    navigate(`/messaging/conversations`);
+    navigate(`/messaging/conversations?with=${job?.user?.id}`);
   };
 
   const getCounterOffers = async () => {
@@ -122,10 +122,23 @@ const ProviderOfferCard: React.FC<Props> = ({
       "info",
     );
   };
+
   // Get latest ones
   const latestOffer = getLatestCounterOffer(offer.counterOffer);
 
-  const showBtns = latestOffer && latestOffer.type === "Client";
+  let showBtns = false;
+
+  if (latestOffer && latestOffer.type === "Client") {
+    showBtns = true;
+  }
+
+  // map out the whole lot and assign your action functions.
+  actions.map((action) => {
+    if (action.label === "Message Client") {
+      action.action = goToMessageClient;
+    }
+    return action;
+  });
 
   if (offer.status === "Pending") {
     actions = actions.map((action) => {
@@ -137,12 +150,8 @@ const ProviderOfferCard: React.FC<Props> = ({
       return action;
     });
   } else if (offer.status === "Negotiating") {
-    console.log({ showBtns });
-
     actions = actions.map((action) => {
-      if (action.label === "Message Client") {
-        action.action = goToMessageClient;
-      } else if (action.label === "Accept Client's Offer" && showBtns) {
+      if (action.label === "Accept Client's Offer" && showBtns) {
         // define accept logic
         action.action = () => {
           handleUpdateOffer({ status: "Ongoing", accepted: true });

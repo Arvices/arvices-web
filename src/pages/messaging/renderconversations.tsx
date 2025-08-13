@@ -7,8 +7,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import moment from "moment";
 import { getInitials } from "../../util/getInitials";
+import { useAuth } from "../../contexts/AuthContext";
 
 const RenderConversations: React.FC = () => {
+  let auth = useAuth();
   const [SearchParam] = useSearchParams();
   const chattingWith = SearchParam.get("with");
   const navigate = useNavigate();
@@ -18,8 +20,6 @@ const RenderConversations: React.FC = () => {
   );
 
   let isOnline = true;
-
-  let unreadCount = 4;
 
   const goToConversation = (id: number) => {
     let url = `/messaging/conversations?with=${id}`;
@@ -125,58 +125,72 @@ const RenderConversations: React.FC = () => {
         !messageRealTime.conversationLoadError &&
         conversations.length > 0 && (
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {conversations.map((conversation) => (
-              <div
-                key={Number(conversation.id)}
-                onClick={() => goToConversation(Number(conversation.id))}
-                className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 hover:scale-105 ${
-                  chattingWith &&
-                  Number(chattingWith) === Number(conversation.id)
-                    ? "bg-gradient-to-r bg-royalblue-tint3 text-white shadow-lg"
-                    : "bg-white/80 hover:bg-white text-gray-900 shadow-sm"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm bg-blue-200 flex items-center justify-center">
-                      <span className="text-lg font-semibold text-white">
-                        {getInitials(conversation.fullName)}{" "}
-                        {/* Replace with actual initials */}
-                      </span>
-                    </div>
-                    {isOnline && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3
-                        className={`font-medium truncate ${Number(chattingWith) === Number(conversation.id) ? "text-white" : "text-gray-900"}`}
-                      >
-                        {conversation.fullName}
-                      </h3>
-                      <span
-                        className={`text-xs ${Number(chattingWith) === Number(conversation.id) ? "text-white/80" : "text-gray-500"}`}
-                      >
-                        {moment(conversation.lastmessage.createdDate).fromNow()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p
-                        className={`text-sm truncate ${Number(chattingWith) === Number(conversation.id) ? "text-white/90" : "text-gray-600"}`}
-                      >
-                        {conversation.lastmessage.message}
-                      </p>
-                      {unreadCount > 0 && (
-                        <div className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] text-center">
-                          {unreadCount}
-                        </div>
+            {conversations.map((conversation) => {
+              const lastMessageByMe =
+                conversation?.lastmessage?.user?.id === auth?.user?.id;
+              console.log("Render conversation", {
+                lastMessageByMe,
+                user: conversation?.lastmessage?.user.fullName,
+              });
+
+              return (
+                <div
+                  key={Number(conversation.id)}
+                  onClick={() => goToConversation(Number(conversation.id))}
+                  className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 hover:scale-105 ${
+                    chattingWith &&
+                    Number(chattingWith) === Number(conversation.id)
+                      ? "bg-gradient-to-r bg-royalblue-tint3 text-white shadow-lg"
+                      : "bg-white/80 hover:bg-white text-gray-900 shadow-sm"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm bg-blue-200 flex items-center justify-center">
+                        <span className="text-lg font-semibold text-white">
+                          {getInitials(conversation.fullName)}{" "}
+                          {/* Replace with actual initials */}
+                        </span>
+                      </div>
+                      {isOnline && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                       )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3
+                          className={`font-medium truncate ${Number(chattingWith) === Number(conversation.id) ? "text-white" : "text-gray-900"}`}
+                        >
+                          {conversation.fullName}
+                        </h3>
+                        <span
+                          className={`text-xs ${Number(chattingWith) === Number(conversation.id) ? "text-white/80" : "text-gray-500"}`}
+                        >
+                          {moment(
+                            conversation?.lastmessage?.createdDate,
+                          ).fromNow()}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p
+                          className={`text-sm truncate ${Number(chattingWith) === Number(conversation.id) ? "text-white/90" : "text-gray-600"}`}
+                        >
+                          {conversation?.lastmessage?.message ||
+                            "Start New Conversation"}
+                        </p>
+                        {conversation.unreadCount !== null &&
+                          conversation.unreadCount > 0 &&
+                          !lastMessageByMe && (
+                            <div className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] text-center">
+                              {conversation.unreadCount}
+                            </div>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
     </div>

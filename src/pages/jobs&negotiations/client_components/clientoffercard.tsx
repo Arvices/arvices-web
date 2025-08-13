@@ -153,9 +153,18 @@ const OfferCardClient: React.FC<Props> = ({
 
   const dummy = () => console.log("dummy called");
 
-  const showBtns = latestOffer && latestOffer.type === "Service Provider";
+  let showBtns = true;
+  if (latestOffer && latestOffer.type !== "Service Provider") {
+    showBtns = false;
+  }
 
   // map out the whole lot and assign your action functions.
+  actions.map((action) => {
+    if (action.label === "Message Provider") {
+      action.action = goToMessageProvider;
+    }
+    return action;
+  });
 
   if (offer.status === "Pending") {
     actions.map((action) => {
@@ -164,8 +173,6 @@ const OfferCardClient: React.FC<Props> = ({
           handleUpdateOffer({ status: "Negotiating" });
           handleUpdateJob({ status: "Negotiating" });
         };
-      } else if (action.label === "Message Provider") {
-        action.action = goToMessageProvider;
       }
       return action;
     });
@@ -179,10 +186,6 @@ const OfferCardClient: React.FC<Props> = ({
       } else if (action.label === "Make Counter Offer") {
         action.action = () => {
           setShowCounterForm(true);
-        };
-      } else if (action.label === "Message Provider") {
-        action.action = () => {
-          goToMessageProvider();
         };
       }
       return action;
@@ -243,7 +246,7 @@ const OfferCardClient: React.FC<Props> = ({
 
       {!showBtns && offer.status === "Negotiating" && (
         <p className="text-gray-600 text-sm font-medium tracking-tight mb-4">
-          Awaiting client response on your submitted offer.
+          Awaiting providers response on your counter offer.
         </p>
       )}
 

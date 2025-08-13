@@ -26,10 +26,15 @@ const JobDetails = ({
         <JobDetailsHeader job={job} isClient={isClient} />
         <JobDescription job={job} />
         <div className="py-2 pb-3">
+        {
+          isClient && (
+
           <StatusTag
             role={isClient ? "client" : "serviceProvider"}
             status={job.status}
           />
+          )
+        }
           {isClient && (
             <span className="inline-block ml-3 bg-gray-100 text-gray-600 border border-gray-500 text-xs px-2 py-1 rounded-full">
               {job?.offer?.length} Offers received

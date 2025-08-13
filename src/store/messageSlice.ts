@@ -3,11 +3,11 @@ import { UserAccount } from "../api-services/auth";
 
 export interface Conversation {
   id: number;
-  name: string;
   conversationdate: string;
   fullName: string;
   picture: string | null;
-  lastmessage: Message;
+  lastmessage: Message | null;
+  unreadCount: number | null;
 }
 
 export interface Message {
@@ -23,6 +23,7 @@ interface MessageState {
   messages: Record<string, Message[]>; // keyed by conversationId
   conversations: Conversation[];
 }
+
 const initialState: MessageState = {
   messages: {},
   conversations: [],
@@ -47,16 +48,30 @@ const messageSlice = createSlice({
     },
 
     // Add a single message to a conversation
+    // Add a single message to a conversation
     addMessage: (
       state,
       action: PayloadAction<{ conversationId: string; message: Message }>,
     ) => {
       const { conversationId, message } = action.payload;
+
+      // Update messages list for this conversation
       const existing = state.messages[conversationId] || [];
       state.messages[conversationId] = removeDuplicateMessages([
         message,
         ...existing,
       ]);
+
+      // Also update the conversation's last message
+      const convoIndex = state.conversations.findIndex(
+        (c) => String(c.id) === String(conversationId),
+      );
+      if (convoIndex !== -1) {
+        state.conversations[convoIndex] = {
+          ...state.conversations[convoIndex],
+          lastmessage: message,
+        };
+      }
     },
 
     // Clear messages for a specific conversation
@@ -78,6 +93,33 @@ const messageSlice = createSlice({
     clearConversations: (state) => {
       state.conversations = [];
     },
+
+    // New reducer to update the unread count
+    updateUnreadCount: (
+      state,
+      action: PayloadAction<{ conversationId: number; count: number | null }>,
+    ) => {
+      const { conversationId, count } = action.payload;
+      const conversation = state.conversations.find(
+        (c) => c.id === conversationId,
+      );
+      if (conversation) {
+        conversation.unreadCount = count;
+      }
+    }, // Corrected reducer to increase the unread count
+    increaseUnreadCount: (
+      state,
+      action: PayloadAction<{ conversationId: number }>,
+    ) => {
+      const { conversationId } = action.payload;
+      const conversation = state.conversations.find(
+        (c) => c.id === conversationId,
+      );
+      if (conversation) {
+        // Correctly handle null or 0 unreadCount and then increment
+        conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+      }
+    },
   },
 });
 
@@ -88,6 +130,8 @@ export const {
   setConversations,
   addConversation,
   clearConversations,
+  updateUnreadCount,
+  increaseUnreadCount,
 } = messageSlice.actions;
 
 export default messageSlice.reducer;

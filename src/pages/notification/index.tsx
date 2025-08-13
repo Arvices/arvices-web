@@ -5,11 +5,7 @@ import { Bell, Clock, Check, Search } from "feather-icons-react";
 
 import { Pagination } from "../../components/pagination";
 import { useNotificationRealtime } from "../../contexts/Realtime_Notification";
-import {
-  ArviceNotification,
-  ArviceNotificationRequestPayload,
-  markAsRead,
-} from "../../store/notificationSlice";
+import { ArviceNotification, markAsRead } from "../../store/notificationSlice";
 import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
 import { useDispatch, useSelector } from "react-redux";
@@ -121,21 +117,6 @@ const Notification = (): React.ReactNode => {
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto mb-10">
         {/* Page Starts*/}
-
-        <button
-          onClick={() => {
-            let payload: ArviceNotificationRequestPayload = {
-              header: "Title vgfwagfewagagfagw",
-              message: "Body",
-              userId: auth?.user?.id || -1,
-            };
-            notificationRealtime.sendNotification(payload);
-          }}
-          className=" items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-full text-sm font-medium transition-colors"
-        >
-          <Check className="w-4 h-4" />
-          Trigger Notification
-        </button>
 
         <div className="w-full overflow-hidden flex flex-col">
           {/* Header */}

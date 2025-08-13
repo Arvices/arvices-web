@@ -71,8 +71,8 @@ export const offerActions: JobActionsMap<OfferStatus> = {
   Negotiating: [
     {
       label: "Message Client",
-      action: () => console.log("Continuing chat"),
-      styleClass: "primary",
+      action: () => console.log("Messaging client"),
+      styleClass: "mutedBlue",
       icon: MessageCircle,
     },
     {
@@ -103,6 +103,12 @@ export const offerActions: JobActionsMap<OfferStatus> = {
       icon: Upload,
     }, */
     {
+      label: "Message Client",
+      action: () => console.log("Messaging client"),
+      styleClass: "mutedBlue",
+      icon: MessageCircle,
+    },
+    {
       label: "Notify Client Of Job Completion",
       action: () => console.log("Requesting completion"),
       styleClass: "primary",
@@ -116,13 +122,13 @@ export const offerActions: JobActionsMap<OfferStatus> = {
       action: () => console.log("Viewing feedback"),
       styleClass: "subtle",
     },
+    */
     {
       label: "Message Client",
       action: () => console.log("Messaging client"),
-      styleClass: "outline",
+      styleClass: "mutedBlue",
       icon: MessageCircle,
     },
-    */
   ],
 };
 
@@ -205,7 +211,7 @@ export const clientOfferActions: JobActionsMap<OfferStatus> = {
       action: () => {
         // handle message logic here
       },
-      styleClass: "outline",
+      styleClass: "mutedBlue",
       icon: MessageSquare,
     },
   ],
@@ -235,8 +241,26 @@ export const clientOfferActions: JobActionsMap<OfferStatus> = {
       icon: Repeat,
     },
   ],
-  Ongoing: [],
-  Completed: [],
+  Ongoing: [
+    {
+      label: "Message Provider",
+      action: () => {
+        // handle message logic here
+      },
+      styleClass: "mutedBlue",
+      icon: MessageSquare,
+    },
+  ],
+  Completed: [
+    {
+      label: "Message Provider",
+      action: () => {
+        // handle message logic here
+      },
+      styleClass: "mutedBlue",
+      icon: MessageSquare,
+    },
+  ],
 };
 
 interface ActionButtonsProps {
