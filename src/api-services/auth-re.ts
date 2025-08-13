@@ -219,11 +219,12 @@ const getMyPersonalReviews = async (token: string) => {
   return axios(config);
 };
 
-const getUserReviews = async (userId: string) => {
+const getUserReviews = async (userId: number, token: string) => {
   const config = {
     url: `${baseUrl}/user/getuserreviews`,
     method: "GET",
     params: { userId },
+    headers: { Authorization: `Bearer ${token}` },
   };
   return axios(config);
 };

@@ -71,7 +71,12 @@ const RenderChats: React.FC = () => {
   const lastMessageByMe =
     conversation?.lastmessage?.user?.id === auth?.user?.id;
 
-  console.log({ lastMessageByMe, unreadMessages, lastMessage: conversation?.lastmessage, userid: auth?.user?.id });
+  console.log({
+    lastMessageByMe,
+    unreadMessages,
+    lastMessage: conversation?.lastmessage,
+    userid: auth?.user?.id,
+  });
 
   useEffect(() => {
     // Only proceed if the user is authenticated and there are unread messages to process.
@@ -85,7 +90,12 @@ const RenderChats: React.FC = () => {
       Promise.all(updatePromises)
         .then(() => {
           console.log("All unread messages have been marked as read.");
-          dispatch(updateUnreadCount({conversationId: conversation?.id ? conversation.id : -1, count: 0}))
+          dispatch(
+            updateUnreadCount({
+              conversationId: conversation?.id ? conversation.id : -1,
+              count: 0,
+            }),
+          );
         })
         .catch((error) => {
           console.error("Failed to mark all messages as read:", error);
@@ -426,32 +436,32 @@ const RenderChats: React.FC = () => {
         )}
 
       {!chattingWith && (
-        /* Empty State */<div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
-  <div className="w-full h-full bg-gray-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center">
-    <div className="w-16 h-16 bg-gradient-to-br from-purple-300 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-white"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M8 10h.01M16 10h.01M12 16h.01M21 12c0-4.418-4.03-8-9-8s-9 3.582-9 8c0 1.58.623 3.037 1.623 4.237L3 21l3.523-1.077A9.003 9.003 0 0012 21c4.97 0 9-3.582 9-8z"
-        />
-      </svg>
-    </div>
-    <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
-      Select a conversation
-    </h3>
-    <p className="text-slate-500 dark:text-slate-400 text-sm">
-      Choose from your existing conversations to start chatting.
-    </p>
-  </div>
-</div>
+        /* Empty State */ <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
+          <div className="w-full h-full bg-gray-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-300 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8 10h.01M16 10h.01M12 16h.01M21 12c0-4.418-4.03-8-9-8s-9 3.582-9 8c0 1.58.623 3.037 1.623 4.237L3 21l3.523-1.077A9.003 9.003 0 0012 21c4.97 0 9-3.582 9-8z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
+              Select a conversation
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
+              Choose from your existing conversations to start chatting.
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

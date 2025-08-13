@@ -24,12 +24,12 @@ import {
   UserCheck,
   CreditCard,
   FileText,
-  LogOut,
-  BarChart2,
+  LogOut
 } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import { Wallet } from "lucide-react";
 
 let color = "#272727";
 
@@ -317,9 +317,10 @@ const Header: React.FC = () => {
                     Browse Service Providers
                   </Link>{" "}
                 </li>
+                {/* 
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
-                </li>
+                </li>*/}
                 <li className="inline-block px-2">
                   <Link to={"/help-center"}>Help Center</Link>{" "}
                 </li>
@@ -349,10 +350,10 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/client/new-job"}>Post Job</Link>{" "}
                 </li>
-
+                {/* 
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
-                </li>
+                </li>*/}
               </ul>
             )}
 
@@ -377,9 +378,12 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/post-showcase"}>Post Update</Link>{" "}
                 </li>
+                {/*
+                  
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
+                  */}
               </ul>
             )}
           </div>
@@ -498,9 +502,7 @@ const Header: React.FC = () => {
                         className="flex items-center gap-2"
                       >
                         <UserCheck size={16} /> Browse Service Providers
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          3
-                        </span>
+                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
                     <li className="mb-5">
@@ -511,60 +513,77 @@ const Header: React.FC = () => {
                             <div className="flex text-[16px] items-center gap-2 w-full">
                               <Sun size={16} />
                               Manage Jobs
-                              <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                                2
-                              </span>
+                              <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                             </div>
                           }
                         >
-                          <ul className="text-sm text-gray-700 space-y-3">
+                          <ul className="space-y-1 p-2">
+                            <li className="font-medium text-gray-900 px-3 py-2 text-sm rounded-md mb-2 w-full">
+                              <Link to={"/service-providers"} className="block">
+                                Hire Someone
+                              </Link>
+                            </li>
+                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
                             <li>
                               <Link
-                                to="/open-offers"
-                                onClick={toggleMobileOpen}
-                                className="flex items-center gap-2"
+                                to={"/client/manage-jobs#Open"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <Clipboard size={14} /> Open Offers
-                                <span className="ml-auto rounded px-1 bg-gray-100">
-                                  3
-                                </span>
+                                <Briefcase size={16} className="inline mr-2" />
+                                Open Jobs
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
                             </li>
                             <li>
                               <Link
-                                to="/negotiation"
-                                onClick={toggleMobileOpen}
-                                className="flex items-center gap-2"
+                                to={"/client/manage-jobs#Negotiating"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <MessageCircle size={14} /> Ongoing Negotiation
-                                <span className="ml-auto rounded px-1 bg-gray-100">
-                                  2
-                                </span>
+                                <MessageCircle
+                                  size={16}
+                                  className="inline mr-2"
+                                />
+                                Ongoing Negotiation
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
                             </li>
                             <li>
                               <Link
-                                to="/ongoing-jobs"
-                                onClick={toggleMobileOpen}
-                                className="flex items-center gap-2"
+                                to={"/client/manage-jobs#Ongoing"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <Loader size={14} /> Ongoing Jobs
-                                <span className="ml-auto rounded px-1 bg-gray-100">
-                                  1
-                                </span>
+                                <Loader size={16} className="inline mr-2" />
+                                Ongoing Jobs
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
                             </li>
                             <li>
                               <Link
-                                to="/completed-jobs"
-                                onClick={toggleMobileOpen}
-                                className="flex items-center gap-2"
+                                to={"/client/manage-jobs#Completed"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <CheckCircle size={14} /> Completed Jobs
-                                <span className="ml-auto rounded px-1 bg-gray-100">
-                                  10
-                                </span>
+                                <CheckCircle
+                                  size={16}
+                                  className="inline mr-2"
+                                />
+                                Completed Jobs
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
+                            </li>
+                            <li>
+                              <span className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
+                                <Users size={16} className="inline mr-2" />
+                                Previous Hires
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
+                              </span>
+                            </li>
+                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
+                            <li>
+                              <span className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
+                                <Heart size={16} className="inline mr-2" />
+                                Favourite Service Providers
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
+                              </span>
                             </li>
                           </ul>
                         </Panel>
@@ -578,11 +597,11 @@ const Header: React.FC = () => {
                         className="flex items-center gap-2"
                       >
                         <CreditCard size={16} /> Post A Job
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          1
-                        </span>
+                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
+                    {/*
+                    
                     <li className="mb-5">
                       <Link
                         to="/activities"
@@ -595,6 +614,7 @@ const Header: React.FC = () => {
                         </span>
                       </Link>
                     </li>
+                    */}
                     <hr className="my-2" />
                   </ul>
                 )}
@@ -609,9 +629,7 @@ const Header: React.FC = () => {
                         className="flex items-center gap-2"
                       >
                         <UserCheck size={16} /> Find Jobs
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          3
-                        </span>
+                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
                     <li className="mb-5">
@@ -620,55 +638,83 @@ const Header: React.FC = () => {
                           header={
                             <div className="flex text-[16px] items-center gap-y-2">
                               <Sun size={16} className="inline mr-2" /> My Jobs
-                              <span className="rounded bg-gray-100 inline-block ml-auto">
-                                2
-                              </span>
+                              <span className="rounded bg-gray-100 inline-block ml-auto"></span>
                             </div>
                           }
                           key="my-jobs"
                         >
-                          <ul className="text-sm text-gray-700 ">
-                            <li className="py-2">
+                          <ul className="space-y-1 p-2">
+                            <li className="font-medium text-gray-900 px-3 py-2 text-sm rounded-md mb-2 w-full">
                               <Link
-                                onClick={toggleMobileOpen}
-                                to="/open-offers"
-                                className="flex items-center gap-2"
+                                to={"/provider/manage-jobs"}
+                                className="block"
                               >
-                                <Clipboard size={14} /> Open Offers
+                                Manage Your Jobs
                               </Link>
                             </li>
-                            <li className="py-2">
+                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
+                            <li>
                               <Link
-                                onClick={toggleMobileOpen}
-                                to="/negotiations"
-                                className="flex items-center gap-2"
+                                to={"/provider/manage-jobs#Pending"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <MessageCircle size={14} /> Ongoing Negotiation
+                                <Clipboard size={16} className="inline mr-2" />
+                                Pending Offers
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
                             </li>
-                            <li className="py-2">
+                            <li>
                               <Link
-                                onClick={toggleMobileOpen}
-                                to="/ongoing-jobs"
-                                className="flex items-center gap-2"
+                                to={"/provider/manage-jobs#Negotiating"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <Loader size={14} /> Ongoing Jobs
+                                <MessageCircle
+                                  size={16}
+                                  className="inline mr-2"
+                                />
+                                Ongoing Negotiation
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
                             </li>
-                            <li className="py-2">
+                            <li>
                               <Link
-                                onClick={toggleMobileOpen}
-                                to="/completed-jobs"
-                                className="flex items-center gap-2"
+                                to={"/provider/manage-jobs#Ongoing"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                               >
-                                <CheckCircle size={14} /> Completed Jobs
+                                <Loader size={16} className="inline mr-2" />
+                                Ongoing Jobs
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
                               </Link>
+                            </li>
+                            <li>
+                              <Link
+                                to={"/provider/manage-jobs#Completed"}
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                              >
+                                <CheckCircle
+                                  size={16}
+                                  className="inline mr-2"
+                                />
+                                Completed Jobs
+                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
+                              </Link>
+                            </li>
+                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
+                            <li>
+                              <span className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
+                                Customize Job Alert
+                                <ArrowUpRight
+                                  className="inline ml-2"
+                                  size={18}
+                                />
+                              </span>
                             </li>
                           </ul>
                         </Panel>
                       </Collapse>
                     </li>
-
+                    {/*
+  
                     <li className="mb-5">
                       <Link
                         onClick={toggleMobileOpen}
@@ -693,6 +739,7 @@ const Header: React.FC = () => {
                         </span>
                       </Link>
                     </li>
+  */}
 
                     <hr className="my-2" />
                   </ul>
@@ -708,9 +755,7 @@ const Header: React.FC = () => {
                         className="flex items-center gap-2"
                       >
                         <UserCheck size={16} /> Profile
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          3
-                        </span>
+                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
                     <li className="mb-5">
@@ -719,22 +764,19 @@ const Header: React.FC = () => {
                         to="/wallet"
                         className="flex items-center gap-2"
                       >
-                        <CreditCard size={16} /> Wallet & Transactions
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          1
-                        </span>
+                        <Wallet size={16} /> Wallet & Transactions
+                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
                     <li className="mb-5">
                       <Link
                         onClick={toggleMobileOpen}
-                        to="/"
+                        to="/transactions"
                         className="flex items-center gap-2"
                       >
-                        <BarChart2 size={16} /> Reports
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          10
-                        </span>
+                        <CreditCard size={16} />
+                        Transactions
+                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
                   </ul>
@@ -767,12 +809,14 @@ const Header: React.FC = () => {
                         Home
                       </Link>
                     </li>
-
+                    {/*
+  
                     <li className="mb-8 text-gray-700">
                       <Link onClick={toggleMobileOpen} to={"/activities"}>
                         Activities
                       </Link>
                     </li>
+  */}
 
                     <li className="mb-8 text-gray-700">
                       <Link

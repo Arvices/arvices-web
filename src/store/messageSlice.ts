@@ -97,20 +97,24 @@ const messageSlice = createSlice({
     // New reducer to update the unread count
     updateUnreadCount: (
       state,
-      action: PayloadAction<{ conversationId: number; count: number | null }>
+      action: PayloadAction<{ conversationId: number; count: number | null }>,
     ) => {
       const { conversationId, count } = action.payload;
-      const conversation = state.conversations.find(c => c.id === conversationId);
+      const conversation = state.conversations.find(
+        (c) => c.id === conversationId,
+      );
       if (conversation) {
         conversation.unreadCount = count;
       }
-    },    // Corrected reducer to increase the unread count
+    }, // Corrected reducer to increase the unread count
     increaseUnreadCount: (
       state,
-      action: PayloadAction<{ conversationId: number }>
+      action: PayloadAction<{ conversationId: number }>,
     ) => {
       const { conversationId } = action.payload;
-      const conversation = state.conversations.find(c => c.id === conversationId);
+      const conversation = state.conversations.find(
+        (c) => c.id === conversationId,
+      );
       if (conversation) {
         // Correctly handle null or 0 unreadCount and then increment
         conversation.unreadCount = (conversation.unreadCount || 0) + 1;
@@ -127,7 +131,7 @@ export const {
   addConversation,
   clearConversations,
   updateUnreadCount,
-  increaseUnreadCount
+  increaseUnreadCount,
 } = messageSlice.actions;
 
 export default messageSlice.reducer;
