@@ -13,5 +13,6 @@ export function generateConversation(
     fullName,
     picture,
     lastmessage: lastMessage,
+    unreadCount: 0
   };
 }
