@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ArrowUpRight, ArrowDownLeft, Plus, X } from "lucide-react";
 
 const Transactions = (): React.ReactNode => {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -36,7 +37,7 @@ const Transactions = (): React.ReactNode => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: savedEmail, password: savedPassword }),
-        },
+        }
       );
 
       if (!res.ok) throw new Error(`Login failed: ${res.status}`);
@@ -80,7 +81,7 @@ const Transactions = (): React.ReactNode => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       if (!res.ok)
@@ -106,23 +107,23 @@ const Transactions = (): React.ReactNode => {
   return (
     <section className="min-h-screen pt-16">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Transactions</h1>
+        <h1 className="text-2xl font-bold mb-3">Transactions</h1>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded shadow mb-4">
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-2.5 rounded shadow-sm mb-3">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
             <input
               type="text"
               placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             />
 
             <select
               value={paid}
               onChange={(e) => setPaid(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             >
               <option value="">Paid status</option>
               <option value="true">Paid</option>
@@ -132,7 +133,7 @@ const Transactions = (): React.ReactNode => {
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             >
               <option value="">Type</option>
               <option value="credit">Credit</option>
@@ -142,7 +143,7 @@ const Transactions = (): React.ReactNode => {
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             >
               <option value="">Method</option>
               <option value="bank">Bank</option>
@@ -153,20 +154,20 @@ const Transactions = (): React.ReactNode => {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             />
 
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             />
 
             <select
               value={orderBy}
               onChange={(e) => setOrderBy(e.target.value)}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             >
               <option value="DESC">Newest First</option>
               <option value="ASC">Oldest First</option>
@@ -175,7 +176,7 @@ const Transactions = (): React.ReactNode => {
             <select
               value={limit}
               onChange={(e) => setLimit(Number(e.target.value))}
-              className="border p-2 rounded"
+              className="border border-gray-300 border-[1px] p-1.5 text-sm rounded"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -188,7 +189,7 @@ const Transactions = (): React.ReactNode => {
               setPage(1);
               fetchTransactions();
             }}
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+            className="bg-blue-600 text-white px-3 py-1 text-sm rounded mt-2.5"
           >
             Apply Filters
           </button>
@@ -202,27 +203,59 @@ const Transactions = (): React.ReactNode => {
 
         {!loading && transactions.length > 0 && (
           <ul className="space-y-2">
-            {transactions.map((tx) => (
-              <li
-                key={tx.id}
-                className="p-3 rounded-md flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold">{tx.type}</p>
-                  <p className="text-sm text-gray-500">Ref: {tx.reference}</p>
-                  <p className="text-sm">
-                    {tx.paid ? "✅ Paid" : "❌ Not Paid"} —{" "}
-                    {new Date(tx.createdDate).toLocaleString()}
-                  </p>
-                  {tx.to && (
-                    <p className="text-sm text-gray-600">
-                      To: {tx.to.fullName} ({tx.to.email})
-                    </p>
-                  )}
-                </div>
-                <span className="font-bold">₦{tx.amount}</span>
-              </li>
-            ))}
+            {transactions.map((tx) => {
+              let icon;
+              let circleColor = "";
+
+              if (!tx.paid) {
+                // Any unpaid transaction = red X
+                icon = <X size={16} color="#b91c1c" />; // red-700
+                circleColor = "bg-red-200";
+              } else if (tx.type === "credit" || tx.type === "received") {
+                icon = <ArrowDownLeft size={16} color="#15803d" />; // green-700
+                circleColor = "bg-green-200";
+              } else if (tx.type === "debit" || tx.type === "sent") {
+                icon = <ArrowUpRight size={16} color="#b91c1c" />; // red-700
+                circleColor = "bg-red-200";
+              } else if (tx.type === "topup") {
+                icon = <Plus size={16} color="#1d4ed8" />; // blue-700
+                circleColor = "bg-blue-200";
+              } else {
+                icon = <ArrowUpRight size={16} color="#374151" />; // gray-700
+                circleColor = "bg-gray-200";
+              }
+
+              return (
+                <li
+                  key={tx.id}
+                  className="p-3 rounded-md flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-8 h-8 flex items-center justify-center rounded-full ${circleColor}`}
+                    >
+                      {icon}
+                    </div>
+                    <div>
+                      <p className="font-semibold capitalize">{tx.type}</p>
+                      <p className="text-sm text-gray-500">
+                        Ref: {tx.reference}
+                      </p>
+                      <p className="text-sm">
+                        {tx.paid ? "Paid" : "Not Paid"} —{" "}
+                        {new Date(tx.createdDate).toLocaleString()}
+                      </p>
+                      {tx.to && (
+                        <p className="text-sm text-gray-600">
+                          To: {tx.to.fullName} ({tx.to.email})
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-bold">₦{tx.amount}</span>
+                </li>
+              );
+            })}
           </ul>
         )}
 
