@@ -205,7 +205,7 @@ const Transactions = (): React.ReactNode => {
             {transactions.map((tx) => (
               <li
                 key={tx.id}
-                className="border p-3 rounded-md flex justify-between items-center"
+                className="p-3 rounded-md flex justify-between items-center"
               >
                 <div>
                   <p className="font-semibold">{tx.type}</p>

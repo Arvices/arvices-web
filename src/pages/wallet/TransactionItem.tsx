@@ -1,5 +1,12 @@
 import { FC } from "react";
-import { ArrowDownRight, ArrowUpLeft } from "lucide-react";
+import {
+  ArrowUpLeft,
+  Download,
+  Upload,
+  DollarSign,
+  CreditCard,
+  XCircle,
+} from "lucide-react";
 import clsx from "clsx";
 
 interface TransactionItemProps {
@@ -8,38 +15,119 @@ interface TransactionItemProps {
     type: string; // from API
     reference?: string;
     paid?: boolean;
+    reflected?: boolean; // true if amount reflected in balance
     createdDate?: string;
+    from?: { fullName?: string; email?: string };
     to?: { fullName?: string; email?: string };
     amount: string | number;
   };
 }
 
 const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
-  // Normalize type from API to match our design categories
   const rawType = transaction.type?.toLowerCase();
-  let type: "deposit" | "withdrawal" | "received" | "sent" = "deposit";
+  let type: "topup" | "withdrawal" | "received" | "sent" = "topup";
+  let label = "";
 
-  if (rawType.includes("withdraw")) type = "withdrawal";
-  else if (rawType.includes("receive")) type = "received";
-  else if (rawType.includes("send")) type = "sent";
+  if (rawType.includes("withdraw")) {
+    type = "withdrawal";
+    label = "Withdrawal";
+  } else if (rawType.includes("topup")) {
+    type = "topup";
+    label = "TopUp";
+  } else if (rawType.includes("credit")) {
+    type = "received";
+    label = "Received";
+  } else if (rawType.includes("debit")) {
+    type = "sent";
+    label = "Sent";
+  } else if (rawType.includes("receive")) {
+    type = "received";
+    label = "Received";
+  } else if (rawType.includes("send")) {
+    type = "sent";
+    label = "Sent";
+  } else {
+    label = "TopUp";
+  }
 
-  const isIncoming = type === "deposit" || type === "received";
+  let partyName = "";
+  if (type === "received" && transaction.from?.fullName) {
+    partyName = ` from ${transaction.from.fullName}`;
+  } else if (type === "sent" && transaction.to?.fullName) {
+    partyName = ` to ${transaction.to.fullName}`;
+  }
 
-  const icon = isIncoming ? (
-    <ArrowDownRight size={18} />
-  ) : (
-    <ArrowUpLeft size={18} />
-  );
+  // Determine success/failure
+  const isSuccessful = transaction.paid || transaction.reflected;
+  const isFailed = !isSuccessful;
+  const statusText = isSuccessful ? "Successful" : "Failed";
 
+  // Choose icon
+  let icon;
+  if (isFailed) {
+    icon = <XCircle size={18} />;
+  } else {
+    switch (type) {
+      case "topup":
+        icon = <DollarSign size={18} />;
+        break;
+      case "withdrawal":
+        icon = <ArrowUpLeft size={18} />;
+        break;
+      case "received":
+        icon = <Download size={18} />;
+        break;
+      case "sent":
+        icon = <Upload size={18} />;
+        break;
+      default:
+        icon = <CreditCard size={18} />;
+    }
+  }
+
+  // Icon colors
   const iconWrapperClass = clsx(
     "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
     {
-      "bg-green-100 text-green-700": type === "deposit",
-      "bg-red-100 text-red-700": type === "withdrawal",
-      "bg-gradient-to-br from-royalblue-shade5 via-gray-900 to-royalblue-shade3 text-white":
-        type === "received" || type === "sent",
+      "bg-green-100 text-green-700": type === "topup" && !isFailed,
+      "bg-red-100 text-red-700": type === "withdrawal" && !isFailed,
+      "bg-blue-100 text-blue-700": type === "received" && !isFailed,
+      "bg-yellow-100 text-yellow-700": type === "sent" && !isFailed,
+      "bg-red-200 text-red-800": isFailed,
     }
   );
+
+  // Date handling with multiple fallbacks
+  let dateTimeStr = "";
+  const rawDate =
+    transaction.createdDate ||
+    (transaction as any).created_at ||
+    (transaction as any).transactionDate ||
+    (transaction as any).date;
+
+  if (rawDate) {
+    let parsedDate = new Date(rawDate);
+
+    // If invalid, try parsing DD/MM/YYYY formats
+    if (isNaN(parsedDate.getTime()) && typeof rawDate === "string") {
+      const match = rawDate.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (match) {
+        parsedDate = new Date(`${match[2]}/${match[1]}/${match[3]}`);
+      }
+    }
+
+    if (!isNaN(parsedDate.getTime())) {
+      dateTimeStr = new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }).format(parsedDate);
+    }
+  }
 
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-100">
@@ -47,17 +135,24 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
         <div className={iconWrapperClass}>{icon}</div>
         <div className="text-sm">
           <p className="font-medium text-gray-800">
-            {transaction.reference || transaction.type}
+            {label}
+            {partyName}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            {transaction.id} <span className="mx-1">•</span>{" "}
-            {transaction.createdDate
-              ? new Date(transaction.createdDate).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
-              : ""}
+            {transaction.reference && (
+              <>
+                {transaction.reference} <span className="mx-1">•</span>
+              </>
+            )}
+            {dateTimeStr}
+          </p>
+          <p
+            className={clsx("text-xs mt-0.5", {
+              "text-green-600": isSuccessful,
+              "text-red-600": isFailed,
+            })}
+          >
+            {statusText}
           </p>
         </div>
       </div>
