@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   TrendingUp,
   UserPlus,
@@ -10,17 +10,16 @@ import {
   Clock,
   MapPin,
   ArrowUpRight,
-  Plus
+  Plus,
+  ChevronDown,
 } from "feather-icons-react";
 import { Heart, MessageCircle, Bookmark } from "feather-icons-react";
 import { Select, Modal, Input } from "antd";
-import { ChevronDown } from "feather-icons-react";
 const { Option } = Select;
-
-import pic from "../../assets/images/pro-sample-img.png";
 
 const API_BASE = "https://arvicesapi.denateonlineservice.com";
 
+/* ------------ utils ------------ */
 function getToken(): string | null {
   const candidates = [
     "token",
@@ -36,15 +35,57 @@ function getToken(): string | null {
   }
   return null;
 }
-
+function getMyIdSafe(): number | null {
+  const t = getToken();
+  if (!t) return null;
+  try {
+    const payload = t.split(".")[1];
+    if (!payload) return null;
+    // support base64url
+    const norm = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const json = atob(norm);
+    const obj = JSON.parse(json);
+    return typeof obj?.id === "number" ? obj.id : null;
+  } catch {
+    return null;
+  }
+}
 function formatFollowerCount(count: number): string {
-  if (count >= 1_000_000)
-    return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
-  if (count >= 1_000)
-    return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
-  return count.toString();
+  if (count >= 1_000_000) return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (count >= 1_000) return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+  return String(count);
 }
 
+/* ------------ pastel avatar helpers ------------ */
+function stringToColor(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 60%, 75%)`; // pastel tone
+}
+
+function renderAvatarClickable(user: any, sizeClass = "w-10 h-10", onClick?: (id: number) => void) {
+  const displayName = user?.fullName || user?.username || "?";
+  const letter = displayName[0].toUpperCase();
+  const bgColor = stringToColor(displayName);
+  const handleClick = () => {
+    if (onClick && user?.id) onClick(user.id);
+  };
+  return (
+    <div
+      className={`${sizeClass} rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-80`}
+      style={{ backgroundColor: bgColor }}
+      onClick={handleClick}
+      title={`View ${displayName}'s profile`}
+    >
+      {letter}
+    </div>
+  );
+}
+
+/* ------------ types ------------ */
 export type ShowcaseComment = {
   id: number;
   post: string;
@@ -52,9 +93,15 @@ export type ShowcaseComment = {
   liked: number[];
   commentAttachments: { url?: string }[];
   createdDate: string;
-  user: { id: number; fullName?: string | null; username?: string | null };
+  user: {
+    id: number;
+    fullName?: string | null;
+    username?: string | null;
+    picture?: string | null; // added so we can check for picture
+  };
 };
 
+/* ------------ api ------------ */
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getToken();
   const headers: HeadersInit = { accept: "*/*", ...(init?.headers || {}) };
@@ -77,13 +124,10 @@ async function getComments(showcaseId: number) {
     `/showcase/getshowcasecommentbyshowcase/${showcaseId}`
   );
 }
-async function createComment(showcaseId: number, post: string, files: File[]) {
+async function createComment(showcaseId: number, post: string) {
   const fd = new FormData();
   fd.append("post", post);
   fd.append("showcaseId", String(showcaseId));
-  for (const f of files) {
-    fd.append("attachment", f, f.name);
-  }
   return api<{ status: number; message: string; response: any }>(
     "/showcase/createshowcasecomment",
     { method: "POST", body: fd }
@@ -123,15 +167,12 @@ async function createShowcase(post: string, location: string, files: File[]) {
     { method: "POST", body: fd }
   );
 }
-
-// NEW showcase like/unlike functions
 async function likeShowcase(showcaseId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/likeshowcase/${showcaseId}`,
     { method: "POST" }
   );
 }
-
 async function unlikeShowcase(showcaseId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/unlikeshowcase/${showcaseId}`,
@@ -139,6 +180,38 @@ async function unlikeShowcase(showcaseId: number) {
   );
 }
 
+/* top professionals */
+async function getTopProfessionals() {
+  return api<{ status: number; message: string; response: any[] }>(
+    "/user/gettopprofessionals"
+  );
+}
+// --- Follow API ---
+async function followUser(userId: number) {
+  const token = getToken();
+  console.log("Token being sent:", token); // DEBUG
+  return api<{ status: number; message: string }>(
+    `/user/followuser/${userId}`,
+    { method: "POST" }
+  );
+}
+
+async function unfollowUser(userId: number) {
+  const token = getToken();
+  console.log("Token being sent:", token); // DEBUG
+  return api<{ status: number; message: string }>(
+    `/user/unfollowuser/${userId}`,
+    { method: "POST" }
+  );
+}
+
+async function getAccountById(userId: number) {
+  return api<{ status: number; message: string; response: any }>(
+    `/user/getaccountbyid?id=${userId}`
+  );
+}
+
+/* ------------ static data ------------ */
 const updates = [
   { updateType: "Live Updates", title: "Beauty services trending up 25%", description: "Skincare and makeup bookings are rising this week" },
   { updateType: "New Provider", title: "New 5-star rated plumber available", description: "Highly rated professional just joined your area" },
@@ -147,7 +220,7 @@ const updates = [
   { updateType: "Achievement", title: "Best rated car mechanic this month", description: "AutoFix Pro wins monthly excellence award" },
   { updateType: "Booking Alert", title: "Weekend booking slots filling fast", description: "High demand for weekend appointments" },
   { updateType: "New Feature", title: "New service category: Pet Care", description: "Find grooming and pet sitting services" },
-];
+] as const;
 
 export const updateIconMap: Record<string, { icon: React.JSX.Element; colorClass: string }> = {
   "Live Updates": { icon: <TrendingUp className="inline w-3 h-3 text-pink-600" />, colorClass: "text-pink-600" },
@@ -159,18 +232,11 @@ export const updateIconMap: Record<string, { icon: React.JSX.Element; colorClass
   "New Feature": { icon: <Tool className="inline w-3 h-3 text-teal-600" />, colorClass: "text-teal-600" },
 };
 
-const users = [
-  { name: "Sarah Johnson", category: "Hair Stylist", followerCount: 3200 },
-  { name: "Mike Chen", category: "Auto Mechanic", followerCount: 1800 },
-  { name: "Emma Williams", category: "House Cleaner", followerCount: 2500 },
-  { name: "Linda Okafor", category: "Fashion Designer", followerCount: 4100 },
-  { name: "Tunde Bako", category: "Graphic Designer", followerCount: 2900 },
-  { name: "Grace Bello", category: "Event Planner", followerCount: 3700 },
-];
-
+/* ------------ component ------------ */
 const Activities = (): React.ReactNode => {
   const categories = ["Cleaning", "Plumbing", "Makeup", "Pet Care", "Car Repair"];
   const [selectedCategory, setSelectedCategory] = useState<string>();
+
   const [showcases, setShowcases] = useState<any[]>([]);
   const [savedMap, setSavedMap] = useState<Record<number, boolean>>({});
   const [commentsMap, setCommentsMap] = useState<Record<number, ShowcaseComment[]>>({});
@@ -178,23 +244,37 @@ const Activities = (): React.ReactNode => {
   const [showcaseLikedMap, setShowcaseLikedMap] = useState<Record<number, boolean>>({});
   const [showcaseLikeCount, setShowcaseLikeCount] = useState<Record<number, number>>({});
   const [commentTextMap, setCommentTextMap] = useState<Record<number, string>>({});
-  const [filesMap, setFilesMap] = useState<Record<number, File[]>>({});
   const [creatingCommentMap, setCreatingCommentMap] = useState<Record<number, boolean>>({});
-  const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const [visibleCommentsMap, setVisibleCommentsMap] = useState<Record<number, boolean>>({});
+  const [visibleCountMap, setVisibleCountMap] = useState<Record<number, number>>({});
+  const commentRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
+  // token -> myId (safe)
+  const myId = useMemo(() => getMyIdSafe(), []);
+
+  // create showcase
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPostText, setNewPostText] = useState("");
   const [newPostLocation, setNewPostLocation] = useState("");
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [creatingShowcase, setCreatingShowcase] = useState(false);
 
+  // top providers
+  const [topProviders, setTopProviders] = useState<any[]>([]);
+  const [followingMap, setFollowingMap] = useState<Record<number, boolean>>({});
+  const [followLoadingMap, setFollowLoadingMap] = useState<Record<number, boolean>>({});
+
+  // provider modal (View)
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [loadingProvider, setLoadingProvider] = useState(false);
+
+  /* initial showcases */
   useEffect(() => {
     (async () => {
       try {
         const data = await getAllShowcase("DESC", 1, 10);
         if (Array.isArray(data.response)) {
           setShowcases(data.response);
-          const myId = JSON.parse(atob(getToken()?.split(".")[1] || ""))?.id;
           const savedStatus: Record<number, boolean> = {};
           const likedMap: Record<number, Set<number>> = {};
           const showcaseLikeStatus: Record<number, boolean> = {};
@@ -215,54 +295,84 @@ const Activities = (): React.ReactNode => {
         console.warn("Failed to load showcases", err);
       }
     })();
-  }, []);
+  }, [myId]);
 
+  /* top providers & following state */
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getTopProfessionals();
+        const providers = Array.isArray(res.response) ? res.response : [];
+        // seed a local followersCount for consistent UI
+        const seeded = providers.map((p: any) => ({
+          ...p,
+          _followersCountLocal:
+            (Array.isArray(p.followers) ? p.followers.length : (typeof p.followersCount === "number" ? p.followersCount : 0)),
+        }));
+        setTopProviders(seeded);
+
+        // Build following set from *current user's* account — reliable!
+        if (myId != null) {
+          const me = await getAccountById(myId);
+          const followingIds = new Set<number>((me.response?.following || []).map((u: any) => u.id));
+          const map: Record<number, boolean> = {};
+          seeded.forEach((p: any) => { map[p.id] = followingIds.has(p.id); });
+          setFollowingMap(map);
+        } else {
+          // not logged in — nothing followed
+          setFollowingMap({ });
+        }
+      } catch (err) {
+        console.warn("Failed to load top professionals / following", err);
+      }
+    })();
+  }, [myId]);
+
+  /* helpers */
   async function refreshComments(showcaseId: number) {
     try {
       const data = await getComments(showcaseId);
       setCommentsMap((prev) => ({ ...prev, [showcaseId]: Array.isArray(data.response) ? data.response : [] }));
-    } catch (err: any) {
+    } catch (err) {
       console.warn("Failed to load comments", err);
     }
   }
 
+  function handleViewMore(showcaseId: number) {
+    setVisibleCountMap((prev) => ({ ...prev, [showcaseId]: (prev[showcaseId] || 5) + 5 }));
+  }
+
   async function handleCreateComment(showcaseId: number) {
     const text = commentTextMap[showcaseId] || "";
-    const files = filesMap[showcaseId] || [];
-    if (!text.trim() && files.length === 0) return;
+    if (!text.trim()) return;
     setCreatingCommentMap((prev) => ({ ...prev, [showcaseId]: true }));
     try {
-      await createComment(showcaseId, text.trim(), files);
+      await createComment(showcaseId, text.trim());
       setCommentTextMap((prev) => ({ ...prev, [showcaseId]: "" }));
-      setFilesMap((prev) => ({ ...prev, [showcaseId]: [] }));
-      if (fileInputRefs.current[showcaseId]) fileInputRefs.current[showcaseId]!.value = "";
       await refreshComments(showcaseId);
-    } catch (e: any) {
-      alert(e?.message || "Failed to post comment");
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Failed to post comment");
     } finally {
       setCreatingCommentMap((prev) => ({ ...prev, [showcaseId]: false }));
     }
   }
 
   async function toggleLikeComment(showcaseId: number, comment: ShowcaseComment) {
-    const already = likedByMeMap[showcaseId]?.has(comment.id);
-    if (already) {
-      likedByMeMap[showcaseId].delete(comment.id);
-      setCommentsMap((prev) => ({
-        ...prev,
-        [showcaseId]: prev[showcaseId].map((c) =>
-          c.id === comment.id ? { ...c, like: Math.max(0, (c.like || 0) - 1) } : c
-        ),
-      }));
-    } else {
-      likedByMeMap[showcaseId].add(comment.id);
-      setCommentsMap((prev) => ({
-        ...prev,
-        [showcaseId]: prev[showcaseId].map((c) =>
-          c.id === comment.id ? { ...c, like: (c.like || 0) + 1 } : c
-        ),
-      }));
-    }
+    const setForShowcase = likedByMeMap[showcaseId] || new Set<number>();
+    const already = setForShowcase.has(comment.id);
+
+    // optimistic UI
+    const clone = new Set(setForShowcase);
+    if (already) clone.delete(comment.id);
+    else clone.add(comment.id);
+    setLikedByMeMap((prev) => ({ ...prev, [showcaseId]: clone }));
+    setCommentsMap((prev) => ({
+      ...prev,
+      [showcaseId]: prev[showcaseId].map((c) =>
+        c.id === comment.id ? { ...c, like: Math.max(0, (c.like || 0) + (already ? -1 : 1)) } : c
+      ),
+    }));
+
     try {
       if (already) await unlikeComment(comment.id);
       else await likeComment(comment.id);
@@ -272,19 +382,18 @@ const Activities = (): React.ReactNode => {
   }
 
   async function toggleLikeShowcase(showcaseId: number) {
-    const already = showcaseLikedMap[showcaseId];
+    const already = !!showcaseLikedMap[showcaseId];
+    // optimistic
+    setShowcaseLikedMap((p) => ({ ...p, [showcaseId]: !already }));
+    setShowcaseLikeCount((p) => ({ ...p, [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? -1 : 1)) }));
     try {
-      if (already) {
-        await unlikeShowcase(showcaseId);
-        setShowcaseLikedMap((prev) => ({ ...prev, [showcaseId]: false }));
-        setShowcaseLikeCount((prev) => ({ ...prev, [showcaseId]: Math.max(0, (prev[showcaseId] || 1) - 1) }));
-      } else {
-        await likeShowcase(showcaseId);
-        setShowcaseLikedMap((prev) => ({ ...prev, [showcaseId]: true }));
-        setShowcaseLikeCount((prev) => ({ ...prev, [showcaseId]: (prev[showcaseId] || 0) + 1 }));
-      }
-    } catch (err) {
+      if (already) await unlikeShowcase(showcaseId);
+      else await likeShowcase(showcaseId);
+    } catch {
       alert("Failed to update showcase like");
+      // revert
+      setShowcaseLikedMap((p) => ({ ...p, [showcaseId]: already }));
+      setShowcaseLikeCount((p) => ({ ...p, [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? 1 : -1)) }));
     }
   }
 
@@ -297,8 +406,8 @@ const Activities = (): React.ReactNode => {
         await saveShowcase(showcaseId);
         setSavedMap((prev) => ({ ...prev, [showcaseId]: true }));
       }
-    } catch (e: any) {
-      alert(e?.message || "Failed to update save state");
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Failed to update save state");
     }
   }
 
@@ -314,10 +423,98 @@ const Activities = (): React.ReactNode => {
         setNewPostLocation("");
         setNewFiles([]);
       }
-    } catch (err: any) {
-      alert(err?.message || "Failed to create showcase");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to create showcase");
     } finally {
       setCreatingShowcase(false);
+    }
+  }
+
+  /* View (provider modal) */
+  async function handleViewProvider(userId: number) {
+    try {
+      setLoadingProvider(true);
+      const res = await getAccountById(userId);
+      setSelectedProvider(res.response);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to load provider details");
+    } finally {
+      setLoadingProvider(false);
+    }
+  }
+
+  /* Follow / Unfollow — FIXED */
+  async function handleToggleFollow(userId: number) {
+    if (myId == null) {
+      alert("Please sign in to follow providers.");
+      return;
+    }
+    if (userId === myId) return; // no self-follow
+
+    const currentlyFollowing = !!followingMap[userId];
+
+    // ✅ Optimistic UI update
+    setFollowingMap((prev) => ({ ...prev, [userId]: !currentlyFollowing }));
+    setTopProviders((prev) =>
+      prev.map((p) => {
+        if (p.id !== userId) return p;
+        const base =
+          typeof p._followersCountLocal === "number"
+            ? p._followersCountLocal
+            : Array.isArray(p.followers)
+            ? p.followers.length
+            : typeof p.followersCount === "number"
+            ? p.followersCount
+            : 0;
+        return {
+          ...p,
+          _followersCountLocal: Math.max(
+            0,
+            base + (currentlyFollowing ? -1 : 1)
+          ),
+        };
+      })
+    );
+
+    setFollowLoadingMap((prev) => ({ ...prev, [userId]: true }));
+
+    try {
+      // ✅ Only call the correct API
+      if (currentlyFollowing) {
+        await unfollowUser(userId);
+      } else {
+        await followUser(userId);
+      }
+    } catch (err) {
+      console.warn("Follow toggle failed", err);
+      const msg = err instanceof Error ? err.message : "";
+
+      // Roll back UI on error
+      setFollowingMap((prev) => ({ ...prev, [userId]: currentlyFollowing }));
+      setTopProviders((prev) =>
+        prev.map((p) => {
+          if (p.id !== userId) return p;
+          const base =
+            typeof p._followersCountLocal === "number"
+              ? p._followersCountLocal
+              : Array.isArray(p.followers)
+              ? p.followers.length
+              : typeof p.followersCount === "number"
+              ? p.followersCount
+              : 0;
+          return {
+            ...p,
+            _followersCountLocal: Math.max(
+              0,
+              base + (currentlyFollowing ? 1 : -1) // revert change
+            ),
+          };
+        })
+      );
+
+      alert(msg || "Could not update follow state.");
+    } finally {
+      setFollowLoadingMap((prev) => ({ ...prev, [userId]: false }));
     }
   }
 
@@ -331,8 +528,16 @@ const Activities = (): React.ReactNode => {
             {updates.map((u, i) => (
               <div key={i} className="mt-3 p-2 border rounded border-gray-100">
                 <div className="flex items-center">
-                  <div className={updateIconMap[u.updateType].colorClass}>
-                    {updateIconMap[u.updateType].icon} {u.updateType}
+                  <div className="text-pink-600">
+                    {u.updateType && (({
+                      "Live Updates": <TrendingUp className="inline w-3 h-3 text-pink-600" />,
+                      "New Provider": <UserPlus className="inline w-3 h-3 text-blue-600" />,
+                      "Promotion": <Percent className="inline w-3 h-3 text-green-600" />,
+                      "Milestone": <Star className="inline w-3 h-3 text-yellow-500" />,
+                      "Achievement": <Award className="inline w-3 h-3 text-indigo-600" />,
+                      "Booking Alert": <Calendar className="inline w-3 h-3 text-red-500" />,
+                      "New Feature": <Tool className="inline w-3 h-3 text-teal-600" />,
+                    } as any)[u.updateType])} {u.updateType}
                   </div>
                   <div className="flex-1" />
                   <small className="text-[12px] text-gray-500">
@@ -376,10 +581,19 @@ const Activities = (): React.ReactNode => {
             {/* Showcases */}
             <div className="mt-2 space-y-4">
               {showcases.map((sc) => (
-                <div key={sc.id} className="card-shadow rounded p-4">
+                <div key={sc.id} className="card-shadow rounded p-4" data-showcase-card-id={sc.id}>
                   {/* Author */}
                   <div className="flex items-center gap-3">
-                    <img className="w-10 h-10 rounded-full object-cover" src={sc.attachments?.[0]?.url || sc.user?.picture || pic} />
+                    {sc.user?.picture ? (
+                      <img
+                        className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80"
+                        src={sc.user.picture}
+                        alt={sc.user?.fullName || sc.user?.username || "Author"}
+                        onClick={() => sc.user?.id && handleViewProvider(sc.user.id)}
+                      />
+                    ) : (
+                      renderAvatarClickable(sc.user, "w-10 h-10", handleViewProvider)
+                    )}
                     <div>
                       <p className="font-medium">{sc.user?.fullName || "Unknown"}</p>
                       <small className="text-gray-500">{sc.user?.type || ""}</small>
@@ -391,16 +605,21 @@ const Activities = (): React.ReactNode => {
                     </small>
                   </div>
 
-                  {/* Image */}
-                  <div className="mt-5 relative rounded-2xl aspect-[5/3] overflow-hidden">
-                    <img src={sc.attachments?.[0]?.url || sc.user?.picture || pic} className="absolute inset-0 w-full h-full object-cover" />
-                  </div>
+                  {/* Showcase Image */}
+                  {sc.attachments?.length > 0 && sc.attachments[0]?.url && (
+                    <div className="mt-5 relative rounded-2xl aspect-[5/3] overflow-hidden">
+                      <img
+                        src={sc.attachments[0].url}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        alt="Showcase"
+                      />
+                    </div>
+                  )}
 
                   {/* Caption */}
                   <div className="mt-5">{sc.post}</div>
 
                   {/* Actions */}
-                  <div className="border-t my-3" />
                   <div className="flex items-center gap-4 text-sm text-gray-700">
                     <button
                       onClick={() => toggleLikeShowcase(sc.id)}
@@ -409,10 +628,29 @@ const Activities = (): React.ReactNode => {
                       <Heart size={16} fill={showcaseLikedMap[sc.id] ? "red" : "none"} />
                       <span>{showcaseLikeCount[sc.id] || 0}</span>
                     </button>
-                    <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setVisibleCommentsMap(prev => {
+                          const isSameCardOpen = prev[sc.id] === true;
+                          const newMap: Record<number, boolean> = {};
+                          Object.keys(prev).forEach(k => (newMap[Number(k)] = false));
+                          newMap[sc.id] = !isSameCardOpen;
+                          if (!isSameCardOpen) {
+                            setTimeout(() => {
+                              const el = document.querySelector(`[data-showcase-card-id="${sc.id}"]`);
+                              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                              if (commentRefs.current[sc.id]) commentRefs.current[sc.id]?.focus();
+                            }, 50);
+                          }
+                          return newMap;
+                        });
+                        setVisibleCountMap({ [sc.id]: 5 });
+                      }}
+                      className="flex items-center gap-1"
+                    >
                       <MessageCircle size={16} />
                       <span>{commentsMap[sc.id]?.length || 0}</span>
-                    </div>
+                    </button>
                     <div className="flex-1" />
                     <button onClick={() => toggleSave(sc.id)} className="flex items-center gap-1 hover:text-emerald-600">
                       <Bookmark size={16} />
@@ -421,53 +659,63 @@ const Activities = (): React.ReactNode => {
                   </div>
 
                   {/* Comments */}
-                  <div className="border-t my-3" />
-                  <div>
-                    {commentsMap[sc.id]?.map((c) => (
-                      <div key={c.id} className="border p-2 rounded mb-2">
-                        <div className="flex items-center gap-2">
-                          <img src={pic} className="w-8 h-8 rounded-full" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{c.user?.fullName || c.user?.username}</p>
-                            <p className="text-xs text-gray-500">{new Date(c.createdDate).toLocaleString()}</p>
+                  {visibleCommentsMap[sc.id] && (
+                    <>
+                      <div className="border-t my-3" />
+                      {(commentsMap[sc.id] || []).slice(0, (visibleCountMap[sc.id] || 5)).map((c) => (
+                        <div key={c.id} className="p-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            {c.user?.picture ? (
+                              <img
+                                src={c.user.picture}
+                                className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80"
+                                alt={c.user?.fullName || c.user?.username || "User"}
+                                onClick={() => c.user?.id && handleViewProvider(c.user.id)}
+                              />
+                            ) : (
+                              renderAvatarClickable(c.user, "w-8 h-8", handleViewProvider)
+                            )}
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{c.user?.fullName || c.user?.username}</p>
+                              <p className="text-xs text-gray-500">{new Date(c.createdDate).toLocaleString()}</p>
+                            </div>
+                            <button onClick={() => toggleLikeComment(sc.id, c)} className="text-xs px-2 py-1 rounded-full">
+                              <Heart size={12} className="inline mr-1" /> {c.like || 0}
+                            </button>
                           </div>
-                          <button onClick={() => toggleLikeComment(sc.id, c)} className="text-xs px-2 py-1 rounded-full border">
-                            <Heart size={12} className="inline mr-1" /> {c.like || 0}
-                          </button>
+                          <div className="mt-2 text-sm">{c.post}</div>
                         </div>
-                        <div className="mt-2 text-sm">{c.post}</div>
+                      ))}
+                      {(commentsMap[sc.id]?.length || 0) > (visibleCountMap[sc.id] || 5) && (
+                        <button onClick={() => handleViewMore(sc.id)} className="text-blue-500 text-sm mt-1">
+                          View more
+                        </button>
+                      )}
+                      <div className="mt-2 flex items-center gap-2">
+                        <input
+                          ref={(el) => { commentRefs.current[sc.id] = el; }}
+                          type="text"
+                          placeholder="Add a comment…"
+                          value={commentTextMap[sc.id] || ""}
+                          onChange={(e) => setCommentTextMap((prev) => ({ ...prev, [sc.id]: e.target.value }))}
+                          className="flex-1 rounded-full px-4 py-1 border-none outline-none focus:outline-none focus:ring-0"
+                        />
+                        <button
+                          onClick={() => handleCreateComment(sc.id)}
+                          disabled={creatingCommentMap[sc.id]}
+                          className="bg-royalblue-main text-white rounded-full p-2"
+                        >
+                          <ArrowUpRight className="w-4 h-4" />
+                        </button>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Add comment */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Add a comment…"
-                      value={commentTextMap[sc.id] || ""}
-                      onChange={(e) => setCommentTextMap((prev) => ({ ...prev, [sc.id]: e.target.value }))}
-                      className="flex-1 border rounded-full px-4 py-1"
-                    />
-                    <input
-                      ref={(el) => { fileInputRefs.current[sc.id] = el; }}
-                      type="file"
-                      multiple
-                    />
-                    <button
-                      onClick={() => handleCreateComment(sc.id)}
-                      disabled={creatingCommentMap[sc.id]}
-                      className="bg-royalblue-main text-white rounded-full p-2"
-                    >
-                      <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
 
             {/* Plus Button */}
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-end mt-4">
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-royalblue-main text-white"
@@ -505,28 +753,95 @@ const Activities = (): React.ReactNode => {
             </Modal>
           </div>
 
-          {/* Right */}
+          {/* Right: Top Providers */}
           <div className="basis-1/5 py-5 px-3 rounded card-shadow">
-            <p className="font-medium mb-3">🔥 Top Providers </p>
-            {users.map((u, i) => (
-              <div key={i} className="mb-3 p-2 border rounded-lg bg-white">
-                <div className="flex items-center gap-2">
-                  <img src={pic} className="w-12 h-12 rounded-full" />
-                  <div>
-                    <p className="font-semibold text-sm">{u.name}</p>
-                    <p className="text-xs text-gray-500">{u.category}</p>
-                    <p className="text-xs text-gray-400">{formatFollowerCount(u.followerCount)} followers</p>
+            <p className="font-medium mb-3">🔥 Top Providers</p>
+            {topProviders.map((p) => {
+              const isMe = myId != null && p.id === myId;
+              const isFollowing = !!followingMap[p.id];
+              const followerCount =
+                typeof p._followersCountLocal === "number"
+                  ? p._followersCountLocal
+                  : (Array.isArray(p.followers) ? p.followers.length : (typeof p.followersCount === "number" ? p.followersCount : 0));
+
+              return (
+                <div key={p.id} className="mb-3 p-2 border rounded-lg bg-white">
+                  <div className="flex items-center gap-2">
+                    {p.picture ? (
+                      <img
+                        src={p.picture}
+                        className="w-12 h-12 rounded-full object-cover cursor-pointer hover:opacity-80"
+                        alt={p.fullName || p.username}
+                        onClick={() => handleViewProvider(p.id)}
+                      />
+                    ) : (
+                      renderAvatarClickable(p, "w-12 h-12", handleViewProvider)
+                    )}
+                    <div>
+                      <p className="font-semibold text-sm">{p.fullName || p.username}</p>
+                      <p className="text-xs text-gray-500">{p.type || ""}</p>
+                      <p className="text-xs text-gray-400">{formatFollowerCount(followerCount)} followers</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleToggleFollow(p.id)}
+                      disabled={isMe || !!followLoadingMap[p.id]}
+                      className={`flex-1 text-xs px-3 py-1 rounded ${
+                        isFollowing ? "bg-gray-300 text-gray-700" : "bg-royalblue-main text-white"
+                      } ${isMe ? "opacity-50 cursor-not-allowed" : ""}`}
+                      title={isMe ? "You can't follow yourself" : ""}
+                    >
+                      {followLoadingMap[p.id] ? (isFollowing ? "Unfollowing..." : "Following...") : (isFollowing ? "Following" : "Follow")}
+                    </button>
+                    <button
+                      onClick={() => handleViewProvider(p.id)}
+                      className="flex-1 text-royalblue-main text-xs px-3 py-1 rounded border border-royalblue-main"
+                    >
+                      View
+                    </button>
                   </div>
                 </div>
-                <div className="flex gap-2 mt-2">
-                  <button className="flex-1 text-white text-xs px-3 py-1 rounded bg-royalblue-main">Follow</button>
-                  <button className="flex-1 text-royalblue-main text-xs px-3 py-1 rounded border border-royalblue-main">View</button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* Provider Details Modal */}
+      <Modal
+        title="Provider Details"
+        open={!!selectedProvider}
+        onCancel={() => setSelectedProvider(null)}
+        footer={null}
+      >
+        {loadingProvider ? (
+          <p>Loading...</p>
+        ) : selectedProvider ? (
+          <div className="space-y-3">
+            <div className="flex justify-center">
+              {selectedProvider.picture ? (
+                <img
+                  src={selectedProvider.picture}
+                  alt={selectedProvider.fullName || "Profile"}
+                  className="w-24 h-24 rounded-full object-cover border"
+                />
+              ) : (
+                renderAvatarClickable(selectedProvider, "w-24 h-24", handleViewProvider)
+              )}
+            </div>
+            <div className="space-y-2 text-center">
+              <p className="text-lg font-semibold">{selectedProvider.fullName}</p>
+              <p className="text-sm text-gray-500">@{selectedProvider.username}</p>
+            </div>
+            <div className="space-y-1">
+              <p><strong>Email:</strong> {selectedProvider.email}</p>
+              <p><strong>Address:</strong> {selectedProvider.address}</p>
+              <p><strong>Type:</strong> {selectedProvider.type}</p>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </section>
   );
 };
