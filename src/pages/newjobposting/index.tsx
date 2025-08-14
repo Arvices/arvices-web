@@ -10,6 +10,7 @@ import { createServiceRequest } from "../../api-services/servicerequests.service
 import { parseHttpError } from "../../api-services/parseReqError";
 import { getAllCategory } from "../../api-services/categories.service";
 import { Category } from "../../api-services/categories.types";
+import { useNavigate } from "react-router-dom";
 
 const NewJobPosting = (): React.ReactNode => {
   // utilities
@@ -24,10 +25,12 @@ const NewJobPosting = (): React.ReactNode => {
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
+  const navigate = useNavigate()
 
   function findCategoryByName(name: string, categories: Category[]) {
     return categories.find((cat) => cat.name === name) || null;
   }
+
   const loadCategories = async () => {
     setCatLoading(true);
     setCatError("");
@@ -71,7 +74,8 @@ const NewJobPosting = (): React.ReactNode => {
         type: "Public", // Or "Private" if user can choose
       };
 
-      await createServiceRequest(data, auth.token);
+      let res = await createServiceRequest(data, auth.token);
+      console.log({res})
 
       notify.openNotification(
         "topRight",
@@ -79,6 +83,7 @@ const NewJobPosting = (): React.ReactNode => {
         "Your job post was submitted successfully!",
         "success",
       );
+      navigate(`/client/manage-jobs/${res.data.response.id}`)
 
       // Optionally reset form fields
       // setDescription(""); setCategoryId(0); etc.
@@ -115,10 +120,10 @@ const NewJobPosting = (): React.ReactNode => {
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         {/* Header */}
         <div className="mt-15">
-          <h1 className="text-3xl font-medium tracking-tight md:text-4xl mb-2">
+          <h1 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5">
             Describe Your Task
           </h1>
-          <p className="text-gray-600">
+          <p className="mt-2 text-royalblue-shade5">
             Explain the job, and we’ll connect you with service providers who
             are ready to assist.
           </p>
