@@ -317,10 +317,10 @@ const Header: React.FC = () => {
                     Browse Service Providers
                   </Link>{" "}
                 </li>
-                {/* 
+                
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
-                </li>*/}
+                </li>
                 <li className="inline-block px-2">
                   <Link to={"/help-center"}>Help Center</Link>{" "}
                 </li>
@@ -350,10 +350,10 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/client/new-job"}>Post Job</Link>{" "}
                 </li>
-                {/* 
+                 
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
-                </li>*/}
+                </li>
               </ul>
             )}
 
@@ -378,12 +378,12 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/post-showcase"}>Post Update</Link>{" "}
                 </li>
-                {/*
+                
                   
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
-                  */}
+                  
               </ul>
             )}
           </div>
