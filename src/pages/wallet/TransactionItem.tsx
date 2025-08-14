@@ -1,22 +1,28 @@
+import { FC } from "react";
 import { ArrowDownRight, ArrowUpLeft } from "lucide-react";
 import clsx from "clsx";
 
-type TransactionType = "deposit" | "withdrawal" | "received" | "sent";
-
-interface Transaction {
-  type: TransactionType;
-  title: string;
-  amount: number;
-  id: string;
-  date: string;
+interface TransactionItemProps {
+  transaction: {
+    id: string | number;
+    type: string; // from API
+    reference?: string;
+    paid?: boolean;
+    createdDate?: string;
+    to?: { fullName?: string; email?: string };
+    amount: string | number;
+  };
 }
 
-export const TransactionItem = ({
-  transaction,
-}: {
-  transaction: Transaction;
-}) => {
-  const { type, title, amount, id, date } = transaction;
+const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
+  // Normalize type from API to match our design categories
+  const rawType = transaction.type?.toLowerCase();
+  let type: "deposit" | "withdrawal" | "received" | "sent" = "deposit";
+
+  if (rawType.includes("withdraw")) type = "withdrawal";
+  else if (rawType.includes("receive")) type = "received";
+  else if (rawType.includes("send")) type = "sent";
+
   const isIncoming = type === "deposit" || type === "received";
 
   const icon = isIncoming ? (
@@ -32,7 +38,7 @@ export const TransactionItem = ({
       "bg-red-100 text-red-700": type === "withdrawal",
       "bg-gradient-to-br from-royalblue-shade5 via-gray-900 to-royalblue-shade3 text-white":
         type === "received" || type === "sent",
-    },
+    }
   );
 
   return (
@@ -40,74 +46,29 @@ export const TransactionItem = ({
       <div className="flex items-center gap-3">
         <div className={iconWrapperClass}>{icon}</div>
         <div className="text-sm">
-          <p className="font-medium text-gray-800">{title}</p>
+          <p className="font-medium text-gray-800">
+            {transaction.reference || transaction.type}
+          </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            {id} <span className="mx-1">•</span> {date}
+            {transaction.id} <span className="mx-1">•</span>{" "}
+            {transaction.createdDate
+              ? new Date(transaction.createdDate).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : ""}
           </p>
         </div>
       </div>
       <p className="font-semibold text-[15px] text-gray-900">
-        ₦{amount.toLocaleString()}
+        ₦
+        {Number(transaction.amount).toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+        })}
       </p>
     </div>
   );
 };
 
-export const transactions: Transaction[] = [
-  {
-    id: "TXN91283A",
-    title: "Deposit",
-    amount: 239300,
-    type: "deposit",
-    date: "July 23rd, 2025",
-  },
-  {
-    id: "TXN12983B",
-    title: "Withdrawal | 8123456789 Opay",
-    amount: 239300,
-    type: "withdrawal",
-    date: "July 23rd, 2025",
-  },
-  {
-    id: "TXN19383C",
-    title: "Sent to Patience",
-    amount: 15900,
-    type: "sent",
-    date: "July 22nd, 2025",
-  },
-  {
-    id: "TXN19493D",
-    title: "Received from Tolu",
-    amount: 73000,
-    type: "received",
-    date: "July 21st, 2025",
-  },
-  {
-    id: "TXN19503E",
-    title: "Deposit",
-    amount: 50000,
-    type: "deposit",
-    date: "July 20th, 2025",
-  },
-  {
-    id: "TXN19613F",
-    title: "Withdrawal | 8129876543 Opay",
-    amount: 74000,
-    type: "withdrawal",
-    date: "July 19th, 2025",
-  },
-  {
-    id: "TXN19723G",
-    title: "Sent to Victor",
-    amount: 32000,
-    type: "sent",
-    date: "July 18th, 2025",
-  },
-  {
-    id: "TXN19833H",
-    title: "Received from Joy",
-    amount: 88500,
-    type: "received",
-    date: "July 17th, 2025",
-  },
-];
+export default TransactionItem;

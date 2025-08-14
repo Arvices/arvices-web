@@ -1,5 +1,9 @@
 {
-  "compilerOptions": {
+  "compilerOptions": { "jsx": "react-jsx",               // Enables new JSX transform for React 17+
+    "jsxImportSource": "react",       // Required when using react-jsx in TypeScript
+    "lib": ["dom", "esnext"],         // Include DOM types
+    "types": ["react", "react-dom"],
+    
     // ...other options
     "noUnusedLocals": true,
     "noUnusedParameters": true
