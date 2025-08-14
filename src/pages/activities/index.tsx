@@ -298,35 +298,34 @@ const Activities = (): React.ReactNode => {
   }, [myId]);
 
   /* top providers & following state */
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await getTopProfessionals();
-        const providers = Array.isArray(res.response) ? res.response : [];
-        // seed a local followersCount for consistent UI
-        const seeded = providers.map((p: any) => ({
-          ...p,
-          _followersCountLocal:
-            (Array.isArray(p.followers) ? p.followers.length : (typeof p.followersCount === "number" ? p.followersCount : 0)),
-        }));
-        setTopProviders(seeded);
+/* top providers & following state */
+useEffect(() => {
+  (async () => {
+    try {
+      const res = await getTopProfessionals();
+      const providers = Array.isArray(res.response) ? res.response : [];
 
-        // Build following set from *current user's* account — reliable!
-        if (myId != null) {
-          const me = await getAccountById(myId);
-          const followingIds = new Set<number>((me.response?.following || []).map((u: any) => u.id));
-          const map: Record<number, boolean> = {};
-          seeded.forEach((p: any) => { map[p.id] = followingIds.has(p.id); });
-          setFollowingMap(map);
-        } else {
-          // not logged in — nothing followed
-          setFollowingMap({ });
-        }
-      } catch (err) {
-        console.warn("Failed to load top professionals / following", err);
-      }
-    })();
-  }, [myId]);
+      // Map follow state directly from provider.followers array
+      const followingMapFromAPI: Record<number, boolean> = {};
+      const seeded = providers.map((p: any) => {
+        const isFollowing = Array.isArray(p.followers) && p.followers.includes(myId);
+        followingMapFromAPI[p.id] = isFollowing;
+
+        return {
+          ...p,
+          _followersCountLocal: Array.isArray(p.followers) ? p.followers.length : 0
+        };
+      });
+
+      setTopProviders(seeded);
+      setFollowingMap(followingMapFromAPI);
+    } catch (err) {
+      console.warn("Failed to load top professionals / following", err);
+    }
+  })();
+}, [myId]);
+
+
 
   /* helpers */
   async function refreshComments(showcaseId: number) {
@@ -443,80 +442,64 @@ const Activities = (): React.ReactNode => {
     }
   }
 
-  /* Follow / Unfollow — FIXED */
-  async function handleToggleFollow(userId: number) {
-    if (myId == null) {
-      alert("Please sign in to follow providers.");
-      return;
+  //* Follow / Unfollow */
+async function handleToggleFollow(userId: number) {
+  if (myId == null) {
+    alert("Please sign in to follow providers.");
+    return;
+  }
+  if (userId === myId) return; // no self-follow
+
+  const currentlyFollowing = !!followingMap[userId];
+
+  // Optimistic UI update
+  setFollowingMap((prev) => ({ ...prev, [userId]: !currentlyFollowing }));
+  setTopProviders((prev) =>
+    prev.map((p) => {
+      if (p.id !== userId) return p;
+      return {
+        ...p,
+        _followersCountLocal: Math.max(
+          0,
+          (p._followersCountLocal || 0) + (currentlyFollowing ? -1 : 1)
+        ),
+      };
+    })
+  );
+
+  setFollowLoadingMap((prev) => ({ ...prev, [userId]: true }));
+
+  try {
+    if (currentlyFollowing) {
+      await unfollowUser(userId);
+    } else {
+      await followUser(userId);
     }
-    if (userId === myId) return; // no self-follow
+  } catch (err) {
+    console.warn("Follow toggle failed", err);
+    const msg = err instanceof Error ? err.message : "";
 
-    const currentlyFollowing = !!followingMap[userId];
-
-    // ✅ Optimistic UI update
-    setFollowingMap((prev) => ({ ...prev, [userId]: !currentlyFollowing }));
+    // Roll back UI on error
+    setFollowingMap((prev) => ({ ...prev, [userId]: currentlyFollowing }));
     setTopProviders((prev) =>
       prev.map((p) => {
         if (p.id !== userId) return p;
-        const base =
-          typeof p._followersCountLocal === "number"
-            ? p._followersCountLocal
-            : Array.isArray(p.followers)
-            ? p.followers.length
-            : typeof p.followersCount === "number"
-            ? p.followersCount
-            : 0;
         return {
           ...p,
           _followersCountLocal: Math.max(
             0,
-            base + (currentlyFollowing ? -1 : 1)
+            (p._followersCountLocal || 0) + (currentlyFollowing ? 1 : -1)
           ),
         };
       })
     );
 
-    setFollowLoadingMap((prev) => ({ ...prev, [userId]: true }));
-
-    try {
-      // ✅ Only call the correct API
-      if (currentlyFollowing) {
-        await unfollowUser(userId);
-      } else {
-        await followUser(userId);
-      }
-    } catch (err) {
-      console.warn("Follow toggle failed", err);
-      const msg = err instanceof Error ? err.message : "";
-
-      // Roll back UI on error
-      setFollowingMap((prev) => ({ ...prev, [userId]: currentlyFollowing }));
-      setTopProviders((prev) =>
-        prev.map((p) => {
-          if (p.id !== userId) return p;
-          const base =
-            typeof p._followersCountLocal === "number"
-              ? p._followersCountLocal
-              : Array.isArray(p.followers)
-              ? p.followers.length
-              : typeof p.followersCount === "number"
-              ? p.followersCount
-              : 0;
-          return {
-            ...p,
-            _followersCountLocal: Math.max(
-              0,
-              base + (currentlyFollowing ? 1 : -1) // revert change
-            ),
-          };
-        })
-      );
-
-      alert(msg || "Could not update follow state.");
-    } finally {
-      setFollowLoadingMap((prev) => ({ ...prev, [userId]: false }));
-    }
+    alert(msg || "Could not update follow state.");
+  } finally {
+    setFollowLoadingMap((prev) => ({ ...prev, [userId]: false }));
   }
+}
+
 
   return (
     <section className="min-h-screen pt-13 bg-[#FBFBFB]">

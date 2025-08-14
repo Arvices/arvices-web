@@ -74,10 +74,10 @@ const PostShowcase = (): React.ReactNode => {
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         {/* Header */}
         <div className="mt-15">
-          <h1 className="text-3xl font-medium tracking-tight md:text-4xl mb-2">
+          <h2 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5">
             Post a Showcase
-          </h1>
-          <p className="text-gray-600">
+          </h2>
+          <p className="mt-2 text-royalblue-shade5">
             Share an update from your past or ongoing work so people can follow
             and see your works. Let’s build your brand here together.
           </p>

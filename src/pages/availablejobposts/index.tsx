@@ -173,17 +173,17 @@ const AvailableJobPostings = (): React.ReactNode => {
           />
         </div>
         <div className="mt-13">
-          <h3 className="text-royalblue-shade5 text-2xl font-medium tracking-tight md:text-3xl mb-4">
+          <h3 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5 mb-4">
             Job Categories
           </h3>
           <CategoryCarousel categoryData={categoryData} />
         </div>
 
         <div className="mt-13">
-          <h3 className="text-2xl font-medium tracking-tight md:text-3xl mb-2">
+          <h3 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5 mb-2">
             Available Job Posting
           </h3>
-          <p className="text-[16px] md:text-[18px] tracking-tight font-medium">
+          <p className="text-[16px] tracking-tight font-bold">
             All Categories
           </p>
 

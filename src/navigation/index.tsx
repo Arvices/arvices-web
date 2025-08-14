@@ -20,7 +20,6 @@ import ArvicesProviders from "../pages/providers";
 import Activities from "../pages/activities";
 import CompleteProfile from "../pages/auth/completeprofile";
 import NewJobPosting from "../pages/newjobposting";
-import AccountSettings from "../pages/accountsettings";
 import Profile from "../pages/profile";
 import Notification from "../pages/notification";
 import Conversations from "../pages/messaging";
@@ -79,7 +78,6 @@ function NavigationContent() {
         <Route path="/service-providers" Component={ArvicesProviders} />
         <Route path="/activities" Component={Activities} />
         <Route path="/help-center" Component={HelpCenter} />
-        <Route path="/account-settings" Component={AccountSettings} />
         <Route path="/user-profile/:id" Component={Profile} />
         <Route path="/myprofile" Component={Profile} />
         <Route path="/profile/edit" Component={ProfileEdit} />
