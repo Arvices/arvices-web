@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Button, Modal } from "antd";
 
 import { Badge } from "antd";
-
-import { Divider } from "antd";
 import {
   Clock,
   Calendar as CalendarIcon,
@@ -20,6 +18,26 @@ import CalendarAndTimeslots from "./carlender";
 import { UserAccount } from "../../api-services/auth";
 import { formatNumber } from "../util/formatNumber";
 import moment from "moment";
+import { useLoading } from "../../contexts/LoadingContext";
+import { createBooking } from "../../api-services/booking";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+
+export interface BookingData {
+  totalCost: number;
+  totalDuration: number;
+  bookingDate: string;
+  bookingFromTime: string;
+  bookingToTime: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientLocation: string;
+  clientNotes: string;
+  depositAmount: number;
+  serviceId: number[];
+}
 
 export const BookingCalendar: React.FC<{
   services: ServiceOfferingPayload[];
@@ -28,9 +46,10 @@ export const BookingCalendar: React.FC<{
   const availableDays = profile?.availableDays || [];
   const availableFromTime = profile?.availableFromTime || "09:00";
   const availableToTime = profile?.availableToTime || "16:00";
-
-  const [selectedTime, setSelectedTime] = useState<string>();
-
+  const { setLoading, setLoadingText } = useLoading();
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const {openNotification} = useNotificationContext()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedFromTime, setSelectedFromTime] = useState<string | null>(null);
   const [selectedToTime, setSelectedToTime] = useState<string | null>(null);
@@ -81,43 +100,77 @@ export const BookingCalendar: React.FC<{
       }
     });
   };
-
-  const handleBookingSubmit = () => {
-    if (
-      selectedDate &&
-      selectedTime &&
-      selectedService &&
-      clientDetails.name &&
-      clientDetails.email &&
-      clientDetails.phone
-    ) {
-      setBookingStep("confirmation");
-    }
+  // 1. Gather all the data from the state variables
+  /*
+    const bookingData = {
+      services: selectedServiceDetails.map((service) => service.id),
+      totalCost,
+      totalDuration,
+      bookingDetails: {
+        date: selectedDate ? moment(selectedDate).format("YYYY-MM-DD") : null,
+        fromTime: selectedFromTime,
+        toTime: selectedToTime,
+      },
+      clientDetails: {
+        name: clientDetails.name,
+        email: clientDetails.email,
+        phone: clientDetails.phone,
+        location: clientDetails.location,
+        notes: clientDetails.notes,
+      },
+      depositAmount,
+    };    
+    */
+  
+const handleBookingSubmit = async () => {
+  const payload: BookingData = {
+    totalCost,
+    totalDuration,
+    bookingDate: moment(selectedDate).format("YYYY-MM-DD"),
+    bookingFromTime: selectedFromTime?.toString() || "",
+    bookingToTime: selectedToTime?.toString() || "",
+    clientEmail: clientDetails.email,
+    clientName: clientDetails.name,
+    clientPhone: clientDetails.phone,
+    clientLocation: clientDetails.location,
+    clientNotes: clientDetails.notes,
+    depositAmount: totalCost / 2, // Ensure this is not hardcoded to 0
+    serviceId: selectedServiceDetails.map((service) => service.id),
   };
 
-  const handleFinalConfirmation = () => {
-    // Here you would typically send the booking data to your backend
-    alert(`Booking confirmed! You'll receive a confirmation email shortly.`);
-    setIsOpen(false);
-    // Reset form
-    setBookingStep("selection");
-    setSelectedDate(undefined);
-    setSelectedTime(undefined);
-    setSelectedService([]);
-    setClientDetails({
-      name: "",
-      email: "",
-      phone: "",
-      location: "",
-      notes: "",
-    });
-  };
+  try {
+    // 1. Set the loading state and text at the beginning of the request
+    setLoading(true);
+    setLoadingText("Creating your booking...");
+
+    // 2. Await the API call
+    await createBooking(payload, auth.token);
+
+    // 3. On success, show a success notification and navigate
+    openNotification("topRight", "Booking Confirmed", "Your booking has been successfully created!", "success");
+    navigate("/bookings")
+
+  } catch (error) {
+    // 4. On error, log the error and show an error notification
+    console.error("Booking failed:", error);
+    openNotification(
+      "topRight",
+      "Booking Failed",
+      "An error occurred while creating your booking. Please try again.",
+      "error"
+    );
+
+  } finally {
+    // 6. Always stop the loading state at the end, regardless of success or failure
+    setLoading(false);
+    setLoadingText("");
+  }
+};
 
   const resetBooking = () => {
     setIsOpen(false);
     setBookingStep("selection");
     setSelectedDate(undefined);
-    setSelectedTime(undefined);
     setSelectedService([]);
     setClientDetails({
       name: "",
@@ -218,7 +271,7 @@ export const BookingCalendar: React.FC<{
                     {/* Previous Button */}
                     <button
                       disabled
-                      className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -288,7 +341,7 @@ export const BookingCalendar: React.FC<{
                 {/* Previous Button */}
                 <button
                   onClick={goToSelection}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -439,7 +492,7 @@ export const BookingCalendar: React.FC<{
                 {/* Previous Button */}
                 <button
                   onClick={goToTime}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -675,7 +728,7 @@ export const BookingCalendar: React.FC<{
                 {/* Previous Button */}
                 <button
                   onClick={goToDetails}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -696,7 +749,7 @@ export const BookingCalendar: React.FC<{
 
                 {/* Next Button */}
                 <button
-                  onClick={() => goToConfirmation()}
+                  onClick={handleBookingSubmit}
                   className="h-11 w-full flex items-center cursor-pointer justify-center rounded-md bg-gradient-to-r from-purple-300 to-pink-500 text-white hover:from-purple-400 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Confirm Your Booking

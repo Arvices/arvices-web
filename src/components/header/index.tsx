@@ -58,7 +58,9 @@ const Header: React.FC = () => {
     setMobileOpen((prev) => !prev);
   };
 
-  {/* Provider context menu */}
+  {
+    /* Provider context menu */
+  }
   const JobsMenu = (
     <Menu
       items={[
@@ -126,7 +128,9 @@ const Header: React.FC = () => {
     />
   );
 
-  {/* Client context menu */}
+  {
+    /* Client context menu */
+  }
   const HireSomeoneMenu = (
     <Menu
       items={[
@@ -205,7 +209,9 @@ const Header: React.FC = () => {
     />
   );
 
-  {/* Account Context Menu */}
+  {
+    /* Account Context Menu */
+  }
   const AccountMenu = (
     <Menu
       items={[

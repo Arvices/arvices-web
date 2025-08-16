@@ -98,6 +98,7 @@ const Profile = (): React.ReactNode => {
   const [services, setServices] = useState<ServiceOfferingPayload[]>([]);
   const [servicesLoading, setServicesLoading] = useState<boolean>(false);
   const [servicesError, setServicesError] = useState<string>("");
+  console.log({ servicesLoading, servicesError });
 
   const loadUserServices = async () => {
     setServicesLoading(true);
