@@ -3,13 +3,14 @@ import {
   UserOutlined,
   ClockCircleOutlined,
   UploadOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
 
 import { Button, Select, Divider } from "antd";
 
 const { Option } = Select;
 
-import { Plus, Save, Edit3, Trash2, X } from "feather-icons-react";
+import { Plus, Save, X } from "feather-icons-react";
 
 import { UserAccount } from "../../api-services/auth";
 import { useAuth } from "../../contexts/AuthContext";
@@ -31,6 +32,7 @@ import {
 import { formatTime } from "../util/timeUtil";
 import { Settings } from "lucide-react";
 import PasswordChange from "./passwordchange";
+import { ServiceDetailCard } from "./userservicecomponents";
 
 type ChangeLikeEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -42,7 +44,7 @@ export function ProfileEdit() {
   const { setLoading, setLoadingText } = useLoading();
   const { openNotification } = useNotificationContext();
 
-  // add this tab later.  { label: "Services", value: "services", icon: <DollarOutlined /> }
+  // add this tab later.
 
   let tabOptions = [
     { label: "Personal", value: "personal", icon: <UserOutlined /> },
@@ -51,6 +53,7 @@ export function ProfileEdit() {
       value: "availability",
       icon: <ClockCircleOutlined />,
     },
+    { label: "Services", value: "services", icon: <DollarOutlined /> },
     {
       label: "Settings",
       value: "settings",
@@ -659,6 +662,7 @@ export function ProfileEdit() {
                 </div>
               )}
 
+              {/* SERVICES */}
               {activeTab === "services" && (
                 <div>
                   {showForm && (
@@ -783,83 +787,155 @@ export function ProfileEdit() {
                               return (
                                 <div
                                   key={index}
-                                  className=" rounded card-shadow p-4 relative"
+                                  className="p-6 rounded-lg bg-white relative shadow-md border border-gray-100"
                                 >
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input
-                                      placeholder="Service Title"
-                                      className="px-4 py-2 border border-gray-300 rounded-md w-full"
-                                      value={serviceEdit?.title || ""}
-                                      onChange={(e) =>
-                                        setServiceEdit((prev) => ({
-                                          ...prev!,
-                                          title: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                    <input
-                                      placeholder="Price"
-                                      className="px-4 py-2 border border-gray-300 rounded-md w-full"
-                                      value={serviceEdit?.price || ""}
-                                      onChange={(e) =>
-                                        setServiceEdit((prev) => ({
-                                          ...prev!,
-                                          price: e.target.value,
-                                        }))
-                                      }
-                                    />
-                                    <input
-                                      placeholder="Duration"
-                                      className="px-4 py-2 border border-gray-300 rounded-md w-full"
-                                      value={serviceEdit?.duration || ""}
-                                      onChange={(e) =>
-                                        setServiceEdit((prev) => ({
-                                          ...prev!,
-                                          duration: e.target.value,
-                                        }))
-                                      }
-                                    />
-
+                                  <h3 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">
+                                    Edit Service Details
+                                  </h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                    {/* Service Title Input */}
                                     <div>
+                                      <label
+                                        htmlFor="service-title"
+                                        className="block text-gray-600 text-sm font-medium mb-1"
+                                      >
+                                        Service Title
+                                      </label>
+                                      <input
+                                        id="service-title"
+                                        placeholder="e.g., Standard Loan Processing"
+                                        className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors"
+                                        value={serviceEdit?.title || ""}
+                                        onChange={(e) =>
+                                          setServiceEdit((prev) => ({
+                                            ...prev!,
+                                            title: e.target.value,
+                                          }))
+                                        }
+                                      />
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        A clear, concise name for your service.
+                                      </p>
+                                    </div>
+
+                                    {/* Price Input */}
+                                    <div>
+                                      <label
+                                        htmlFor="service-price"
+                                        className="block text-gray-600 text-sm font-medium mb-1"
+                                      >
+                                        Price (e.g., ₦5,000)
+                                      </label>
+                                      <input
+                                        id="service-price"
+                                        type="number"
+                                        placeholder="e.g., ₦5,000"
+                                        className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors"
+                                        value={serviceEdit?.price || ""}
+                                        onChange={(e) =>
+                                          setServiceEdit((prev) => ({
+                                            ...prev!,
+                                            price: e.target.value,
+                                          }))
+                                        }
+                                      />
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        The cost associated with this service.
+                                      </p>
+                                    </div>
+
+                                    {/* Duration Input */}
+                                    <div>
+                                      <label
+                                        htmlFor="service-duration"
+                                        className="block text-gray-600 text-sm font-medium mb-1"
+                                      >
+                                        Duration
+                                      </label>
+                                      <input
+                                        id="service-duration"
+                                        type="number" // Set type to number for better UX
+                                        placeholder="e.g., 30"
+                                        className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" // Tailwind to hide spin buttons
+                                        value={serviceEdit?.duration || ""}
+                                        onChange={(e) =>
+                                          setServiceEdit((prev) => ({
+                                            ...prev!,
+                                            duration:
+                                              parseFloat(
+                                                e.target.value,
+                                              ).toString() || "0", // Parse to number
+                                          }))
+                                        }
+                                      />
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        Numerical value for the service length.
+                                      </p>
+                                    </div>
+
+                                    {/* Time Unit Select */}
+                                    <div>
+                                      <label
+                                        htmlFor="time-unit"
+                                        className="block text-gray-600 text-sm font-medium mb-1"
+                                      >
+                                        Time Unit
+                                      </label>
                                       <select
+                                        id="time-unit"
                                         name="timeUnit"
-                                        value={serviceEdit?.timeUnit}
+                                        value={serviceEdit?.timeUnit || ""}
                                         onChange={(e) =>
                                           setServiceEdit((prev) => ({
                                             ...prev!,
                                             timeUnit: e.target.value,
                                           }))
                                         }
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                                        className="w-full border border-gray-200 rounded-md px-4 py-2 text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors text-sm"
                                       >
                                         <option value="">Select unit</option>
                                         <option value="Min">Minutes</option>
                                         <option value="Hour">Hours</option>
                                         <option value="days">Days</option>
                                       </select>
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        The unit of time for the service
+                                        duration.
+                                      </p>
                                     </div>
                                   </div>
-                                  <textarea
-                                    placeholder="Description"
-                                    className="mt-4 px-4 py-2 border border-gray-300 rounded-md w-full"
-                                    rows={3}
-                                    value={serviceEdit?.description || ""}
-                                    onChange={(e) =>
-                                      setServiceEdit((prev) => ({
-                                        ...prev!,
-                                        description: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                  <div className="flex gap-2 justify-end mt-4">
-                                    <button
-                                      className="px-4 py-2 bg-green-600 text-white rounded-md"
-                                      onClick={() => saveEditedService()}
+
+                                  {/* Description Textarea */}
+                                  <div className="mt-5">
+                                    <label
+                                      htmlFor="service-description"
+                                      className="block text-gray-600 text-sm font-medium mb-1"
                                     >
-                                      Save
-                                    </button>
+                                      Service Description
+                                    </label>
+                                    <textarea
+                                      id="service-description"
+                                      placeholder="Provide a detailed description of the service..."
+                                      className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors resize-y"
+                                      rows={4} // Increased rows for more visible input area
+                                      value={serviceEdit?.description || ""}
+                                      onChange={(e) =>
+                                        setServiceEdit((prev) => ({
+                                          ...prev!,
+                                          description: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Describe what this service entails for
+                                      your customers.
+                                    </p>
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
                                     <button
-                                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
+                                      className="px-5 cursor-pointer py-2.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200 font-medium"
                                       onClick={() => {
                                         setServiceEditIndex(undefined);
                                         setServiceEdit(undefined);
@@ -867,75 +943,26 @@ export function ProfileEdit() {
                                     >
                                       Cancel
                                     </button>
+                                    <button
+                                      className="px-5 py-2.5 bg-royalblue-main cursor-pointer text-white rounded-md hover:bg-royalblue-shade1 transition-colors duration-200 font-medium"
+                                      onClick={saveEditedService}
+                                    >
+                                      Save Changes
+                                    </button>
                                   </div>
                                 </div>
                               );
                             }
 
                             return (
-                              <div
-                                key={service.id || index}
-                                className="p-4 py-6 rounded-lg card-shadow bg-white relative"
-                              >
-                                {/* Edit / Delete Icons */}
-                                <div className="absolute top-3 right-3 flex gap-2">
-                                  <div className="absolute top-3 right-3 flex gap-2">
-                                    <button
-                                      className="p-2 bg-gray-100 text-blue-600 rounded hover:bg-gray-200 transition"
-                                      onClick={() => {
-                                        setServiceEditIndex(index);
-                                        setServiceEdit(service);
-                                      }}
-                                    >
-                                      <Edit3 size={16} />
-                                    </button>
-                                    <button
-                                      className="p-2 bg-gray-100 text-red-500 rounded hover:bg-gray-200 transition"
-                                      onClick={() =>
-                                        handleDeleteService(service.id)
-                                      }
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
-                                  <div>
-                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
-                                      Service Title
-                                    </p>
-                                    <p>{service.title}</p>
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
-                                      Rate
-                                    </p>
-                                    <p>{service.price}</p>
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
-                                      Duration
-                                    </p>
-                                    <p>{service.duration}</p>
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
-                                      Time Unit
-                                    </p>
-                                    <p>{service.timeUnit}</p>
-                                  </div>
-                                </div>
-
-                                <div className="mt-4">
-                                  <p className="font-semibold mb-0.5 text-gray-600 tracking-tight text-[16px]">
-                                    Service Description
-                                  </p>
-                                  <p className="text-sm">
-                                    {service.description}
-                                  </p>
-                                </div>
-                              </div>
+                              <ServiceDetailCard
+                                handleDeleteService={handleDeleteService}
+                                service={service}
+                                key={index}
+                                index={index}
+                                setServiceEdit={setServiceEdit}
+                                setServiceEditIndex={setServiceEditIndex}
+                              />
                             );
                           })}
                         </div>

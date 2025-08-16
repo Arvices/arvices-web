@@ -24,7 +24,7 @@ import {
   UserCheck,
   CreditCard,
   FileText,
-  LogOut
+  LogOut,
 } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
@@ -317,7 +317,7 @@ const Header: React.FC = () => {
                     Browse Service Providers
                   </Link>{" "}
                 </li>
-                
+
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
@@ -350,7 +350,7 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/client/new-job"}>Post Job</Link>{" "}
                 </li>
-                 
+
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
@@ -378,12 +378,10 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/post-showcase"}>Post Update</Link>{" "}
                 </li>
-                
-                  
+
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
-                  
               </ul>
             )}
           </div>

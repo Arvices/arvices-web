@@ -16,7 +16,9 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [recipientEmail, setRecipientEmail] = useState<string>("");
-  const [transferSource, setTransferSource] = useState<"balance" | "other">("balance");
+  const [transferSource, setTransferSource] = useState<"balance" | "other">(
+    "balance",
+  );
   const [transferLoading, setTransferLoading] = useState(false);
 
   const [recipientDetails, setRecipientDetails] = useState<any>(null);
@@ -43,7 +45,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: savedEmail, password: savedPassword }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`Login failed: ${res.status}`);
@@ -76,7 +78,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
             Authorization: `Bearer ${token}`,
             Accept: "*/*",
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -113,7 +115,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
             Authorization: `Bearer ${token}`,
             Accept: "*/*",
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -149,7 +151,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ amount }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -199,7 +201,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
               recipient_email: recipientEmail,
               amount: transferAmount,
             }),
-          }
+          },
         );
 
         if (!res.ok) throw new Error(`Transfer failed: ${res.status}`);
@@ -217,7 +219,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ amount: transferAmount }),
-          }
+          },
         );
 
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -277,13 +279,15 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
             loading={loading}
             className="!h-12 flex-1 !bg-[transparent] !text-white border rounded border-gray-200 hover:bg-gray-200"
           >
-            Add Money <ArrowDownLeft className="inline w-5 h-5 relative top-0.5" />
+            Add Money{" "}
+            <ArrowDownLeft className="inline w-5 h-5 relative top-0.5" />
           </Button>
           <Button
             onClick={onWithdraw}
             className="!h-12 flex-1 bg-transparent border border-white text-white hover:bg-white hover:text-black"
           >
-            Withdraw <ArrowUpRight className="inline w-5 h-5 relative top-0.5" />
+            Withdraw{" "}
+            <ArrowUpRight className="inline w-5 h-5 relative top-0.5" />
           </Button>
           <Button
             onClick={() => setIsTransferModalOpen(true)}
