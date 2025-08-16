@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Button, Modal } from "antd";
 
 import { Badge } from "antd";
-
-import { Divider } from "antd";
 import {
   Clock,
   Calendar as CalendarIcon,
@@ -21,6 +19,21 @@ import { UserAccount } from "../../api-services/auth";
 import { formatNumber } from "../util/formatNumber";
 import moment from "moment";
 
+export interface BookingData {
+  totalCost: number;
+  totalDuration: number;
+  bookingDate: string;
+  bookingFromTime: string;
+  bookingToTime: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientLocation: string;
+  clientNotes: string;
+  depositAmount: number;
+  services: string[]
+}
+
 export const BookingCalendar: React.FC<{
   services: ServiceOfferingPayload[];
   profile: UserAccount | null;
@@ -29,7 +42,6 @@ export const BookingCalendar: React.FC<{
   const availableFromTime = profile?.availableFromTime || "09:00";
   const availableToTime = profile?.availableToTime || "16:00";
 
-  const [selectedTime, setSelectedTime] = useState<string>();
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedFromTime, setSelectedFromTime] = useState<string | null>(null);
@@ -83,41 +95,45 @@ export const BookingCalendar: React.FC<{
   };
 
   const handleBookingSubmit = () => {
-    if (
-      selectedDate &&
-      selectedTime &&
-      selectedService &&
-      clientDetails.name &&
-      clientDetails.email &&
-      clientDetails.phone
-    ) {
-      setBookingStep("confirmation");
-    }
-  };
+    // 1. Gather all the data from the state variables
+    const bookingData = {
+      services: selectedServiceDetails.map((service) => service.id),
+      totalCost,
+      totalDuration,
+      bookingDetails: {
+        date: selectedDate ? moment(selectedDate).format("YYYY-MM-DD") : null,
+        fromTime: selectedFromTime,
+        toTime: selectedToTime,
+      },
+      clientDetails: {
+        name: clientDetails.name,
+        email: clientDetails.email,
+        phone: clientDetails.phone,
+        location: clientDetails.location,
+        notes: clientDetails.notes,
+      },
+      depositAmount,
+    };
 
-  const handleFinalConfirmation = () => {
-    // Here you would typically send the booking data to your backend
-    alert(`Booking confirmed! You'll receive a confirmation email shortly.`);
-    setIsOpen(false);
-    // Reset form
-    setBookingStep("selection");
-    setSelectedDate(undefined);
-    setSelectedTime(undefined);
-    setSelectedService([]);
-    setClientDetails({
-      name: "",
-      email: "",
-      phone: "",
-      location: "",
-      notes: "",
-    });
+    // 2. Log the complete data object to the console
+    console.log("Booking data to be submitted:", bookingData);
+
+    // 3. You can now use this `bookingData` object to make an API call
+    // For example:
+    // try {
+    //   const response = await api.createBooking(bookingData);
+    //   console.log("Booking created successfully:", response.data);
+    //   // Handle successful booking (e.g., show confirmation modal, navigate)
+    // } catch (error) {
+    //   console.error("Failed to create booking:", error);
+    //   // Handle booking error
+    // }
   };
 
   const resetBooking = () => {
     setIsOpen(false);
     setBookingStep("selection");
     setSelectedDate(undefined);
-    setSelectedTime(undefined);
     setSelectedService([]);
     setClientDetails({
       name: "",
@@ -218,7 +234,7 @@ export const BookingCalendar: React.FC<{
                     {/* Previous Button */}
                     <button
                       disabled
-                      className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -288,7 +304,7 @@ export const BookingCalendar: React.FC<{
                 {/* Previous Button */}
                 <button
                   onClick={goToSelection}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -439,7 +455,7 @@ export const BookingCalendar: React.FC<{
                 {/* Previous Button */}
                 <button
                   onClick={goToTime}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -675,7 +691,7 @@ export const BookingCalendar: React.FC<{
                 {/* Previous Button */}
                 <button
                   onClick={goToDetails}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -696,7 +712,7 @@ export const BookingCalendar: React.FC<{
 
                 {/* Next Button */}
                 <button
-                  onClick={() => goToConfirmation()}
+                  onClick={handleBookingSubmit}
                   className="h-11 w-full flex items-center cursor-pointer justify-center rounded-md bg-gradient-to-r from-purple-300 to-pink-500 text-white hover:from-purple-400 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Confirm Your Booking
