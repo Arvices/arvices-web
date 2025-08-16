@@ -29,7 +29,6 @@ import {
 import { Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { Wallet } from "lucide-react";
 
 let color = "#272727";
 
@@ -61,9 +60,7 @@ const Header: React.FC = () => {
     setMobileOpen((prev) => !prev);
   };
 
-  {
-    /* Provider context menu */
-  }
+  {/* Provider context menu */}
   const JobsMenu = (
     <Menu
       items={[
@@ -131,9 +128,7 @@ const Header: React.FC = () => {
     />
   );
 
-  {
-    /* Client context menu */
-  }
+  {/* Client context menu */}
   const HireSomeoneMenu = (
     <Menu
       items={[
@@ -212,10 +207,7 @@ const Header: React.FC = () => {
     />
   );
 
-  {
-    /* Account Context Menu */
-  }
-
+  {/* Account Context Menu */}
   const AccountMenu = (
     <Menu
       items={[
@@ -250,7 +242,6 @@ const Header: React.FC = () => {
             </Link>
           ),
         },
-
         {
           key: "4",
           label: (
@@ -265,6 +256,15 @@ const Header: React.FC = () => {
           label: (
             <Link to="/transaction-history" className="flex items-center gap-2">
               <FileText size={16} /> Transactions
+              <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
+            </Link>
+          ),
+        },
+        {
+          key: "6",
+          label: (
+            <Link to="/bookings" className="flex items-center gap-2">
+              <Clipboard size={16} /> Bookings & Orders
               <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
             </Link>
           ),
@@ -285,7 +285,6 @@ const Header: React.FC = () => {
       ]}
     />
   );
-
   return (
     <header className="border-b border-gray-200 w-full fixed top-0 z-[100] bg-white px-5 sm:px-8 lg:px-10 xl:px-25 ">
       <section className="max-w-[1280px] mx-auto">
@@ -317,7 +316,6 @@ const Header: React.FC = () => {
                     Browse Service Providers
                   </Link>{" "}
                 </li>
-                
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
@@ -350,7 +348,9 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/client/new-job"}>Post Job</Link>{" "}
                 </li>
-                 
+                <li className="inline-block px-2">
+                  <Link to={"/bookings"}>Bookings & Orders</Link>{" "}
+                </li>
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
@@ -378,16 +378,18 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/post-showcase"}>Post Update</Link>{" "}
                 </li>
-                
-                  
+                <li className="inline-block px-2">
+                  <Link to={"/bookings"}>Bookings & Orders</Link>{" "}
+                </li>
                 <li className="inline-block px-2">
                   <Link to={"/activities"}>What's New</Link>{" "}
                 </li>
-                  
               </ul>
             )}
           </div>
+
           <div className="flex-1" />
+
           {auth.isAuthenticated && (
             <ul>
               <li className="inline-block ml-4">
@@ -411,7 +413,6 @@ const Header: React.FC = () => {
                   <span className="h-7 w-7 flex items-center justify-center rounded-3xl">
                     <MessageSquare className="inline" size={18} />
                   </span>
-
                   {msgUnreadCount > 0 && (
                     <span
                       className="absolute top-[-6px] right-[-3px] bg-gradient-main rounded-2xl 
@@ -425,7 +426,6 @@ const Header: React.FC = () => {
               </li>
 
               <li className="md:inline-block ml-4 hidden">
-                {" "}
                 <Dropdown
                   overlay={AccountMenu}
                   overlayClassName="p-4"
@@ -440,6 +440,7 @@ const Header: React.FC = () => {
               </li>
             </ul>
           )}
+
           {!auth.isAuthenticated && (
             <div className="hidden md:block w-max">
               <div className="flex items-center gap-x-3">
@@ -458,6 +459,8 @@ const Header: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/** Mobile menu */}
           <div className="w-max md:hidden">
             <Hamburger
               toggled={mobileOpen}
@@ -475,7 +478,6 @@ const Header: React.FC = () => {
               <div className="p-4">
                 {auth.isAuthenticated && (
                   <ul className=" text-gray-700 space-y-3">
-                    {/* User Info */}
                     <li className="flex items-center gap-4 p-3">
                       <div className="w-16 h-16 flex items-center justify-center rounded-full border border-gray-700 bg-white">
                         <User className="text-gray-700" size={32} />
@@ -493,367 +495,20 @@ const Header: React.FC = () => {
                   </ul>
                 )}
 
-                {auth.isAuthenticated && auth.isClient && (
-                  <ul className=" text-gray-700 space-y-3">
-                    {/* Account Actions */}
-                    <li className="mb-5 mt-5">
-                      <Link
-                        to="/service-providers"
-                        className="flex items-center gap-2"
-                      >
-                        <UserCheck size={16} /> Browse Service Providers
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
-                      </Link>
-                    </li>
-                    <li className="mb-5">
-                      <Collapse ghost expandIconPosition="end">
-                        <Panel
-                          key="manage-jobs"
-                          header={
-                            <div className="flex text-[16px] items-center gap-2 w-full">
-                              <Sun size={16} />
-                              Manage Jobs
-                              <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
-                            </div>
-                          }
-                        >
-                          <ul className="space-y-1 p-2">
-                            <li className="font-medium text-gray-900 px-3 py-2 text-sm rounded-md mb-2 w-full">
-                              <Link to={"/service-providers"} className="block">
-                                Hire Someone
-                              </Link>
-                            </li>
-                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
-                            <li>
-                              <Link
-                                to={"/client/manage-jobs#Open"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <Briefcase size={16} className="inline mr-2" />
-                                Open Jobs
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                to={"/client/manage-jobs#Negotiating"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <MessageCircle
-                                  size={16}
-                                  className="inline mr-2"
-                                />
-                                Ongoing Negotiation
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                to={"/client/manage-jobs#Ongoing"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <Loader size={16} className="inline mr-2" />
-                                Ongoing Jobs
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                to={"/client/manage-jobs#Completed"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <CheckCircle
-                                  size={16}
-                                  className="inline mr-2"
-                                />
-                                Completed Jobs
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <span className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
-                                <Users size={16} className="inline mr-2" />
-                                Previous Hires
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </span>
-                            </li>
-                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
-                            <li>
-                              <span className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
-                                <Heart size={16} className="inline mr-2" />
-                                Favourite Service Providers
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </span>
-                            </li>
-                          </ul>
-                        </Panel>
-                      </Collapse>
-                    </li>
-
-                    <li className="mb-5">
-                      <Link
-                        to="/post-showcase"
-                        onClick={toggleMobileOpen}
-                        className="flex items-center gap-2"
-                      >
-                        <CreditCard size={16} /> Post A Job
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
-                      </Link>
-                    </li>
-                    {/*
-                    
-                    <li className="mb-5">
-                      <Link
-                        to="/activities"
-                        onClick={toggleMobileOpen}
-                        className="flex items-center gap-2"
-                      >
-                        <FileText size={16} /> What's new
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          10
-                        </span>
-                      </Link>
-                    </li>
-                    */}
-                    <hr className="my-2" />
-                  </ul>
-                )}
-
-                {auth.isAuthenticated && auth.isProvider && (
-                  <ul className=" text-gray-700 space-y-3">
-                    {/* Account Actions */}
-                    <li className="mb-5 mt-5">
-                      <Link
-                        onClick={toggleMobileOpen}
-                        to="/job-posting"
-                        className="flex items-center gap-2"
-                      >
-                        <UserCheck size={16} /> Find Jobs
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
-                      </Link>
-                    </li>
-                    <li className="mb-5">
-                      <Collapse ghost expandIconPosition="end">
-                        <Panel
-                          header={
-                            <div className="flex text-[16px] items-center gap-y-2">
-                              <Sun size={16} className="inline mr-2" /> My Jobs
-                              <span className="rounded bg-gray-100 inline-block ml-auto"></span>
-                            </div>
-                          }
-                          key="my-jobs"
-                        >
-                          <ul className="space-y-1 p-2">
-                            <li className="font-medium text-gray-900 px-3 py-2 text-sm rounded-md mb-2 w-full">
-                              <Link
-                                to={"/provider/manage-jobs"}
-                                className="block"
-                              >
-                                Manage Your Jobs
-                              </Link>
-                            </li>
-                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
-                            <li>
-                              <Link
-                                to={"/provider/manage-jobs#Pending"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <Clipboard size={16} className="inline mr-2" />
-                                Pending Offers
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                to={"/provider/manage-jobs#Negotiating"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <MessageCircle
-                                  size={16}
-                                  className="inline mr-2"
-                                />
-                                Ongoing Negotiation
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                to={"/provider/manage-jobs#Ongoing"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <Loader size={16} className="inline mr-2" />
-                                Ongoing Jobs
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                to={"/provider/manage-jobs#Completed"}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                              >
-                                <CheckCircle
-                                  size={16}
-                                  className="inline mr-2"
-                                />
-                                Completed Jobs
-                                <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
-                              </Link>
-                            </li>
-                            <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
-                            <li>
-                              <span className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
-                                Customize Job Alert
-                                <ArrowUpRight
-                                  className="inline ml-2"
-                                  size={18}
-                                />
-                              </span>
-                            </li>
-                          </ul>
-                        </Panel>
-                      </Collapse>
-                    </li>
-                    {/*
-  
-                    <li className="mb-5">
-                      <Link
-                        onClick={toggleMobileOpen}
-                        to="/"
-                        className="flex items-center gap-2"
-                      >
-                        <CreditCard size={16} /> Post An Update
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          1
-                        </span>
-                      </Link>
-                    </li>
-                    <li className="mb-5">
-                      <Link
-                        onClick={toggleMobileOpen}
-                        to="/"
-                        className="flex items-center gap-2"
-                      >
-                        <FileText size={16} /> Whats New
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto">
-                          10
-                        </span>
-                      </Link>
-                    </li>
-  */}
-
-                    <hr className="my-2" />
-                  </ul>
-                )}
-
+                {/** Bookings & Orders for mobile */}
                 {auth.isAuthenticated && (
-                  <ul className=" text-gray-700 space-y-3">
-                    {/* Account Actions */}
-                    <li className="mb-5 mt-5">
+                  <ul className="text-gray-700 space-y-3">
+                    <li>
                       <Link
                         onClick={toggleMobileOpen}
-                        to="/myprofile"
+                        to="/bookings"
                         className="flex items-center gap-2"
                       >
-                        <UserCheck size={16} /> Profile
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
-                      </Link>
-                    </li>
-                    <li className="mb-5">
-                      <Link
-                        onClick={toggleMobileOpen}
-                        to="/wallet"
-                        className="flex items-center gap-2"
-                      >
-                        <Wallet size={16} /> Wallet & Transactions
-                        <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
-                      </Link>
-                    </li>
-                    <li className="mb-5">
-                      <Link
-                        onClick={toggleMobileOpen}
-                        to="/transactions"
-                        className="flex items-center gap-2"
-                      >
-                        <CreditCard size={16} />
-                        Transactions
+                        <Clipboard size={16} /> Bookings & Orders
                         <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
                       </Link>
                     </li>
                   </ul>
-                )}
-
-                {auth.isAuthenticated && (
-                  <ul className="text-sm text-gray-700 space-y-3">
-                    <hr className="my-2 " />
-
-                    {/* Logout */}
-                    <li className="mt-10">
-                      <Link
-                        onClick={() => {
-                          auth.logout();
-                          toggleMobileOpen();
-                        }}
-                        to="/"
-                        className="flex items-center gap-2 text-red-500"
-                      >
-                        <LogOut size={16} /> Logout
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-
-                {!auth.isAuthenticated && (
-                  <ul>
-                    <li className="mb-8 text-gray-700">
-                      <Link onClick={toggleMobileOpen} to={"/"}>
-                        Home
-                      </Link>
-                    </li>
-                    {/*
-  
-                    <li className="mb-8 text-gray-700">
-                      <Link onClick={toggleMobileOpen} to={"/activities"}>
-                        Activities
-                      </Link>
-                    </li>
-  */}
-
-                    <li className="mb-8 text-gray-700">
-                      <Link
-                        onClick={toggleMobileOpen}
-                        to={"/service-providers"}
-                      >
-                        Browse Service Providers
-                      </Link>{" "}
-                    </li>
-
-                    <li className="mb-8 text-gray-700">
-                      <Link onClick={toggleMobileOpen} to={"/help-center"}>
-                        Help Center
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-
-                {!auth.isAuthenticated && (
-                  <div>
-                    <div className="py-4"></div>
-                    <div className="mb-4 p-[1px] rounded bg-gradient-to-r from-[#0026BD] to-[#FF4489]">
-                      <Link to={"/login"} onClick={toggleMobileOpen}>
-                        <button className="bg-white login-btn block w-full p-3 rounded font-medium">
-                          <span className="primary-gradient-text">Login</span>
-                        </button>
-                      </Link>
-                    </div>
-
-                    <div>
-                      <Link onClick={toggleMobileOpen} to={"/signup"}>
-                        <button className=" block border w-full p-3 rounded primary-gradient-bg text-white font-medium">
-                          Get Started
-                        </button>
-                      </Link>
-                    </div>
-                  </div>
                 )}
               </div>
             </Overlay>

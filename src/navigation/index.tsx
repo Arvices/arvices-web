@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Home from "../pages/home";
 import Login from "../pages/auth/login";
+import BookingsPage from "../pages/bookings/BookingsPage";
 import Signup from "../pages/auth/signup";
 import ForgotPassword from "../pages/auth/forgotpassword";
 import PasswordReset from "../pages/auth/passwordreset";
@@ -87,6 +88,7 @@ function NavigationContent() {
         <Route path="/post-showcase" Component={PostShowcase} />
         <Route path="/wallet" Component={Wallet} />
         <Route path="/transaction-history" Component={Transactions} />
+        <Route path="/bookings" Component={BookingsPage} />
         <Route path="/jobs" Component={Transactions} />
         <Route path="/provider/manage-jobs" Component={ManageJob} />
         <Route path="/client/manage-jobs" Component={ManageJob} />
