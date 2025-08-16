@@ -49,8 +49,8 @@ const Notification = (): React.ReactNode => {
   let nextPageRequiredSize = currentPage * limit;
 
   let shouldFetchMore = false;
-  
-  if(notificationSize < nextPageRequiredSize){
+
+  if (notificationSize < nextPageRequiredSize) {
     shouldFetchMore = true;
   }
 
@@ -58,7 +58,6 @@ const Notification = (): React.ReactNode => {
     (currentPage - 1) * limit,
     currentPage * limit,
   );
-
 
   const notificationRealtime = useNotificationRealtime();
   const markAsReadLocal = async (id: number) => {
@@ -89,7 +88,7 @@ const Notification = (): React.ReactNode => {
       notif?.message?.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesFilter && matchesSearch;
-  })
+  });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -118,9 +117,9 @@ const Notification = (): React.ReactNode => {
   };
 
   useEffect(() => {
-  console.log({ notifications, notificationsToShow, shouldFetchMore });
-    if(shouldFetchMore){
-    notificationRealtime.getNotifications(currentPage);
+    console.log({ notifications, notificationsToShow, shouldFetchMore });
+    if (shouldFetchMore) {
+      notificationRealtime.getNotifications(currentPage);
     }
   }, [currentPage]);
 

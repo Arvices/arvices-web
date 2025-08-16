@@ -18,6 +18,11 @@ import CalendarAndTimeslots from "./carlender";
 import { UserAccount } from "../../api-services/auth";
 import { formatNumber } from "../util/formatNumber";
 import moment from "moment";
+import { useLoading } from "../../contexts/LoadingContext";
+import { createBooking } from "../../api-services/booking";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../contexts/NotificationContext";
 
 export interface BookingData {
   totalCost: number;
@@ -31,7 +36,7 @@ export interface BookingData {
   clientLocation: string;
   clientNotes: string;
   depositAmount: number;
-  services: string[]
+  serviceId: number[];
 }
 
 export const BookingCalendar: React.FC<{
@@ -41,8 +46,10 @@ export const BookingCalendar: React.FC<{
   const availableDays = profile?.availableDays || [];
   const availableFromTime = profile?.availableFromTime || "09:00";
   const availableToTime = profile?.availableToTime || "16:00";
-
-
+  const { setLoading, setLoadingText } = useLoading();
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const {openNotification} = useNotificationContext()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedFromTime, setSelectedFromTime] = useState<string | null>(null);
   const [selectedToTime, setSelectedToTime] = useState<string | null>(null);
@@ -93,9 +100,8 @@ export const BookingCalendar: React.FC<{
       }
     });
   };
-
-  const handleBookingSubmit = () => {
-    // 1. Gather all the data from the state variables
+  // 1. Gather all the data from the state variables
+  /*
     const bookingData = {
       services: selectedServiceDetails.map((service) => service.id),
       totalCost,
@@ -113,22 +119,53 @@ export const BookingCalendar: React.FC<{
         notes: clientDetails.notes,
       },
       depositAmount,
-    };
-
-    // 2. Log the complete data object to the console
-    console.log("Booking data to be submitted:", bookingData);
-
-    // 3. You can now use this `bookingData` object to make an API call
-    // For example:
-    // try {
-    //   const response = await api.createBooking(bookingData);
-    //   console.log("Booking created successfully:", response.data);
-    //   // Handle successful booking (e.g., show confirmation modal, navigate)
-    // } catch (error) {
-    //   console.error("Failed to create booking:", error);
-    //   // Handle booking error
-    // }
+    };    
+    */
+  
+const handleBookingSubmit = async () => {
+  const payload: BookingData = {
+    totalCost,
+    totalDuration,
+    bookingDate: moment(selectedDate).format("YYYY-MM-DD"),
+    bookingFromTime: selectedFromTime?.toString() || "",
+    bookingToTime: selectedToTime?.toString() || "",
+    clientEmail: clientDetails.email,
+    clientName: clientDetails.name,
+    clientPhone: clientDetails.phone,
+    clientLocation: clientDetails.location,
+    clientNotes: clientDetails.notes,
+    depositAmount: totalCost / 2, // Ensure this is not hardcoded to 0
+    serviceId: selectedServiceDetails.map((service) => service.id),
   };
+
+  try {
+    // 1. Set the loading state and text at the beginning of the request
+    setLoading(true);
+    setLoadingText("Creating your booking...");
+
+    // 2. Await the API call
+    await createBooking(payload, auth.token);
+
+    // 3. On success, show a success notification and navigate
+    openNotification("topRight", "Booking Confirmed", "Your booking has been successfully created!", "success");
+    navigate("/bookings")
+
+  } catch (error) {
+    // 4. On error, log the error and show an error notification
+    console.error("Booking failed:", error);
+    openNotification(
+      "topRight",
+      "Booking Failed",
+      "An error occurred while creating your booking. Please try again.",
+      "error"
+    );
+
+  } finally {
+    // 6. Always stop the loading state at the end, regardless of success or failure
+    setLoading(false);
+    setLoadingText("");
+  }
+};
 
   const resetBooking = () => {
     setIsOpen(false);

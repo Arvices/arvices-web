@@ -49,7 +49,7 @@ const BookingsPage: React.FC = () => {
 
   const [tab, setTab] = useState<"bookings" | "orders">("bookings");
   const [status, setStatus] = useState<"In Progress" | "Paid" | "Completed">(
-    "In Progress"
+    "In Progress",
   );
 
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -72,7 +72,7 @@ const BookingsPage: React.FC = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
-    null
+    null,
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [creatingOrder, setCreatingOrder] = useState(false);
@@ -96,7 +96,7 @@ const BookingsPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await api.get(
-        `/bookings/getallbookings?status=${encodeURIComponent(status)}`
+        `/bookings/getallbookings?status=${encodeURIComponent(status)}`,
       );
       const newData = res.data.response.map((b: any) => ({
         id: b.id,
@@ -122,8 +122,8 @@ const BookingsPage: React.FC = () => {
     try {
       const res = await api.get(
         `/order/getallorder?status=${encodeURIComponent(
-          status
-        )}&orderBy=DESC&page=1&limit=10`
+          status,
+        )}&orderBy=DESC&page=1&limit=10`,
       );
       const newData = res.data.response.map((o: any) => ({
         id: o.id,
@@ -156,7 +156,7 @@ const BookingsPage: React.FC = () => {
   const fetchProfessionals = async (categoryId: number) => {
     try {
       const res = await api.get(
-        `/user/getprofessionals?category=${categoryId}&orderBy=DESC&page=1&limit=10`
+        `/user/getprofessionals?category=${categoryId}&orderBy=DESC&page=1&limit=10`,
       );
       setProfessionals(res.data.response || []);
     } catch {
@@ -168,7 +168,7 @@ const BookingsPage: React.FC = () => {
   const fetchProducts = async () => {
     try {
       const res = await api.get(
-        "/product/getallproduct?orderBy=DESC&page=1&limit=10"
+        "/product/getallproduct?orderBy=DESC&page=1&limit=10",
       );
       setProducts(res.data.response || []);
     } catch {
@@ -178,46 +178,45 @@ const BookingsPage: React.FC = () => {
 
   // -------- PAY ----------
   const handlePay = async (item: Booking, method: "Wallet" | "Non Wallet") => {
-  try {
-    // ✅ Corrected payload (camelCase like Swagger)
-    const payload = {
-      serviceRequestId: 0,
-      method,
-      orderId: item.type === "order" ? item.id : 0,
-      bookingId: item.type === "booking" ? item.id : 0,
-    };
+    try {
+      // ✅ Corrected payload (camelCase like Swagger)
+      const payload = {
+        serviceRequestId: 0,
+        method,
+        orderId: item.type === "order" ? item.id : 0,
+        bookingId: item.type === "booking" ? item.id : 0,
+      };
 
-    console.log("📦 Sending payload:", payload);
+      console.log("📦 Sending payload:", payload);
 
-    const res = await api.post(
-      "/wallet/initialize-service-request-transaction",
-      payload, // axios will JSON.stringify automatically
-      {
-        headers: {
-          Accept: "application/json",   // ✅ match Swagger
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      const res = await api.post(
+        "/wallet/initialize-service-request-transaction",
+        payload, // axios will JSON.stringify automatically
+        {
+          headers: {
+            Accept: "application/json", // ✅ match Swagger
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
         },
-      }
-    );
+      );
 
-    console.log("✅ Payment response:", res.data);
+      console.log("✅ Payment response:", res.data);
 
-    if (method === "Non Wallet") {
-      const url = res.data?.response?.data?.authorization_url;
-      if (url) {
-        window.open(url, "_blank");
-        return;
+      if (method === "Non Wallet") {
+        const url = res.data?.response?.data?.authorization_url;
+        if (url) {
+          window.open(url, "_blank");
+          return;
+        }
       }
+
+      message.success("Payment successful!");
+      setStatus("Paid");
+    } catch (err: any) {
+      console.error("❌ Pay failed (full error):", err);
     }
-
-    message.success("Payment successful!");
-    setStatus("Paid");
-  } catch (err: any) {
-    console.error("❌ Pay failed (full error):", err);
-  }
-};
-
+  };
 
   // -------- COMPLETE ----------
   const handleComplete = async (item: Booking) => {
@@ -231,10 +230,10 @@ const BookingsPage: React.FC = () => {
           date: item.date ?? new Date().toISOString(),
           serviceId: item.serviceId ?? [],
           status: "Completed",
-        }
+        },
       );
       message.success(
-        `${item.type === "booking" ? "Booking" : "Order"} completed!`
+        `${item.type === "booking" ? "Booking" : "Order"} completed!`,
       );
       setStatus("Completed");
     } catch (err: any) {
@@ -243,64 +242,64 @@ const BookingsPage: React.FC = () => {
     }
   };
 
-const handleCreateBooking = async () => {
-  if (!newName.trim()) {
-    message.warning("Please enter a booking name!");
-    return;
-  }
-  if (!selectedCategory) {
-    message.warning("Please select a category!");
-    return;
-  }
+  const handleCreateBooking = async () => {
+    if (!newName.trim()) {
+      message.warning("Please enter a booking name!");
+      return;
+    }
+    if (!selectedCategory) {
+      message.warning("Please select a category!");
+      return;
+    }
 
-  setCreatingBooking(true);
-  try {
-    const payload = {
-      name: newName,
-      date: newDate || new Date().toISOString(),
-      serviceId: [selectedCategory],
-      ...(selectedProfessionalId && { professionalId: selectedProfessionalId }),
-    };
+    setCreatingBooking(true);
+    try {
+      const payload = {
+        name: newName,
+        date: newDate || new Date().toISOString(),
+        serviceId: [selectedCategory],
+        ...(selectedProfessionalId && {
+          professionalId: selectedProfessionalId,
+        }),
+      };
 
-    console.log("🔎 Final booking payload:", JSON.stringify(payload, null, 2));
+      console.log(
+        "🔎 Final booking payload:",
+        JSON.stringify(payload, null, 2),
+      );
 
-    const res = await api.post("/bookings/createbookings", payload);
+      const res = await api.post("/bookings/createbookings", payload);
 
-    console.log("✅ Booking created response:", res.data);
+      console.log("✅ Booking created response:", res.data);
 
-    message.success("Booking created!");
-    setShowCreateModal(false);
-    setNewName("");
-    setNewDate(null);
-    setSelectedCategory(null);
-    setSelectedProfessionalId(null);
-    setProfessionals([]);
-    setStatus("In Progress");
-    refreshData();
-  } catch (err: any) {
-    console.error("❌ Booking creation error object:", err);
+      message.success("Booking created!");
+      setShowCreateModal(false);
+      setNewName("");
+      setNewDate(null);
+      setSelectedCategory(null);
+      setSelectedProfessionalId(null);
+      setProfessionals([]);
+      setStatus("In Progress");
+      refreshData();
+    } catch (err: any) {
+      console.error("❌ Booking creation error object:", err);
 
-    // Make sure we always show something
-    const errorContent =
-      err?.response?.data
+      // Make sure we always show something
+      const errorContent = err?.response?.data
         ? JSON.stringify(err.response.data, null, 2)
         : err?.message || "Unknown error (no response at all)";
 
-    Modal.error({
-      title: "Booking Creation Failed",
-      content: (
-        <pre style={{ whiteSpace: "pre-wrap" }}>{errorContent}</pre>
-      ),
-      width: 600,
-    });
+      Modal.error({
+        title: "Booking Creation Failed",
+        content: <pre style={{ whiteSpace: "pre-wrap" }}>{errorContent}</pre>,
+        width: 600,
+      });
 
-    message.error("Failed to create booking. Check modal for details.");
-  } finally {
-    setCreatingBooking(false);
-  }
-};
-
-
+      message.error("Failed to create booking. Check modal for details.");
+    } finally {
+      setCreatingBooking(false);
+    }
+  };
 
   // -------- CREATE Order ----------
   const handleCreateOrder = async () => {
@@ -372,8 +371,7 @@ const handleCreateBooking = async () => {
             <p>Status: {item.status}</p>
             <p>Price: ₦{item.price}</p>
             <p>
-              Date:{" "}
-              {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
+              Date: {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
             </p>
 
             {auth.isClient && item.status === "In Progress" && (
@@ -407,8 +405,7 @@ const handleCreateBooking = async () => {
             <p>Status: {item.status}</p>
             <p>Price: ₦{item.price}</p>
             <p>
-              Date:{" "}
-              {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
+              Date: {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
             </p>
 
             {auth.isClient && item.status === "In Progress" && (
@@ -448,72 +445,71 @@ const handleCreateBooking = async () => {
       />
 
       {/* Create Booking Modal */}
-<Modal
-  title="Create Booking"
-  open={showCreateModal}
-  confirmLoading={creatingBooking}
-  onCancel={() => setShowCreateModal(false)}
-  onOk={handleCreateBooking}   // ✅ fires when "Create" is clicked
-  okText="Create"              // button text
-  cancelText="Cancel"
->
-  <Input
-    placeholder="Booking Name"
-    value={newName}
-    onChange={(e) => setNewName(e.target.value)}
-    className="mb-2"
-  />
-  <DatePicker
-    className="w-full mb-2"
-    onChange={(date: Dayjs | null) =>
-      setNewDate(date ? date.toISOString() : null)
-    }
-  />
-  <Select
-    placeholder="Select Category"
-    className="w-full mb-2"
-    value={selectedCategory ?? undefined}
-    onChange={(val) => {
-      setSelectedCategory(Number(val));
-      fetchProfessionals(Number(val));
-    }}
-  >
-    {categories.map((cat) => (
-      <Select.Option key={cat.id} value={cat.id}>
-        {cat.name}
-      </Select.Option>
-    ))}
-  </Select>
+      <Modal
+        title="Create Booking"
+        open={showCreateModal}
+        confirmLoading={creatingBooking}
+        onCancel={() => setShowCreateModal(false)}
+        onOk={handleCreateBooking} // ✅ fires when "Create" is clicked
+        okText="Create" // button text
+        cancelText="Cancel"
+      >
+        <Input
+          placeholder="Booking Name"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          className="mb-2"
+        />
+        <DatePicker
+          className="w-full mb-2"
+          onChange={(date: Dayjs | null) =>
+            setNewDate(date ? date.toISOString() : null)
+          }
+        />
+        <Select
+          placeholder="Select Category"
+          className="w-full mb-2"
+          value={selectedCategory ?? undefined}
+          onChange={(val) => {
+            setSelectedCategory(Number(val));
+            fetchProfessionals(Number(val));
+          }}
+        >
+          {categories.map((cat) => (
+            <Select.Option key={cat.id} value={cat.id}>
+              {cat.name}
+            </Select.Option>
+          ))}
+        </Select>
 
-  {professionals.length > 0 && (
-    <>
-      <p className="font-semibold mb-2">Professionals</p>
-      <List
-        bordered
-        dataSource={professionals}
-        renderItem={(pro) => (
-          <List.Item
-            className={`cursor-pointer ${
-              selectedProfessionalId === pro.id ? "bg-blue-100" : ""
-            }`}
-            onClick={() => setSelectedProfessionalId(pro.id)}
-          >
-            <div className="flex items-center justify-between w-full">
-              <div>
-                <strong>{pro.fullName}</strong> <br />
-                <small>{pro.email}</small>
-              </div>
-              {selectedProfessionalId === pro.id && (
-                <CheckCircleOutlined style={{ color: "green" }} />
+        {professionals.length > 0 && (
+          <>
+            <p className="font-semibold mb-2">Professionals</p>
+            <List
+              bordered
+              dataSource={professionals}
+              renderItem={(pro) => (
+                <List.Item
+                  className={`cursor-pointer ${
+                    selectedProfessionalId === pro.id ? "bg-blue-100" : ""
+                  }`}
+                  onClick={() => setSelectedProfessionalId(pro.id)}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <strong>{pro.fullName}</strong> <br />
+                      <small>{pro.email}</small>
+                    </div>
+                    {selectedProfessionalId === pro.id && (
+                      <CheckCircleOutlined style={{ color: "green" }} />
+                    )}
+                  </div>
+                </List.Item>
               )}
-            </div>
-          </List.Item>
+            />
+          </>
         )}
-      />
-    </>
-  )}
-</Modal>
-
+      </Modal>
 
       {/* Create Order Modal */}
       <Modal
