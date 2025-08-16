@@ -5,8 +5,7 @@ import Overlay from "../overlay";
 import { Link } from "react-router-dom";
 import "./style.css";
 import { useAuth } from "../../contexts/AuthContext";
-import { Collapse } from "antd";
-const { Panel } = Collapse;
+
 import {
   ArrowUpRight,
   Bell,
@@ -20,11 +19,10 @@ import {
   Loader,
   CheckCircle,
   Users,
-  Sun,
   UserCheck,
   CreditCard,
   FileText,
-  LogOut
+  LogOut,
 } from "feather-icons-react";
 import { Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";

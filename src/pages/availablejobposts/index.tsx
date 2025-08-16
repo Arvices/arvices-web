@@ -183,9 +183,7 @@ const AvailableJobPostings = (): React.ReactNode => {
           <h3 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5 mb-2">
             Available Job Posting
           </h3>
-          <p className="text-[16px] tracking-tight font-bold">
-            All Categories
-          </p>
+          <p className="text-[16px] tracking-tight font-bold">All Categories</p>
 
           <div className="pt-8">
             {

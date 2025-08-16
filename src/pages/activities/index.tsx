@@ -51,8 +51,10 @@ function getMyIdSafe(): number | null {
   }
 }
 function formatFollowerCount(count: number): string {
-  if (count >= 1_000_000) return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
-  if (count >= 1_000) return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+  if (count >= 1_000_000)
+    return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (count >= 1_000)
+    return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
   return String(count);
 }
 
@@ -66,7 +68,11 @@ function stringToColor(str: string): string {
   return `hsl(${hue}, 60%, 75%)`; // pastel tone
 }
 
-function renderAvatarClickable(user: any, sizeClass = "w-10 h-10", onClick?: (id: number) => void) {
+function renderAvatarClickable(
+  user: any,
+  sizeClass = "w-10 h-10",
+  onClick?: (id: number) => void,
+) {
   const displayName = user?.fullName || user?.username || "?";
   const letter = displayName[0].toUpperCase();
   const bgColor = stringToColor(displayName);
@@ -115,13 +121,16 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 async function getAllShowcase(orderBy = "DESC", page = 1, limit = 10) {
-  return api<{ status: number; message: string; response: any[]; total: number }>(
-    `/showcase/getallshowcase?orderBy=${orderBy}&page=${page}&limit=${limit}`
-  );
+  return api<{
+    status: number;
+    message: string;
+    response: any[];
+    total: number;
+  }>(`/showcase/getallshowcase?orderBy=${orderBy}&page=${page}&limit=${limit}`);
 }
 async function getComments(showcaseId: number) {
   return api<{ status: number; message: string; response: ShowcaseComment[] }>(
-    `/showcase/getshowcasecommentbyshowcase/${showcaseId}`
+    `/showcase/getshowcasecommentbyshowcase/${showcaseId}`,
   );
 }
 async function createComment(showcaseId: number, post: string) {
@@ -130,31 +139,31 @@ async function createComment(showcaseId: number, post: string) {
   fd.append("showcaseId", String(showcaseId));
   return api<{ status: number; message: string; response: any }>(
     "/showcase/createshowcasecomment",
-    { method: "POST", body: fd }
+    { method: "POST", body: fd },
   );
 }
 async function likeComment(commentId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/likeshowcasecomment/${commentId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 async function unlikeComment(commentId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/unlikeshowcasecomment/${commentId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 async function saveShowcase(showcaseId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/saveshowcase/${showcaseId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 async function unsaveShowcase(showcaseId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/unsaveshowcase/${showcaseId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 async function createShowcase(post: string, location: string, files: File[]) {
@@ -164,26 +173,26 @@ async function createShowcase(post: string, location: string, files: File[]) {
   for (const f of files) fd.append("attachment", f, f.name);
   return api<{ status: number; message: string; response: any }>(
     "/showcase/createshowcase",
-    { method: "POST", body: fd }
+    { method: "POST", body: fd },
   );
 }
 async function likeShowcase(showcaseId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/likeshowcase/${showcaseId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 async function unlikeShowcase(showcaseId: number) {
   return api<{ status: number; message: string }>(
     `/showcase/unlikeshowcase/${showcaseId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 
 /* top professionals */
 async function getTopProfessionals() {
   return api<{ status: number; message: string; response: any[] }>(
-    "/user/gettopprofessionals"
+    "/user/gettopprofessionals",
   );
 }
 // --- Follow API ---
@@ -192,7 +201,7 @@ async function followUser(userId: number) {
   console.log("Token being sent:", token); // DEBUG
   return api<{ status: number; message: string }>(
     `/user/followuser/${userId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 
@@ -201,52 +210,126 @@ async function unfollowUser(userId: number) {
   console.log("Token being sent:", token); // DEBUG
   return api<{ status: number; message: string }>(
     `/user/unfollowuser/${userId}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 }
 
 async function getAccountById(userId: number) {
   return api<{ status: number; message: string; response: any }>(
-    `/user/getaccountbyid?id=${userId}`
+    `/user/getaccountbyid?id=${userId}`,
   );
 }
 
 /* ------------ static data ------------ */
 const updates = [
-  { updateType: "Live Updates", title: "Beauty services trending up 25%", description: "Skincare and makeup bookings are rising this week" },
-  { updateType: "New Provider", title: "New 5-star rated plumber available", description: "Highly rated professional just joined your area" },
-  { updateType: "Promotion", title: "Flash sale: Cleaning services 30% off", description: "Limited time offer ending tonight" },
-  { updateType: "Milestone", title: "Boluwatife Abubakar reached 2k follows", description: "Popular makeup artist hits milestone" },
-  { updateType: "Achievement", title: "Best rated car mechanic this month", description: "AutoFix Pro wins monthly excellence award" },
-  { updateType: "Booking Alert", title: "Weekend booking slots filling fast", description: "High demand for weekend appointments" },
-  { updateType: "New Feature", title: "New service category: Pet Care", description: "Find grooming and pet sitting services" },
+  {
+    updateType: "Live Updates",
+    title: "Beauty services trending up 25%",
+    description: "Skincare and makeup bookings are rising this week",
+  },
+  {
+    updateType: "New Provider",
+    title: "New 5-star rated plumber available",
+    description: "Highly rated professional just joined your area",
+  },
+  {
+    updateType: "Promotion",
+    title: "Flash sale: Cleaning services 30% off",
+    description: "Limited time offer ending tonight",
+  },
+  {
+    updateType: "Milestone",
+    title: "Boluwatife Abubakar reached 2k follows",
+    description: "Popular makeup artist hits milestone",
+  },
+  {
+    updateType: "Achievement",
+    title: "Best rated car mechanic this month",
+    description: "AutoFix Pro wins monthly excellence award",
+  },
+  {
+    updateType: "Booking Alert",
+    title: "Weekend booking slots filling fast",
+    description: "High demand for weekend appointments",
+  },
+  {
+    updateType: "New Feature",
+    title: "New service category: Pet Care",
+    description: "Find grooming and pet sitting services",
+  },
 ] as const;
 
-export const updateIconMap: Record<string, { icon: React.JSX.Element; colorClass: string }> = {
-  "Live Updates": { icon: <TrendingUp className="inline w-3 h-3 text-pink-600" />, colorClass: "text-pink-600" },
-  "New Provider": { icon: <UserPlus className="inline w-3 h-3 text-blue-600" />, colorClass: "text-blue-600" },
-  Promotion: { icon: <Percent className="inline w-3 h-3 text-green-600" />, colorClass: "text-green-600" },
-  Milestone: { icon: <Star className="inline w-3 h-3 text-yellow-500" />, colorClass: "text-yellow-500" },
-  Achievement: { icon: <Award className="inline w-3 h-3 text-indigo-600" />, colorClass: "text-indigo-600" },
-  "Booking Alert": { icon: <Calendar className="inline w-3 h-3 text-red-500" />, colorClass: "text-red-500" },
-  "New Feature": { icon: <Tool className="inline w-3 h-3 text-teal-600" />, colorClass: "text-teal-600" },
+export const updateIconMap: Record<
+  string,
+  { icon: React.JSX.Element; colorClass: string }
+> = {
+  "Live Updates": {
+    icon: <TrendingUp className="inline w-3 h-3 text-pink-600" />,
+    colorClass: "text-pink-600",
+  },
+  "New Provider": {
+    icon: <UserPlus className="inline w-3 h-3 text-blue-600" />,
+    colorClass: "text-blue-600",
+  },
+  Promotion: {
+    icon: <Percent className="inline w-3 h-3 text-green-600" />,
+    colorClass: "text-green-600",
+  },
+  Milestone: {
+    icon: <Star className="inline w-3 h-3 text-yellow-500" />,
+    colorClass: "text-yellow-500",
+  },
+  Achievement: {
+    icon: <Award className="inline w-3 h-3 text-indigo-600" />,
+    colorClass: "text-indigo-600",
+  },
+  "Booking Alert": {
+    icon: <Calendar className="inline w-3 h-3 text-red-500" />,
+    colorClass: "text-red-500",
+  },
+  "New Feature": {
+    icon: <Tool className="inline w-3 h-3 text-teal-600" />,
+    colorClass: "text-teal-600",
+  },
 };
 
 /* ------------ component ------------ */
 const Activities = (): React.ReactNode => {
-  const categories = ["Cleaning", "Plumbing", "Makeup", "Pet Care", "Car Repair"];
+  const categories = [
+    "Cleaning",
+    "Plumbing",
+    "Makeup",
+    "Pet Care",
+    "Car Repair",
+  ];
   const [selectedCategory, setSelectedCategory] = useState<string>();
 
   const [showcases, setShowcases] = useState<any[]>([]);
   const [savedMap, setSavedMap] = useState<Record<number, boolean>>({});
-  const [commentsMap, setCommentsMap] = useState<Record<number, ShowcaseComment[]>>({});
-  const [likedByMeMap, setLikedByMeMap] = useState<Record<number, Set<number>>>({});
-  const [showcaseLikedMap, setShowcaseLikedMap] = useState<Record<number, boolean>>({});
-  const [showcaseLikeCount, setShowcaseLikeCount] = useState<Record<number, number>>({});
-  const [commentTextMap, setCommentTextMap] = useState<Record<number, string>>({});
-  const [creatingCommentMap, setCreatingCommentMap] = useState<Record<number, boolean>>({});
-  const [visibleCommentsMap, setVisibleCommentsMap] = useState<Record<number, boolean>>({});
-  const [visibleCountMap, setVisibleCountMap] = useState<Record<number, number>>({});
+  const [commentsMap, setCommentsMap] = useState<
+    Record<number, ShowcaseComment[]>
+  >({});
+  const [likedByMeMap, setLikedByMeMap] = useState<Record<number, Set<number>>>(
+    {},
+  );
+  const [showcaseLikedMap, setShowcaseLikedMap] = useState<
+    Record<number, boolean>
+  >({});
+  const [showcaseLikeCount, setShowcaseLikeCount] = useState<
+    Record<number, number>
+  >({});
+  const [commentTextMap, setCommentTextMap] = useState<Record<number, string>>(
+    {},
+  );
+  const [creatingCommentMap, setCreatingCommentMap] = useState<
+    Record<number, boolean>
+  >({});
+  const [visibleCommentsMap, setVisibleCommentsMap] = useState<
+    Record<number, boolean>
+  >({});
+  const [visibleCountMap, setVisibleCountMap] = useState<
+    Record<number, number>
+  >({});
   const commentRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   // token -> myId (safe)
@@ -262,7 +345,9 @@ const Activities = (): React.ReactNode => {
   // top providers
   const [topProviders, setTopProviders] = useState<any[]>([]);
   const [followingMap, setFollowingMap] = useState<Record<number, boolean>>({});
-  const [followLoadingMap, setFollowLoadingMap] = useState<Record<number, boolean>>({});
+  const [followLoadingMap, setFollowLoadingMap] = useState<
+    Record<number, boolean>
+  >({});
 
   // provider modal (View)
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
@@ -280,9 +365,13 @@ const Activities = (): React.ReactNode => {
           const showcaseLikeStatus: Record<number, boolean> = {};
           const showcaseLikes: Record<number, number> = {};
           data.response.forEach((sc) => {
-            savedStatus[sc.id] = Array.isArray(sc.saved) && sc.saved.some((s: any) => s.id === myId);
+            savedStatus[sc.id] =
+              Array.isArray(sc.saved) &&
+              sc.saved.some((s: any) => s.id === myId);
             likedMap[sc.id] = new Set<number>();
-            showcaseLikeStatus[sc.id] = Array.isArray(sc.liked) && sc.liked.some((u: any) => u.id === myId);
+            showcaseLikeStatus[sc.id] =
+              Array.isArray(sc.liked) &&
+              sc.liked.some((u: any) => u.id === myId);
             showcaseLikes[sc.id] = sc.like || 0;
             refreshComments(sc.id);
           });
@@ -298,47 +387,54 @@ const Activities = (): React.ReactNode => {
   }, [myId]);
 
   /* top providers & following state */
-/* top providers & following state */
-useEffect(() => {
-  (async () => {
-    try {
-      const res = await getTopProfessionals();
-      const providers = Array.isArray(res.response) ? res.response : [];
+  /* top providers & following state */
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getTopProfessionals();
+        const providers = Array.isArray(res.response) ? res.response : [];
 
-      // Map follow state directly from provider.followers array
-      const followingMapFromAPI: Record<number, boolean> = {};
-      const seeded = providers.map((p: any) => {
-        const isFollowing = Array.isArray(p.followers) && p.followers.includes(myId);
-        followingMapFromAPI[p.id] = isFollowing;
+        // Map follow state directly from provider.followers array
+        const followingMapFromAPI: Record<number, boolean> = {};
+        const seeded = providers.map((p: any) => {
+          const isFollowing =
+            Array.isArray(p.followers) && p.followers.includes(myId);
+          followingMapFromAPI[p.id] = isFollowing;
 
-        return {
-          ...p,
-          _followersCountLocal: Array.isArray(p.followers) ? p.followers.length : 0
-        };
-      });
+          return {
+            ...p,
+            _followersCountLocal: Array.isArray(p.followers)
+              ? p.followers.length
+              : 0,
+          };
+        });
 
-      setTopProviders(seeded);
-      setFollowingMap(followingMapFromAPI);
-    } catch (err) {
-      console.warn("Failed to load top professionals / following", err);
-    }
-  })();
-}, [myId]);
-
-
+        setTopProviders(seeded);
+        setFollowingMap(followingMapFromAPI);
+      } catch (err) {
+        console.warn("Failed to load top professionals / following", err);
+      }
+    })();
+  }, [myId]);
 
   /* helpers */
   async function refreshComments(showcaseId: number) {
     try {
       const data = await getComments(showcaseId);
-      setCommentsMap((prev) => ({ ...prev, [showcaseId]: Array.isArray(data.response) ? data.response : [] }));
+      setCommentsMap((prev) => ({
+        ...prev,
+        [showcaseId]: Array.isArray(data.response) ? data.response : [],
+      }));
     } catch (err) {
       console.warn("Failed to load comments", err);
     }
   }
 
   function handleViewMore(showcaseId: number) {
-    setVisibleCountMap((prev) => ({ ...prev, [showcaseId]: (prev[showcaseId] || 5) + 5 }));
+    setVisibleCountMap((prev) => ({
+      ...prev,
+      [showcaseId]: (prev[showcaseId] || 5) + 5,
+    }));
   }
 
   async function handleCreateComment(showcaseId: number) {
@@ -356,7 +452,10 @@ useEffect(() => {
     }
   }
 
-  async function toggleLikeComment(showcaseId: number, comment: ShowcaseComment) {
+  async function toggleLikeComment(
+    showcaseId: number,
+    comment: ShowcaseComment,
+  ) {
     const setForShowcase = likedByMeMap[showcaseId] || new Set<number>();
     const already = setForShowcase.has(comment.id);
 
@@ -368,7 +467,9 @@ useEffect(() => {
     setCommentsMap((prev) => ({
       ...prev,
       [showcaseId]: prev[showcaseId].map((c) =>
-        c.id === comment.id ? { ...c, like: Math.max(0, (c.like || 0) + (already ? -1 : 1)) } : c
+        c.id === comment.id
+          ? { ...c, like: Math.max(0, (c.like || 0) + (already ? -1 : 1)) }
+          : c,
       ),
     }));
 
@@ -384,7 +485,10 @@ useEffect(() => {
     const already = !!showcaseLikedMap[showcaseId];
     // optimistic
     setShowcaseLikedMap((p) => ({ ...p, [showcaseId]: !already }));
-    setShowcaseLikeCount((p) => ({ ...p, [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? -1 : 1)) }));
+    setShowcaseLikeCount((p) => ({
+      ...p,
+      [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? -1 : 1)),
+    }));
     try {
       if (already) await unlikeShowcase(showcaseId);
       else await likeShowcase(showcaseId);
@@ -392,7 +496,10 @@ useEffect(() => {
       alert("Failed to update showcase like");
       // revert
       setShowcaseLikedMap((p) => ({ ...p, [showcaseId]: already }));
-      setShowcaseLikeCount((p) => ({ ...p, [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? 1 : -1)) }));
+      setShowcaseLikeCount((p) => ({
+        ...p,
+        [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? 1 : -1)),
+      }));
     }
   }
 
@@ -436,51 +543,26 @@ useEffect(() => {
       const res = await getAccountById(userId);
       setSelectedProvider(res.response);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to load provider details");
+      alert(
+        err instanceof Error ? err.message : "Failed to load provider details",
+      );
     } finally {
       setLoadingProvider(false);
     }
   }
 
   //* Follow / Unfollow */
-async function handleToggleFollow(userId: number) {
-  if (myId == null) {
-    alert("Please sign in to follow providers.");
-    return;
-  }
-  if (userId === myId) return; // no self-follow
-
-  const currentlyFollowing = !!followingMap[userId];
-
-  // Optimistic UI update
-  setFollowingMap((prev) => ({ ...prev, [userId]: !currentlyFollowing }));
-  setTopProviders((prev) =>
-    prev.map((p) => {
-      if (p.id !== userId) return p;
-      return {
-        ...p,
-        _followersCountLocal: Math.max(
-          0,
-          (p._followersCountLocal || 0) + (currentlyFollowing ? -1 : 1)
-        ),
-      };
-    })
-  );
-
-  setFollowLoadingMap((prev) => ({ ...prev, [userId]: true }));
-
-  try {
-    if (currentlyFollowing) {
-      await unfollowUser(userId);
-    } else {
-      await followUser(userId);
+  async function handleToggleFollow(userId: number) {
+    if (myId == null) {
+      alert("Please sign in to follow providers.");
+      return;
     }
-  } catch (err) {
-    console.warn("Follow toggle failed", err);
-    const msg = err instanceof Error ? err.message : "";
+    if (userId === myId) return; // no self-follow
 
-    // Roll back UI on error
-    setFollowingMap((prev) => ({ ...prev, [userId]: currentlyFollowing }));
+    const currentlyFollowing = !!followingMap[userId];
+
+    // Optimistic UI update
+    setFollowingMap((prev) => ({ ...prev, [userId]: !currentlyFollowing }));
     setTopProviders((prev) =>
       prev.map((p) => {
         if (p.id !== userId) return p;
@@ -488,18 +570,44 @@ async function handleToggleFollow(userId: number) {
           ...p,
           _followersCountLocal: Math.max(
             0,
-            (p._followersCountLocal || 0) + (currentlyFollowing ? 1 : -1)
+            (p._followersCountLocal || 0) + (currentlyFollowing ? -1 : 1),
           ),
         };
-      })
+      }),
     );
 
-    alert(msg || "Could not update follow state.");
-  } finally {
-    setFollowLoadingMap((prev) => ({ ...prev, [userId]: false }));
-  }
-}
+    setFollowLoadingMap((prev) => ({ ...prev, [userId]: true }));
 
+    try {
+      if (currentlyFollowing) {
+        await unfollowUser(userId);
+      } else {
+        await followUser(userId);
+      }
+    } catch (err) {
+      console.warn("Follow toggle failed", err);
+      const msg = err instanceof Error ? err.message : "";
+
+      // Roll back UI on error
+      setFollowingMap((prev) => ({ ...prev, [userId]: currentlyFollowing }));
+      setTopProviders((prev) =>
+        prev.map((p) => {
+          if (p.id !== userId) return p;
+          return {
+            ...p,
+            _followersCountLocal: Math.max(
+              0,
+              (p._followersCountLocal || 0) + (currentlyFollowing ? 1 : -1),
+            ),
+          };
+        }),
+      );
+
+      alert(msg || "Could not update follow state.");
+    } finally {
+      setFollowLoadingMap((prev) => ({ ...prev, [userId]: false }));
+    }
+  }
 
   return (
     <section className="min-h-screen pt-13 bg-[#FBFBFB]">
@@ -512,15 +620,33 @@ async function handleToggleFollow(userId: number) {
               <div key={i} className="mt-3 p-2 border rounded border-gray-100">
                 <div className="flex items-center">
                   <div className="text-pink-600">
-                    {u.updateType && (({
-                      "Live Updates": <TrendingUp className="inline w-3 h-3 text-pink-600" />,
-                      "New Provider": <UserPlus className="inline w-3 h-3 text-blue-600" />,
-                      "Promotion": <Percent className="inline w-3 h-3 text-green-600" />,
-                      "Milestone": <Star className="inline w-3 h-3 text-yellow-500" />,
-                      "Achievement": <Award className="inline w-3 h-3 text-indigo-600" />,
-                      "Booking Alert": <Calendar className="inline w-3 h-3 text-red-500" />,
-                      "New Feature": <Tool className="inline w-3 h-3 text-teal-600" />,
-                    } as any)[u.updateType])} {u.updateType}
+                    {u.updateType &&
+                      (
+                        {
+                          "Live Updates": (
+                            <TrendingUp className="inline w-3 h-3 text-pink-600" />
+                          ),
+                          "New Provider": (
+                            <UserPlus className="inline w-3 h-3 text-blue-600" />
+                          ),
+                          Promotion: (
+                            <Percent className="inline w-3 h-3 text-green-600" />
+                          ),
+                          Milestone: (
+                            <Star className="inline w-3 h-3 text-yellow-500" />
+                          ),
+                          Achievement: (
+                            <Award className="inline w-3 h-3 text-indigo-600" />
+                          ),
+                          "Booking Alert": (
+                            <Calendar className="inline w-3 h-3 text-red-500" />
+                          ),
+                          "New Feature": (
+                            <Tool className="inline w-3 h-3 text-teal-600" />
+                          ),
+                        } as any
+                      )[u.updateType]}{" "}
+                    {u.updateType}
                   </div>
                   <div className="flex-1" />
                   <small className="text-[12px] text-gray-500">
@@ -552,7 +678,9 @@ async function handleToggleFollow(userId: number) {
                   allowClear
                 >
                   {categories.map((cat) => (
-                    <Option key={cat} value={cat}>{cat}</Option>
+                    <Option key={cat} value={cat}>
+                      {cat}
+                    </Option>
                   ))}
                 </Select>
                 <button className="text-gray-600 text-[14px]">
@@ -564,7 +692,11 @@ async function handleToggleFollow(userId: number) {
             {/* Showcases */}
             <div className="mt-2 space-y-4">
               {showcases.map((sc) => (
-                <div key={sc.id} className="card-shadow rounded p-4" data-showcase-card-id={sc.id}>
+                <div
+                  key={sc.id}
+                  className="card-shadow rounded p-4"
+                  data-showcase-card-id={sc.id}
+                >
                   {/* Author */}
                   <div className="flex items-center gap-3">
                     {sc.user?.picture ? (
@@ -572,14 +704,24 @@ async function handleToggleFollow(userId: number) {
                         className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80"
                         src={sc.user.picture}
                         alt={sc.user?.fullName || sc.user?.username || "Author"}
-                        onClick={() => sc.user?.id && handleViewProvider(sc.user.id)}
+                        onClick={() =>
+                          sc.user?.id && handleViewProvider(sc.user.id)
+                        }
                       />
                     ) : (
-                      renderAvatarClickable(sc.user, "w-10 h-10", handleViewProvider)
+                      renderAvatarClickable(
+                        sc.user,
+                        "w-10 h-10",
+                        handleViewProvider,
+                      )
                     )}
                     <div>
-                      <p className="font-medium">{sc.user?.fullName || "Unknown"}</p>
-                      <small className="text-gray-500">{sc.user?.type || ""}</small>
+                      <p className="font-medium">
+                        {sc.user?.fullName || "Unknown"}
+                      </p>
+                      <small className="text-gray-500">
+                        {sc.user?.type || ""}
+                      </small>
                     </div>
                     <div className="flex-1" />
                     <small className="text-gray-500">
@@ -608,21 +750,33 @@ async function handleToggleFollow(userId: number) {
                       onClick={() => toggleLikeShowcase(sc.id)}
                       className={`flex items-center gap-1 ${showcaseLikedMap[sc.id] ? "text-red-500" : ""}`}
                     >
-                      <Heart size={16} fill={showcaseLikedMap[sc.id] ? "red" : "none"} />
+                      <Heart
+                        size={16}
+                        fill={showcaseLikedMap[sc.id] ? "red" : "none"}
+                      />
                       <span>{showcaseLikeCount[sc.id] || 0}</span>
                     </button>
                     <button
                       onClick={() => {
-                        setVisibleCommentsMap(prev => {
+                        setVisibleCommentsMap((prev) => {
                           const isSameCardOpen = prev[sc.id] === true;
                           const newMap: Record<number, boolean> = {};
-                          Object.keys(prev).forEach(k => (newMap[Number(k)] = false));
+                          Object.keys(prev).forEach(
+                            (k) => (newMap[Number(k)] = false),
+                          );
                           newMap[sc.id] = !isSameCardOpen;
                           if (!isSameCardOpen) {
                             setTimeout(() => {
-                              const el = document.querySelector(`[data-showcase-card-id="${sc.id}"]`);
-                              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                              if (commentRefs.current[sc.id]) commentRefs.current[sc.id]?.focus();
+                              const el = document.querySelector(
+                                `[data-showcase-card-id="${sc.id}"]`,
+                              );
+                              if (el)
+                                el.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "start",
+                                });
+                              if (commentRefs.current[sc.id])
+                                commentRefs.current[sc.id]?.focus();
                             }, 50);
                           }
                           return newMap;
@@ -635,7 +789,10 @@ async function handleToggleFollow(userId: number) {
                       <span>{commentsMap[sc.id]?.length || 0}</span>
                     </button>
                     <div className="flex-1" />
-                    <button onClick={() => toggleSave(sc.id)} className="flex items-center gap-1 hover:text-emerald-600">
+                    <button
+                      onClick={() => toggleSave(sc.id)}
+                      className="flex items-center gap-1 hover:text-emerald-600"
+                    >
                       <Bookmark size={16} />
                       <span>{savedMap[sc.id] ? "Unsave" : "Save"}</span>
                     </button>
@@ -645,42 +802,73 @@ async function handleToggleFollow(userId: number) {
                   {visibleCommentsMap[sc.id] && (
                     <>
                       <div className="border-t my-3" />
-                      {(commentsMap[sc.id] || []).slice(0, (visibleCountMap[sc.id] || 5)).map((c) => (
-                        <div key={c.id} className="p-2 mb-2">
-                          <div className="flex items-center gap-2">
-                            {c.user?.picture ? (
-                              <img
-                                src={c.user.picture}
-                                className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80"
-                                alt={c.user?.fullName || c.user?.username || "User"}
-                                onClick={() => c.user?.id && handleViewProvider(c.user.id)}
-                              />
-                            ) : (
-                              renderAvatarClickable(c.user, "w-8 h-8", handleViewProvider)
-                            )}
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{c.user?.fullName || c.user?.username}</p>
-                              <p className="text-xs text-gray-500">{new Date(c.createdDate).toLocaleString()}</p>
+                      {(commentsMap[sc.id] || [])
+                        .slice(0, visibleCountMap[sc.id] || 5)
+                        .map((c) => (
+                          <div key={c.id} className="p-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              {c.user?.picture ? (
+                                <img
+                                  src={c.user.picture}
+                                  className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80"
+                                  alt={
+                                    c.user?.fullName ||
+                                    c.user?.username ||
+                                    "User"
+                                  }
+                                  onClick={() =>
+                                    c.user?.id && handleViewProvider(c.user.id)
+                                  }
+                                />
+                              ) : (
+                                renderAvatarClickable(
+                                  c.user,
+                                  "w-8 h-8",
+                                  handleViewProvider,
+                                )
+                              )}
+                              <div className="flex-1">
+                                <p className="text-sm font-medium">
+                                  {c.user?.fullName || c.user?.username}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {new Date(c.createdDate).toLocaleString()}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => toggleLikeComment(sc.id, c)}
+                                className="text-xs px-2 py-1 rounded-full"
+                              >
+                                <Heart size={12} className="inline mr-1" />{" "}
+                                {c.like || 0}
+                              </button>
                             </div>
-                            <button onClick={() => toggleLikeComment(sc.id, c)} className="text-xs px-2 py-1 rounded-full">
-                              <Heart size={12} className="inline mr-1" /> {c.like || 0}
-                            </button>
+                            <div className="mt-2 text-sm">{c.post}</div>
                           </div>
-                          <div className="mt-2 text-sm">{c.post}</div>
-                        </div>
-                      ))}
-                      {(commentsMap[sc.id]?.length || 0) > (visibleCountMap[sc.id] || 5) && (
-                        <button onClick={() => handleViewMore(sc.id)} className="text-blue-500 text-sm mt-1">
+                        ))}
+                      {(commentsMap[sc.id]?.length || 0) >
+                        (visibleCountMap[sc.id] || 5) && (
+                        <button
+                          onClick={() => handleViewMore(sc.id)}
+                          className="text-blue-500 text-sm mt-1"
+                        >
                           View more
                         </button>
                       )}
                       <div className="mt-2 flex items-center gap-2">
                         <input
-                          ref={(el) => { commentRefs.current[sc.id] = el; }}
+                          ref={(el) => {
+                            commentRefs.current[sc.id] = el;
+                          }}
                           type="text"
                           placeholder="Add a comment…"
                           value={commentTextMap[sc.id] || ""}
-                          onChange={(e) => setCommentTextMap((prev) => ({ ...prev, [sc.id]: e.target.value }))}
+                          onChange={(e) =>
+                            setCommentTextMap((prev) => ({
+                              ...prev,
+                              [sc.id]: e.target.value,
+                            }))
+                          }
                           className="flex-1 rounded-full px-4 py-1 border-none outline-none focus:outline-none focus:ring-0"
                         />
                         <button
@@ -731,7 +919,9 @@ async function handleToggleFollow(userId: number) {
                 type="file"
                 multiple
                 className="mt-2"
-                onChange={(e) => setNewFiles(e.target.files ? Array.from(e.target.files) : [])}
+                onChange={(e) =>
+                  setNewFiles(e.target.files ? Array.from(e.target.files) : [])
+                }
               />
             </Modal>
           </div>
@@ -745,7 +935,11 @@ async function handleToggleFollow(userId: number) {
               const followerCount =
                 typeof p._followersCountLocal === "number"
                   ? p._followersCountLocal
-                  : (Array.isArray(p.followers) ? p.followers.length : (typeof p.followersCount === "number" ? p.followersCount : 0));
+                  : Array.isArray(p.followers)
+                    ? p.followers.length
+                    : typeof p.followersCount === "number"
+                      ? p.followersCount
+                      : 0;
 
               return (
                 <div key={p.id} className="mb-3 p-2 border rounded-lg bg-white">
@@ -761,9 +955,13 @@ async function handleToggleFollow(userId: number) {
                       renderAvatarClickable(p, "w-12 h-12", handleViewProvider)
                     )}
                     <div>
-                      <p className="font-semibold text-sm">{p.fullName || p.username}</p>
+                      <p className="font-semibold text-sm">
+                        {p.fullName || p.username}
+                      </p>
                       <p className="text-xs text-gray-500">{p.type || ""}</p>
-                      <p className="text-xs text-gray-400">{formatFollowerCount(followerCount)} followers</p>
+                      <p className="text-xs text-gray-400">
+                        {formatFollowerCount(followerCount)} followers
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2 mt-2">
@@ -771,11 +969,19 @@ async function handleToggleFollow(userId: number) {
                       onClick={() => handleToggleFollow(p.id)}
                       disabled={isMe || !!followLoadingMap[p.id]}
                       className={`flex-1 text-xs px-3 py-1 rounded ${
-                        isFollowing ? "bg-gray-300 text-gray-700" : "bg-royalblue-main text-white"
+                        isFollowing
+                          ? "bg-gray-300 text-gray-700"
+                          : "bg-royalblue-main text-white"
                       } ${isMe ? "opacity-50 cursor-not-allowed" : ""}`}
                       title={isMe ? "You can't follow yourself" : ""}
                     >
-                      {followLoadingMap[p.id] ? (isFollowing ? "Unfollowing..." : "Following...") : (isFollowing ? "Following" : "Follow")}
+                      {followLoadingMap[p.id]
+                        ? isFollowing
+                          ? "Unfollowing..."
+                          : "Following..."
+                        : isFollowing
+                          ? "Following"
+                          : "Follow"}
                     </button>
                     <button
                       onClick={() => handleViewProvider(p.id)}
@@ -810,17 +1016,31 @@ async function handleToggleFollow(userId: number) {
                   className="w-24 h-24 rounded-full object-cover border"
                 />
               ) : (
-                renderAvatarClickable(selectedProvider, "w-24 h-24", handleViewProvider)
+                renderAvatarClickable(
+                  selectedProvider,
+                  "w-24 h-24",
+                  handleViewProvider,
+                )
               )}
             </div>
             <div className="space-y-2 text-center">
-              <p className="text-lg font-semibold">{selectedProvider.fullName}</p>
-              <p className="text-sm text-gray-500">@{selectedProvider.username}</p>
+              <p className="text-lg font-semibold">
+                {selectedProvider.fullName}
+              </p>
+              <p className="text-sm text-gray-500">
+                @{selectedProvider.username}
+              </p>
             </div>
             <div className="space-y-1">
-              <p><strong>Email:</strong> {selectedProvider.email}</p>
-              <p><strong>Address:</strong> {selectedProvider.address}</p>
-              <p><strong>Type:</strong> {selectedProvider.type}</p>
+              <p>
+                <strong>Email:</strong> {selectedProvider.email}
+              </p>
+              <p>
+                <strong>Address:</strong> {selectedProvider.address}
+              </p>
+              <p>
+                <strong>Type:</strong> {selectedProvider.type}
+              </p>
             </div>
           </div>
         ) : null}
