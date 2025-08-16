@@ -80,15 +80,15 @@ const Wallet = () => {
           tx.type === "credit"
             ? "Deposit"
             : tx.type === "debit"
-            ? "Withdrawal"
-            : tx.type || "Transaction",
+              ? "Withdrawal"
+              : tx.type || "Transaction",
         amount: Number(tx.amount) || 0,
         type:
           tx.type === "credit"
             ? "deposit"
             : tx.type === "debit"
-            ? "withdrawal"
-            : "sent",
+              ? "withdrawal"
+              : "sent",
         date: new Date(tx.createdDate).toLocaleString(),
       }));
 
@@ -111,7 +111,8 @@ const Wallet = () => {
           <div>
             <h3 className="text-2xl font-semibold tracking-tight">My Wallet</h3>
             <p className="text-sm text-gray-500 mt-1">
-              Easily manage your funds — add money, view balance, or withdraw anytime.
+              Easily manage your funds — add money, view balance, or withdraw
+              anytime.
             </p>
           </div>
 
@@ -129,7 +130,8 @@ const Wallet = () => {
               Transaction History
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              A detailed record of all your wallet activities — stay informed and in control.
+              A detailed record of all your wallet activities — stay informed
+              and in control.
             </p>
           </div>
 

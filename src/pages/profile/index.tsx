@@ -16,6 +16,8 @@ import { getAllOffers } from "../../api-services/offer.service";
 import { formatCount, formatRating } from "../../util/mainutils";
 import { CheckCheckIcon } from "lucide-react";
 import moment from "moment";
+import { getAllProfileService } from "../../api-services/profileservice.service";
+import { ServiceOfferingPayload } from "./profile.types";
 
 export interface Review {
   createdDate: string;
@@ -93,6 +95,32 @@ const Profile = (): React.ReactNode => {
     }
   };
 
+  const [services, setServices] = useState<ServiceOfferingPayload[]>([]);
+  const [servicesLoading, setServicesLoading] = useState<boolean>(false);
+  const [servicesError, setServicesError] = useState<string>("");
+
+  const loadUserServices = async () => {
+    setServicesLoading(true);
+    setServicesError("");
+
+    try {
+      if (!auth?.token) {
+        setServicesError("Authentication token is missing. Please log in.");
+        setServicesLoading(false);
+        return;
+      }
+
+      const response = await getAllProfileService(auth.token);
+      setServices(response.data.response);
+      console.log("User services fetched:", response.data.response);
+    } catch (error) {
+      console.error("Failed to load user services:", error);
+      setServicesError("Failed to fetch services. Please try again later.");
+    } finally {
+      setServicesLoading(false);
+    }
+  };
+
   const loadProfile = async () => {
     try {
       setProfileLoading(true);
@@ -115,6 +143,7 @@ const Profile = (): React.ReactNode => {
       loadProfile();
       getHappyClients();
       loadUserReviews();
+      loadUserServices();
     }
   }, [id, auth?.token]);
 
@@ -196,7 +225,7 @@ const Profile = (): React.ReactNode => {
             {/* Enhanced Booking Section */}
             {!isMyProfile && (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                <BookingCalendar />
+                <BookingCalendar profile={userProfile} services={services} />
                 <Button className="shadow-sm !h-12">
                   <Heart className="w-4 h-4 mr-2" />
                   Save to Favorites

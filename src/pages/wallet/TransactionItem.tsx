@@ -94,7 +94,7 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
       "bg-blue-100 text-blue-700": type === "received" && !isFailed,
       "bg-yellow-100 text-yellow-700": type === "sent" && !isFailed,
       "bg-red-200 text-red-800": isFailed,
-    }
+    },
   );
 
   // Date handling with multiple fallbacks

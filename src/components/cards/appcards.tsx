@@ -466,175 +466,172 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
   return (
     <div className="card-shadow rounded-[10px] p-5 py-6 sm:p-6 w-full">
       {/* Slide from Right */}
-<SlideIn from={direction} isOpen={open} toggle={() => setOpen(false)}>
-  {userOffer && !editMode ? (
-    // View for existing offer
-    <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition p-6 mt-6 mb-8">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-        You've made an offer for this job
-      </h3>
+      <SlideIn from={direction} isOpen={open} toggle={() => setOpen(false)}>
+        {userOffer && !editMode ? (
+          // View for existing offer
+          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition p-6 mt-6 mb-8">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+              You've made an offer for this job
+            </h3>
 
-<div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 my-5 space-y-4">
-        <div>
-          <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
-            <Briefcase className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
-            Job Category:
-          </p>
-          <p className="ml-6">{job?.category?.name ?? "Uncategorized"}</p>
+            <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 my-5 space-y-4">
+              <div>
+                <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
+                  <Briefcase className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                  Job Category:
+                </p>
+                <p className="ml-6">{job?.category?.name ?? "Uncategorized"}</p>
+              </div>
+
+              <div>
+                <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
+                  <MapPin className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                  Location:
+                </p>
+                <p className="ml-6">
+                  {job?.user?.address ?? "No address provided"}
+                </p>
+              </div>
+
+              <div>
+                <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
+                  <FileText className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                  Description:
+                </p>
+                <p className="ml-6 whitespace-pre-line">{job?.description}</p>
+              </div>
+            </div>
+
+            <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 my-5 space-y-4">
+              <div>
+                <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
+                  <Lightbulb className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                  Proposed Solution
+                </p>
+                <p className="ml-6">{userOffer?.description}</p>
+              </div>
+              <div>
+                <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
+                  <Calendar className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                  Offer Made On:
+                </p>
+                <p className="ml-6">
+                  {new Date(userOffer.createdDate).toLocaleDateString(
+                    undefined,
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    },
+                  )}
+                </p>
+              </div>
+              <div>
+                <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
+                  <Calendar className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                  Offer Amount:
+                </p>
+                <p className="ml-6">
+                  <span className="mr-2">₦</span>
+                  {userOffer?.price}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300"></div>
+
+            <div className="mt-6 sm:flex sm:gap-4 sm:space-y-0 space-y-4">
+              <div className="flex-1">
+                <button
+                  onClick={handleCancelOffer}
+                  className="w-full flex items-center justify-center h-12 bg-transparent border border-red-500 text-red-500 rounded-lg font-medium transition-colors hover:bg-red-50 dark:hover:bg-red-950 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Cancel Offer
+                </button>
+              </div>
+
+              <div className="flex-1">
+                <Link to={`/provider/manage-jobs/${job.id}/${userOffer.id}`}>
+                  <button className="w-full flex items-center justify-center h-12 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg font-medium transition-colors hover:bg-slate-300 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:focus:ring-offset-slate-950">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Manage Offer
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // View for making a new offer
+          <div>
+            <div className="mt-10">
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                Send an Offer
+              </h2>
+              <p className="mt-2 text-slate-500 dark:text-slate-400">
+                Let the client know why you're the best professional for this
+                job. Highlight your skills and experience to stand out.
+              </p>
+            </div>
+            <div className="border-t my-7 border-slate-200 dark:border-slate-700" />
+            <div>
+              <div>
+                <label className="font-medium tracking-tight mb-2 inline-block text-slate-900 dark:text-slate-100">
+                  Describe everything your solution to the client&apos;s need.
+                </label>
+                <textarea
+                  name="description"
+                  rows={4}
+                  placeholder="Write something..."
+                  value={offerData.description}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none"
+                />
+              </div>
+            </div>
+            <div className="border-t my-7 border-slate-200 dark:border-slate-700" />
+            <div>
+              <label className="block font-medium mb-1 text-slate-900 dark:text-slate-100">
+                Price Amount
+              </label>
+              <p className="text-slate-500 dark:text-slate-400 mb-2">
+                Give the client an estimate figure
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-lg text-slate-900 dark:text-slate-100">
+                  ₦
+                </span>
+                <Input
+                  name="price"
+                  type="number"
+                  placeholder="0.00"
+                  value={offerData.price}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400"
+                />
+              </div>
+            </div>
+            <div className="border-t my-7 border-slate-200 dark:border-slate-700" />
+          </div>
+        )}
+
+        {/* Footer buttons */}
+        <div className="border-t pt-7 mb-8 flex gap-x-4 border-slate-200 dark:border-slate-700">
+          {!userOffer && (
+            <div className="flex-1">
+              <button
+                onClick={handleSubmit}
+                className="w-full flex items-center justify-center h-12 bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900 rounded-lg font-medium transition-colors hover:bg-slate-700 dark:hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+              >
+                <span>
+                  Send Offer
+                  <ArrowUpRight className="inline w-6 h-6 relative bottom-0.5" />
+                </span>
+              </button>
+            </div>
+          )}
         </div>
-
-        <div>
-          <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
-            <MapPin className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
-            Location:
-          </p>
-          <p className="ml-6">
-            {job?.user?.address ?? "No address provided"}
-          </p>
-        </div>
-
-        <div>
-          <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
-            <FileText className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
-            Description:
-          </p>
-          <p className="ml-6 whitespace-pre-line">{job?.description}</p>
-        </div>
-</div>
-
-<div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 my-5 space-y-4">
-
-        <div>
-          <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
-            <Lightbulb className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
-            Proposed Solution
-          </p>
-          <p className="ml-6">{userOffer?.description}</p>
-        </div>
-        <div>
-          <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
-            <Calendar className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
-            Offer Made On:
-          </p>
-          <p className="ml-6">
-            {new Date(userOffer.createdDate).toLocaleDateString(
-              undefined,
-              {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              },
-            )}
-          </p>
-        </div>
-        <div>
-          <p className="flex items-center font-medium text-slate-900 dark:text-slate-100">
-            <Calendar className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
-            Offer Amount:
-          </p>
-          <p className="ml-6">
-            <span className="mr-2">₦</span>
-            {userOffer?.price}
-          </p>
-        </div>
-</div>
-
-      <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
-
-
-      </div>
-
-      <div className="mt-6 sm:flex sm:gap-4 sm:space-y-0 space-y-4">
-        <div className="flex-1">
-          <button
-            onClick={handleCancelOffer}
-            className="w-full flex items-center justify-center h-12 bg-transparent border border-red-500 text-red-500 rounded-lg font-medium transition-colors hover:bg-red-50 dark:hover:bg-red-950 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
-          >
-            <XCircle className="w-4 h-4 mr-2" />
-            Cancel Offer
-          </button>
-        </div>
-
-        <div className="flex-1">
-          <Link to={`/provider/manage-jobs/${job.id}/${userOffer.id}`} >
-          <button
-            className="w-full flex items-center justify-center h-12 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg font-medium transition-colors hover:bg-slate-300 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Manage Offer
-          </button>
-          </Link>
-        </div>
-      </div>
-    </div>
-  ) : (
-    // View for making a new offer
-    <div>
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          Send an Offer
-        </h2>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Let the client know why you're the best professional for this
-          job. Highlight your skills and experience to stand out.
-        </p>
-      </div>
-      <div className="border-t my-7 border-slate-200 dark:border-slate-700" />
-      <div>
-        <div>
-          <label className="font-medium tracking-tight mb-2 inline-block text-slate-900 dark:text-slate-100">
-            Describe everything your solution to the client&apos;s
-            need.
-          </label>
-          <textarea
-            name="description"
-            rows={4}
-            placeholder="Write something..."
-            value={offerData.description}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none"
-          />
-        </div>
-      </div>
-      <div className="border-t my-7 border-slate-200 dark:border-slate-700" />
-      <div>
-        <label className="block font-medium mb-1 text-slate-900 dark:text-slate-100">Price Amount</label>
-        <p className="text-slate-500 dark:text-slate-400 mb-2">
-          Give the client an estimate figure
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="text-lg text-slate-900 dark:text-slate-100">₦</span>
-          <Input
-            name="price"
-            type="number"
-            placeholder="0.00"
-            value={offerData.price}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          />
-        </div>
-      </div>
-      <div className="border-t my-7 border-slate-200 dark:border-slate-700" />
-    </div>
-  )}
-
-  {/* Footer buttons */}
-  <div className="border-t pt-7 mb-8 flex gap-x-4 border-slate-200 dark:border-slate-700">
-    {!userOffer && (
-      <div className="flex-1">
-        <button
-          onClick={handleSubmit}
-          className="w-full flex items-center justify-center h-12 bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900 rounded-lg font-medium transition-colors hover:bg-slate-700 dark:hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
-        >
-          <span>
-            Send Offer
-            <ArrowUpRight className="inline w-6 h-6 relative bottom-0.5" />
-          </span>
-        </button>
-      </div>
-    )}
-  </div>
-</SlideIn>
+      </SlideIn>
 
       <div className="flex items-center ">
         <div className="max-w-max">

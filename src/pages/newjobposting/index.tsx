@@ -25,7 +25,7 @@ const NewJobPosting = (): React.ReactNode => {
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   function findCategoryByName(name: string, categories: Category[]) {
     return categories.find((cat) => cat.name === name) || null;
@@ -75,7 +75,7 @@ const NewJobPosting = (): React.ReactNode => {
       };
 
       let res = await createServiceRequest(data, auth.token);
-      console.log({res})
+      console.log({ res });
 
       notify.openNotification(
         "topRight",
@@ -83,7 +83,7 @@ const NewJobPosting = (): React.ReactNode => {
         "Your job post was submitted successfully!",
         "success",
       );
-      navigate(`/client/manage-jobs/${res.data.response.id}`)
+      navigate(`/client/manage-jobs/${res.data.response.id}`);
 
       // Optionally reset form fields
       // setDescription(""); setCategoryId(0); etc.
