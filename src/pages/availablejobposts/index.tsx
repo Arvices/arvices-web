@@ -8,24 +8,33 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
 import { Pagination } from "../../components/pagination";
 import { useNotificationContext } from "../../contexts/NotificationContext";
+import { Filters, LocationData } from "../providers";
 
 const AvailableJobPostings = (): React.ReactNode => {
   const auth = useAuth();
 
   const [currentPage, setCurrentPage] = useState(1);
   const { openNotification } = useNotificationContext();
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     searchTerm: "",
     category: "",
     location: "",
-    locationData: "",
-    // assuming location maps to "user" or another query param
+    locationData: {
+      coordinates: {
+        lat: 0,
+        lng: 0,
+      },
+      country: "",
+      lga: "",
+      state: "",
+    },
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [jobPostings, setJobPostings] = useState<Job[]>([]); // Replace `any` with your actual type if available
 
-  const handleFilterChange = (name: string, value: string) => {
+  const handleFilterChange = (name: string, value: string | LocationData) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -41,7 +50,15 @@ const AvailableJobPostings = (): React.ReactNode => {
       searchTerm: "",
       category: "",
       location: "",
-      locationData: "",
+      locationData: {
+        coordinates: {
+          lat: 0,
+          lng: 0,
+        },
+        country: "",
+        lga: "",
+        state: "",
+      },
     });
     setIsFilter(false);
   };
@@ -119,17 +136,12 @@ const AvailableJobPostings = (): React.ReactNode => {
     setError(null);
 
     try {
-      const parsedCategory = filters?.category
-        ? JSON.parse(filters.category)
-        : null;
-      let id = parsedCategory && parsedCategory.id;
-
       const response = await getAllServiceRequests({
         token: auth.token,
         page: currentPage,
         limit: 10,
         search: filters.searchTerm || undefined,
-        category: id,
+        category: Number(filters.category),
         location: filters.location || undefined,
       });
 

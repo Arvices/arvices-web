@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, Button, message, Select } from "antd";
+import { Modal, Input, Button, Select } from "antd";
 import { EnvironmentOutlined, ReloadOutlined } from "@ant-design/icons";
 import { State, City } from "country-state-city";
 import mapboxgl from "mapbox-gl";
 import MapView from "./map";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { useUserGeoLocation } from "../../contexts/LocationContext";
+import { mapBoxPublickKey } from "../../pages/providers/mapbox.util";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiZG9sYXAyMjIzIiwiYSI6ImNtZDdtdjVnbjBnb2IybHFzY3FzbDZxNWsifQ.7j9U6NZY86YV4oIxdLwb3Q";
+mapboxgl.accessToken = mapBoxPublickKey;
 
 const { Option } = Select;
-
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onApply: (locationData: LocationData) => void;
-}
 
 export interface LocationData {
   country: string;
@@ -26,6 +20,12 @@ export interface LocationData {
   coordinates: { lat: number; lng: number };
 }
 
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onApply: (locationData: LocationData) => void;
+}
+
 const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
   const { openNotification } = useNotificationContext();
   const defaultCountryCode = "NG";
@@ -33,6 +33,7 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
 
   // plug it into this place
   const userGeoLocation = useUserGeoLocation();
+
   console.log({ userGeoLocation: userGeoLocation.getLocationData() });
 
   const [locationForm, setLocationForm] = useState({
@@ -90,7 +91,7 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
     if (activeTab === "manual") {
       if (!validateForm()) return;
 
-      const finalData = {
+      const finalData: LocationData = {
         ...locationForm,
         coordinates: { lng: -1, lat: -1 },
       };
@@ -164,7 +165,6 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
           });
 
           setLocation(locationData);
-          message.success("Location retrieved successfully.");
         } catch (err) {
           console.error(err);
           setError("Failed to retrieve location.");
