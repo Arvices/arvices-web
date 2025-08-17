@@ -193,7 +193,7 @@ const rateUser = async (
     review: reviewComment,
   };
   const config = {
-    url: `${baseUrl}/user/rateuser/${id}/${rating}`,
+    url: `${baseUrl}/user/rateuser`,
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
     data: payload,
@@ -255,13 +255,10 @@ const getRecentShowcase = async () => {
   return axios(config);
 };
 
-const getTopProfessionals = async (token: string) => {
+const getTopProfessionals = async () => {
   const config = {
     url: `${baseUrl}/user/gettopprofessionals`,
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   };
   return axios(config);
 };
@@ -277,10 +274,28 @@ const getRisingTalent = async (token: string) => {
   return axios(config);
 };
 
-const getServiceProvidersAroundMe = async () => {
+interface GetServiceProvidersParams {
+  latitude: number;
+  longitude: number;
+  search?: string;
+  category?: number[]; // array of category IDs
+  startDate?: string;
+  endDate?: string;
+  orderBy?: "ASC" | "DESC";
+  page?: number;
+  limit?: number;
+}
+
+const getServiceProvidersAroundMe = async (
+  params: GetServiceProvidersParams,
+) => {
   const config = {
     url: `${baseUrl}/user/getserviceprovidersaroundme`,
-    method: "GET",
+    method: "GET" as const,
+    params: {
+      ...params,
+      category: params.category ? params.category.join(",") : undefined, // convert array to string
+    },
   };
   return axios(config);
 };

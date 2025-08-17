@@ -98,7 +98,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
     if (!auth.isAuthenticated) {
       openNotification(
         "topRight",
-        "Logging before you can follow this user, you must sign in.",
+        "To follow this user, you must sign in.",
         "You will be redirected to the login page",
         "info",
       );
@@ -119,6 +119,24 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
     } catch (error) {
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewUser = async (id: number) => {
+    let url = `/user-profile/${id}`;
+    if (!auth.isAuthenticated) {
+      openNotification(
+        "topRight",
+        "To view this user page, you must sign in.",
+        "You will be redirected to the login page",
+        "info",
+      );
+      setTimeout(() => {
+        navigate("/login");
+      }, 200);
+      return;
+    } else {
+      navigate(url);
     }
   };
 
@@ -178,7 +196,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
             />{" "}
             {provider?.rating} Overall Rating
           </div>
-          <p>0 Satisfied Clients</p>
+          <p>{provider.satisfiedClients || 0} Satisfied Clients</p>
         </div>
       </div>
 
@@ -203,14 +221,15 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
           </Button>
         </div>
         <div className="flex-1">
-          <Link to={`/user-profile/${provider.id}`}>
+          <>
             <Button
               block
+              onClick={() => handleViewUser(provider.id)}
               className="!py-6 !border !border-royalblue-tint3 text-royalblue-shade3"
             >
               View Page <ArrowUpRight className="inline ml-1" size={18} />
             </Button>
-          </Link>
+          </>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Icon from "feather-icons-react";
+import { MapPin, Search } from "feather-icons-react";
 import "./style.css";
 
 import heroImg from "../../assets/images/services.svg";
@@ -27,11 +27,11 @@ import {
   ProviderCard,
 } from "../../components/cards/appcards";
 import { getTopProfessionals } from "../../api-services/auth-re";
-import { useAuth } from "../../contexts/AuthContext";
 import LocationInput from "../../components/map/LocationInput";
 import { useCategory } from "../../contexts/CategoryContext";
 import { useNavigate } from "react-router-dom";
-//import { SlideUpUI } from "../../components/slideupUI";
+import { ContentHOC } from "../../components/nocontent";
+import { parseHttpError } from "../../api-services/parseReqError";
 
 export const categoryData: CategoryDataItem[] = [
   {
@@ -72,24 +72,24 @@ export const categoryData: CategoryDataItem[] = [
 ];
 
 const Home: React.FC = () => {
-  let auth = useAuth();
   const [topLoading, setTopLoading] = useState(true);
-  const [topError, setTopError] = useState(false);
+  const [topError, setTopError] = useState("");
   const [topProfessionals, setTopProfessionals] = useState<any[]>([]);
   const navigate = useNavigate();
   const category = useCategory();
-  console.log({ topLoading, topError });
+  const [locationInput, setLocationInput] = useState("");
+
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const fetchTopProfessionals = async () => {
     try {
       setTopLoading(true);
-      setTopError(false);
-      const res = await getTopProfessionals(auth.token);
-
-      console.log({ resTop: res });
+      setTopError("");
+      const res = await getTopProfessionals();
       setTopProfessionals(res?.data?.response || []);
     } catch (err) {
-      setTopError(true);
+      let message = parseHttpError(err);
+      setTopError(message);
     } finally {
       setTopLoading(false);
     }
@@ -101,7 +101,24 @@ const Home: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const handleSearch = () => {
-    navigate(`/service-providers?filter1=val&filter2=val2`);
+    const queryParams = new URLSearchParams();
+
+    // Add category if it is a truthy value
+    if (selectedCategory) {
+      queryParams.append("category", selectedCategory);
+    }
+
+    // Add location if its address is a truthy value
+    if (locationInput) {
+      queryParams.append("location", locationInput);
+    }
+
+    // Construct the final URL with the filtered query string
+    const queryString = queryParams.toString();
+    const path = `/service-providers${queryString ? "?" + queryString : ""}`;
+
+    // Navigate to the new URL
+    navigate(path);
   };
 
   return (
@@ -112,6 +129,7 @@ const Home: React.FC = () => {
         onClose={() => setShowModal(false)}
         onApply={(locationData) => {
           console.log("Selected location:", locationData);
+          setLocationInput(locationData.address);
           setShowModal(false);
         }}
       />
@@ -142,38 +160,62 @@ const Home: React.FC = () => {
             vendors in your locality. We Take care of the search for trustworthy
             and seasoned professional who guarantee a good Job.
           </p>
-          <div className="flex max-w-[550px] text-[13px] mt-10 sm:gap-x-2 mx-auto">
-            <div className="relative flex-1 border border-gray-200 pl-0 sm:pl-3 rounded-4xl h-auto">
-              <select className=" w-[calc(100%-120px)] p-4 focus:border-0 hover:border-0 active:border-0">
-                <option value={""}>Select category</option>
-                {category.categories.map((category, index) => {
-                  return (
-                    <option key={index} value={category.id}>
-                      {category.name}
-                    </option>
-                  );
-                })}
-              </select>
-              <div className="w-max absolute top-[15px] right-2">
-                <button
-                  className="w-max font-medium cursor-pointer"
-                  onClick={() => setShowModal((prev) => !prev)}
+          <div className="text-[13px] mt-10 sm:gap-x-2 mx-auto bg-white rounded-2xl  p-5">
+            <p className="text-sm text-gray-500 mb-2">
+              Search by category and location. Enter your preferred search
+              parameters.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 max-w-[750px] gap-3">
+              {/* Div 1: Category Select */}
+              <div>
+                <select
+                  className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
                 >
-                  <span>Add Location </span>
-                  <span>
-                    <Icon className="inline" size={18} icon="map-pin" />
-                  </span>
+                  <option value="">Select category</option>
+                  {category.categories.map((cat, index) => {
+                    return (
+                      <option key={index} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Div 2 & 3: Location Input and "Add Location" Button */}
+              <div>
+                <input
+                  name="location"
+                  placeholder="Enter location"
+                  value={locationInput}
+                  onChange={(e) => setLocationInput(e.target.value)}
+                  className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
+                />
+              </div>
+
+              {/* Div 3: Location Input and "Add Location" Button */}
+              <div>
+                <button
+                  onClick={() => setShowModal((prev) => !prev)}
+                  className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
+                >
+                  <MapPin className="inline-block mr-2 w-4 h-4" />
+                  <span className="inline">Add Location</span>
                 </button>
               </div>
-            </div>
-            <div>
-              <button
-                onClick={handleSearch}
-                className="p-4 rounded-4xl bg-royalblue-main  text-white dark:text-white cursor-pointer"
-              >
-                <span className="hidden sm:inline">Search </span>
-                <Icon className="inline" size={18} icon="search" />
-              </button>
+
+              {/* Div 4: Search Button */}
+              <div>
+                <button
+                  onClick={handleSearch}
+                  className="h-12 w-full cursor-pointer text-white rounded bg-gradient-to-r from-purple-400 to-pink-500 focus:outline-none focus:ring-0 text-sm font-medium"
+                >
+                  <Search className="inline-block mr-2 w-4 h-4" />
+                  <span className="inline">Search</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -219,18 +261,26 @@ const Home: React.FC = () => {
         </div>
         <div>
           <div className="flex flex-wrap gap-5">
-            {topProfessionals
-              .concat(topProfessionals)
-              .map((provider, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="max-w-[400px] min-w-[300px] flex-1"
-                  >
-                    <ProviderCard provider={provider} />
-                  </div>
-                );
-              })}
+            <ContentHOC
+              loading={topLoading}
+              error={!!topError}
+              errMessage={topError || ""}
+              actionFn={getTopProfessionals}
+              noContent={topProfessionals.length === 0}
+              minHScreen={false}
+              UIComponent={topProfessionals
+                .concat(topProfessionals)
+                .map((provider, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="max-w-[400px] min-w-[300px] flex-1"
+                    >
+                      <ProviderCard provider={provider} />
+                    </div>
+                  );
+                })}
+            />
           </div>
         </div>
 

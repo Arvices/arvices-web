@@ -49,7 +49,7 @@ export const BookingCalendar: React.FC<{
   const { setLoading, setLoadingText } = useLoading();
   const auth = useAuth();
   const navigate = useNavigate();
-  const {openNotification} = useNotificationContext()
+  const { openNotification } = useNotificationContext();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedFromTime, setSelectedFromTime] = useState<string | null>(null);
   const [selectedToTime, setSelectedToTime] = useState<string | null>(null);
@@ -121,51 +121,54 @@ export const BookingCalendar: React.FC<{
       depositAmount,
     };    
     */
-  
-const handleBookingSubmit = async () => {
-  const payload: BookingData = {
-    totalCost,
-    totalDuration,
-    bookingDate: moment(selectedDate).format("YYYY-MM-DD"),
-    bookingFromTime: selectedFromTime?.toString() || "",
-    bookingToTime: selectedToTime?.toString() || "",
-    clientEmail: clientDetails.email,
-    clientName: clientDetails.name,
-    clientPhone: clientDetails.phone,
-    clientLocation: clientDetails.location,
-    clientNotes: clientDetails.notes,
-    depositAmount: totalCost / 2, // Ensure this is not hardcoded to 0
-    serviceId: selectedServiceDetails.map((service) => service.id),
+
+  const handleBookingSubmit = async () => {
+    const payload: BookingData = {
+      totalCost,
+      totalDuration,
+      bookingDate: moment(selectedDate).format("YYYY-MM-DD"),
+      bookingFromTime: selectedFromTime?.toString() || "",
+      bookingToTime: selectedToTime?.toString() || "",
+      clientEmail: clientDetails.email,
+      clientName: clientDetails.name,
+      clientPhone: clientDetails.phone,
+      clientLocation: clientDetails.location,
+      clientNotes: clientDetails.notes,
+      depositAmount: totalCost / 2, // Ensure this is not hardcoded to 0
+      serviceId: selectedServiceDetails.map((service) => service.id),
+    };
+
+    try {
+      // 1. Set the loading state and text at the beginning of the request
+      setLoading(true);
+      setLoadingText("Creating your booking...");
+
+      // 2. Await the API call
+      await createBooking(payload, auth.token);
+
+      // 3. On success, show a success notification and navigate
+      openNotification(
+        "topRight",
+        "Booking Confirmed",
+        "Your booking has been successfully created!",
+        "success",
+      );
+      navigate("/bookings");
+    } catch (error) {
+      // 4. On error, log the error and show an error notification
+      console.error("Booking failed:", error);
+      openNotification(
+        "topRight",
+        "Booking Failed",
+        "An error occurred while creating your booking. Please try again.",
+        "error",
+      );
+    } finally {
+      // 6. Always stop the loading state at the end, regardless of success or failure
+      setLoading(false);
+      setLoadingText("");
+    }
   };
-
-  try {
-    // 1. Set the loading state and text at the beginning of the request
-    setLoading(true);
-    setLoadingText("Creating your booking...");
-
-    // 2. Await the API call
-    await createBooking(payload, auth.token);
-
-    // 3. On success, show a success notification and navigate
-    openNotification("topRight", "Booking Confirmed", "Your booking has been successfully created!", "success");
-    navigate("/bookings")
-
-  } catch (error) {
-    // 4. On error, log the error and show an error notification
-    console.error("Booking failed:", error);
-    openNotification(
-      "topRight",
-      "Booking Failed",
-      "An error occurred while creating your booking. Please try again.",
-      "error"
-    );
-
-  } finally {
-    // 6. Always stop the loading state at the end, regardless of success or failure
-    setLoading(false);
-    setLoadingText("");
-  }
-};
 
   const resetBooking = () => {
     setIsOpen(false);

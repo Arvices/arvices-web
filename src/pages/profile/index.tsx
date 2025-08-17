@@ -12,9 +12,8 @@ import { UserAccount } from "../../api-services/auth";
 import { parseHttpError } from "../../api-services/parseReqError";
 import AvailabilitySection from "./Availability";
 import { getInitials } from "../../util/getInitials";
-import { getAllOffers } from "../../api-services/offer.service";
-import { formatCount, formatRating } from "../../util/mainutils";
-import { CheckCheckIcon } from "lucide-react";
+import { formatRating } from "../../util/mainutils";
+import { CheckCheckIcon, MessageCircle } from "lucide-react";
 import moment from "moment";
 import { getAllProfileService } from "../../api-services/profileservice.service";
 import { ServiceOfferingPayload } from "./profile.types";
@@ -41,29 +40,7 @@ const Profile = (): React.ReactNode => {
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileErr, setProfileErr] = useState<string | null>(null);
-  const [happyClients, setHappyClients] = useState<string>("");
 
-  const getHappyClients = async () => {
-    try {
-      const response = await getAllOffers(auth.token, {
-        user: auth?.user?.id,
-        page: 1,
-        limit: 50,
-        status: "Completed",
-      });
-
-      // Assuming the response has a `data` property with an array of offers.
-      // We can get the count from the array's length.
-      const completedOffersCount = response.data.response.length;
-      setHappyClients(formatCount(completedOffersCount));
-
-      console.log("Successfully fetched happy clients:", completedOffersCount);
-    } catch (error) {
-      console.error("Failed to fetch happy clients:", error);
-      // You could also set an error state here to display in the UI
-      // setHappyClientsError("Failed to load count.");
-    }
-  };
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState<boolean>(false);
   const [reviewsError, setReviewsError] = useState<string>("");
@@ -98,6 +75,7 @@ const Profile = (): React.ReactNode => {
   const [services, setServices] = useState<ServiceOfferingPayload[]>([]);
   const [servicesLoading, setServicesLoading] = useState<boolean>(false);
   const [servicesError, setServicesError] = useState<string>("");
+
   console.log({ servicesLoading, servicesError });
 
   const loadUserServices = async () => {
@@ -115,7 +93,6 @@ const Profile = (): React.ReactNode => {
       setServices(response.data.response);
       console.log("User services fetched:", response.data.response);
     } catch (error) {
-      console.error("Failed to load user services:", error);
       setServicesError("Failed to fetch services. Please try again later.");
     } finally {
       setServicesLoading(false);
@@ -127,10 +104,8 @@ const Profile = (): React.ReactNode => {
       setProfileLoading(true);
       const response = await getAccountById(String(id), auth.token);
       setUserProfile(response.data.response);
-      console.log({ res: response.data });
       setProfileErr(null);
     } catch (error: any) {
-      console.log({ error });
       const message = parseHttpError(error);
       setProfileErr(message || "Failed to load profile");
       throw error;
@@ -142,7 +117,6 @@ const Profile = (): React.ReactNode => {
   useEffect(() => {
     if (id && auth?.token) {
       loadProfile();
-      getHappyClients();
       loadUserReviews();
       loadUserServices();
     }
@@ -231,6 +205,10 @@ const Profile = (): React.ReactNode => {
                   <Heart className="w-4 h-4 mr-2" />
                   Save to Favorites
                 </Button>
+                <button className="flex items-center justify-center space-x-2 px-6 py-3 border border-transparent text-sm font-medium rounded-full text-blue-800 bg-white hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Chat With User</span>
+                </button>
               </div>
             )}
 
@@ -238,7 +216,7 @@ const Profile = (): React.ReactNode => {
             <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-8 items-center justify-center">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {happyClients}
+                  {userProfile?.satisfiedClients}
                 </div>
                 <div className="text-sm text-gray-600">Happy Clients</div>
               </div>
