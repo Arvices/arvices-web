@@ -3,7 +3,6 @@ import { FilterComponent } from "./Filter";
 import { categoryData } from "../home";
 import { CategoryCarousel } from "./CategoryCarousel";
 import { ProviderCard } from "../../components/cards/appcards";
-
 import {
   getProfessionals,
   getServiceProvidersAroundMe,
@@ -18,7 +17,6 @@ import axios from "axios";
 import { parseHttpError } from "../../api-services/parseReqError";
 import { List, MapIcon } from "lucide-react";
 import MapView from "./MapView";
-
 export interface LocationData {
   coordinates: {
     lat: number;
@@ -34,27 +32,23 @@ export interface Filters {
   location: string;
   locationData: LocationData;
 }
-
 const ArvicesProviders = (): React.ReactNode => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [professionals, setProfessionals] = useState<UserAccount[]>([]);
   const { openNotification } = useNotificationContext();
-
   const [searchParams] = useSearchParams();
 
   const [isMapView, setIsMapView] = useState(false);
+
   const toggleMapview = () => {
     setIsMapView((prev) => !prev);
   };
 
-  // Get the 'category' query parameter
   const category = searchParams.get("category");
-  // Get the 'location' query parameter
   const location = searchParams.get("location");
   const [position, setPosition] = useState("");
-
   const [filters, setFilters] = useState<Filters>({
     searchTerm: "",
     category: category || "",
@@ -69,18 +63,17 @@ const ArvicesProviders = (): React.ReactNode => {
       state: "",
     },
   });
-
   const [isFilter, setIsFilter] = useState(false);
-
   const handleFilterChange = (name: string, value: string | LocationData) => {
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-
   const handleFilterApply = () => {
-    fetchProfessionals();
+    loadServiceProviders()
     setIsFilter(true);
   };
-
   const handeClearFilter = () => {
     setFilters({
       searchTerm: "",
@@ -98,26 +91,21 @@ const ArvicesProviders = (): React.ReactNode => {
     });
     setIsFilter(false);
   };
-
   const geoCodeLocation = async (address: string) => {
-    const accessToken = mapBoxPublickKey; // Replace with your actual token
+    const accessToken = mapBoxPublickKey;
     const encodedAddress = encodeURIComponent(address);
-
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${accessToken}`;
-
     try {
       const response = await axios.get(url);
       const data = response.data;
-
-      // Check if any features (results) were returned
       if (data.features.length > 0) {
         const coordinates = data.features[0].center;
         const [longitude, latitude] = coordinates;
-
-        // Return the geocoded coordinates
-        return { latitude, longitude };
+        return {
+          latitude,
+          longitude,
+        };
       } else {
-        // Return null if no results are found
         return null;
       }
     } catch (error) {
@@ -129,19 +117,16 @@ const ArvicesProviders = (): React.ReactNode => {
       } else {
         console.error("An unexpected error occurred:", error);
       }
-      throw error; // Handle the error gracefully
+      throw error;
     }
   };
-
   const fetchProfessionalsAroundMe = async () => {
     setLoading(true);
     setError("");
-
-    // GeoCode location first
-    const geoCodeResponse = await geoCodeLocation(filters.location || ""); // Use filters.location
-    console.log({ geoCodeResponse });
-
-    // Handle case where geocoding fails or returns no results
+    const geoCodeResponse = await geoCodeLocation(filters.location || "");
+    console.log({
+      geoCodeResponse,
+    });
     if (
       !geoCodeResponse ||
       !geoCodeResponse.latitude ||
@@ -154,27 +139,19 @@ const ArvicesProviders = (): React.ReactNode => {
         "error",
       );
       setLoading(false);
-      return; // Stop execution if location cannot be geocoded
+      return;
     }
-
     setPosition(
       [geoCodeResponse.latitude, geoCodeResponse.longitude].join(","),
     );
-
     try {
       const res = await getServiceProvidersAroundMe({
-        page: 1, // Assuming you always want the first page for "around me" search
+        page: 1,
         limit: 10,
         latitude: geoCodeResponse.latitude,
         longitude: geoCodeResponse.longitude,
-        // You might want to add category and search term filters here too if applicable
-        // category: filters.category || undefined,
-        // search: filters.searchTerm || undefined,
       });
-
-      console.log("users around me", res); // Log the full response for debugging
-
-      // Handle no content scenario, mirroring fetchProfessionals
+      console.log("users around me", res);
       if (res?.data?.response?.length === 0) {
         openNotification(
           "topRight",
@@ -182,14 +159,11 @@ const ArvicesProviders = (): React.ReactNode => {
           "There are no professionals around this location matching your criteria.",
           "info",
         );
-        setProfessionals([]); // Clear previous professionals if no new ones are found
+        setProfessionals([]);
         return;
       }
-
-      // Set the professionals data
       setProfessionals(res?.data?.response || []);
     } catch (err: any) {
-      // Catch and set the error, mirroring fetchProfessionals
       let message = parseHttpError(err);
       setError(message);
       openNotification(
@@ -199,15 +173,12 @@ const ArvicesProviders = (): React.ReactNode => {
         "error",
       );
     } finally {
-      // Always stop loading
       setLoading(false);
     }
   };
-
   const fetchProfessionals = async () => {
     setLoading(true);
     setError("");
-
     try {
       const res = await getProfessionals({
         search: filters.searchTerm || undefined,
@@ -216,15 +187,14 @@ const ArvicesProviders = (): React.ReactNode => {
         page: currentPage,
         limit: 10,
       });
-
       if (res?.data?.response?.length === 0) {
         openNotification("topRight", "No More Content To Show", "", "info");
         return;
       }
-
       setProfessionals(res?.data?.response || []);
-
-      console.log({ res });
+      console.log({
+        res,
+      });
     } catch (err: any) {
       let message = parseHttpError(err);
       setError(message);
@@ -232,32 +202,25 @@ const ArvicesProviders = (): React.ReactNode => {
       setLoading(false);
     }
   };
-
   const loadServiceProviders = async () => {
-    if (location !== null) {
+    if (filters.location) {
       fetchProfessionalsAroundMe();
     } else {
       fetchProfessionals();
     }
   };
-
   useEffect(() => {
-    // Update state or directly use the values
-    if (category || location) {
+    if(filters.location){
     }
-    if (location) {
-    }
+  }, [filters]);
 
-    console.log("Extracted Category:", category);
-    console.log("Extracted Location:", location);
-  }, [searchParams]);
   useEffect(() => {
     loadServiceProviders();
   }, []);
   return (
     <section className="min-h-screen pt-14 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto pb-15">
-        {/* Page Starts*/}
+        {}
         <div className="mt-5">
           <FilterComponent
             isFilter={isFilter}
@@ -284,19 +247,19 @@ const ArvicesProviders = (): React.ReactNode => {
               </p>
             </div>
             <div className="w-full sm:w-max pt-3 sm:pt-0">
-              {location && (
+              {filters.location && (
                 <>
                   {isMapView ? (
                     <button
                       onClick={toggleMapview}
-                      className="w-full inline-block h-10 px-5 text-sm font-medium tracking-tight rounded-full cursor-pointer text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="w-full inline-block h-10 px-5 text-sm font-medium tracking-tight rounded-[8px] cursor-pointer text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       <List className="inline w-4 h-4" /> View As List
                     </button>
                   ) : (
                     <button
                       onClick={toggleMapview}
-                      className="w-full inline-block h-10 px-5 text-sm font-medium tracking-tight rounded-full cursor-pointer text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="w-full inline-block h-10 px-5 text-sm font-medium tracking-tight rounded-[8px] cursor-pointer text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       <MapIcon className="inline w-4 h-4" /> Switch To Map View
                     </button>
@@ -349,5 +312,4 @@ const ArvicesProviders = (): React.ReactNode => {
     </section>
   );
 };
-
 export default ArvicesProviders;

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "antd";
 import { Heart, MessageCircle, Eye } from "feather-icons-react";
 import image from "../../assets/images/pro-sample-img.png";
-
 interface PortfolioItem {
   id: number;
   title: string;
@@ -13,7 +12,6 @@ interface PortfolioItem {
   description: string;
   views: string;
 }
-
 const portfolioItems: PortfolioItem[] = [
   {
     id: 1,
@@ -82,17 +80,13 @@ const portfolioItems: PortfolioItem[] = [
       "A rich, cultural bridal look celebrating tradition and elegance. Accentuated with bold colors and classic detailing.",
   },
 ];
-
 const categories = ["All", "Bridal", "Events", "Natural", "Editorial", "Glam"];
-
 export function PortfolioFilter() {
   const [activeFilter, setActiveFilter] = useState("All");
-
   const filteredItems =
     activeFilter === "All"
       ? portfolioItems
       : portfolioItems.filter((item) => item.category === activeFilter);
-
   return (
     <section className="py-16 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
@@ -100,7 +94,7 @@ export function PortfolioFilter() {
           Latest Updates
         </h2>
 
-        {/* Filter Buttons */}
+        {}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
           {categories.map((category) => (
             <Button
@@ -124,7 +118,7 @@ export function PortfolioFilter() {
               key={item.id}
               className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group"
             >
-              {/* Image Cover */}
+              {}
               <div className="relative aspect-[4/3] bg-gray-100">
                 <img
                   src={item.image}
@@ -133,7 +127,7 @@ export function PortfolioFilter() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
 
-                {/* Badge */}
+                {}
                 <div className="absolute top-3 right-3 z-20">
                   <span className="bg-white text-gray-800 text-xs font-medium px-2 py-1 rounded shadow">
                     {item.category}
@@ -141,7 +135,7 @@ export function PortfolioFilter() {
                 </div>
               </div>
 
-              {/* Content */}
+              {}
               <div className="p-4">
                 <h3 className="font-semibold tracking-tight text-base mb-2 group-hover:text-royalblue-main-600 transition-colors duration-300">
                   {item.title}

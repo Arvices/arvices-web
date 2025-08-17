@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Modal, Rate, Input, Button } from "antd";
-
 interface RateUserModalProps {
   open: boolean;
   onCancel: () => void;
@@ -8,7 +7,6 @@ interface RateUserModalProps {
   initialRating?: number;
   initialComment?: string;
 }
-
 const RateUserModal: React.FC<RateUserModalProps> = ({
   open,
   onCancel,
@@ -19,7 +17,6 @@ const RateUserModal: React.FC<RateUserModalProps> = ({
   const [rating, setRating] = useState<number>(initialRating);
   const [comment, setComment] = useState<string>(initialComment);
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -28,7 +25,6 @@ const RateUserModal: React.FC<RateUserModalProps> = ({
       setLoading(false);
     }
   };
-
   return (
     <Modal
       open={open}
@@ -36,11 +32,13 @@ const RateUserModal: React.FC<RateUserModalProps> = ({
       footer={null}
       centered
       width={420}
-      bodyStyle={{ padding: "1.5rem" }}
+      bodyStyle={{
+        padding: "1.5rem",
+      }}
       title={<span className="text-lg font-semibold">Rate this User</span>}
     >
       <div className="flex flex-col gap-4">
-        {/* Rating */}
+        {}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
             Your Rating
@@ -48,7 +46,7 @@ const RateUserModal: React.FC<RateUserModalProps> = ({
           <Rate value={rating} onChange={setRating} />
         </div>
 
-        {/* Comment */}
+        {}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
             Your Review
@@ -62,7 +60,7 @@ const RateUserModal: React.FC<RateUserModalProps> = ({
           />
         </div>
 
-        {/* Actions */}
+        {}
         <div className="flex justify-end gap-2 pt-2">
           <Button onClick={onCancel} disabled={loading}>
             Cancel
@@ -80,5 +78,4 @@ const RateUserModal: React.FC<RateUserModalProps> = ({
     </Modal>
   );
 };
-
 export default RateUserModal;

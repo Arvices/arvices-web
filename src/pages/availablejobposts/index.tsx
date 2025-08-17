@@ -9,10 +9,8 @@ import { ContentHOC } from "../../components/nocontent";
 import { Pagination } from "../../components/pagination";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { Filters, LocationData } from "../providers";
-
 const AvailableJobPostings = (): React.ReactNode => {
   const auth = useAuth();
-
   const [currentPage, setCurrentPage] = useState(1);
   const { openNotification } = useNotificationContext();
   const [filters, setFilters] = useState<Filters>({
@@ -29,22 +27,20 @@ const AvailableJobPostings = (): React.ReactNode => {
       state: "",
     },
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [jobPostings, setJobPostings] = useState<Job[]>([]); // Replace `any` with your actual type if available
-
+  const [jobPostings, setJobPostings] = useState<Job[]>([]);
   const handleFilterChange = (name: string, value: string | LocationData) => {
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-
   const [isFilter, setIsFilter] = useState(false);
-
   const handleFilterApply = () => {
     loadServiceRequest();
     setIsFilter(true);
   };
-
   const handeClearFilter = () => {
     setFilters({
       searchTerm: "",
@@ -62,7 +58,6 @@ const AvailableJobPostings = (): React.ReactNode => {
     });
     setIsFilter(false);
   };
-  // Add an offer to a specific job by jobId
   const addOfferToJob = (jobId: number, newOffer: any) => {
     setJobPostings((prev) =>
       prev.map((job) =>
@@ -75,8 +70,6 @@ const AvailableJobPostings = (): React.ReactNode => {
       ),
     );
   };
-
-  // Update an offer in a specific job by jobId and offerId
   const updateOfferInJob = (
     jobId: number,
     offerId: number,
@@ -86,22 +79,27 @@ const AvailableJobPostings = (): React.ReactNode => {
     const jobOffers = job?.offer || [];
     const filtered = jobOffers?.filter((x) => x.id !== offerId);
     const newOffers = [...filtered, updatedOffer];
-    console.log({ newOffers });
+    console.log({
+      newOffers,
+    });
     setJobPostings((prev) =>
       prev.map((job) =>
         job.id === jobId
           ? {
               ...job,
               offer: (job.offer || []).map((offer: any) =>
-                offer.id === offerId ? { ...offer, ...updatedOffer } : offer,
+                offer.id === offerId
+                  ? {
+                      ...offer,
+                      ...updatedOffer,
+                    }
+                  : offer,
               ),
             }
           : job,
       ),
     );
   };
-
-  // Remove an offer from a specific job by jobId and offerId
   const removeOfferFromJob = (jobId: number, offerId: number) => {
     setJobPostings((prev) =>
       prev.map((job) =>
@@ -114,14 +112,16 @@ const AvailableJobPostings = (): React.ReactNode => {
       ),
     );
   };
-
-  // Unified handler to be used by children
   const handleOfferAction = (
     action: "add" | "update" | "delete",
     jobId: number,
     offer: any,
   ) => {
-    console.log({ action, jobId, offer });
+    console.log({
+      action,
+      jobId,
+      offer,
+    });
     if (action === "add") {
       addOfferToJob(jobId, offer);
     } else if (action === "update") {
@@ -130,11 +130,9 @@ const AvailableJobPostings = (): React.ReactNode => {
       removeOfferFromJob(jobId, offer.id);
     }
   };
-
   const loadServiceRequest = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await getAllServiceRequests({
         token: auth.token,
@@ -144,13 +142,14 @@ const AvailableJobPostings = (): React.ReactNode => {
         category: Number(filters.category),
         location: filters.location || undefined,
       });
-
       if (response?.data?.response?.length === 0) {
         openNotification("topRight", "No More Content To Show", "", "info");
         return;
       }
       setJobPostings(response?.data?.response || []);
-      console.log({ response });
+      console.log({
+        response,
+      });
     } catch (err: any) {
       console.error(err);
       setError(
@@ -162,19 +161,18 @@ const AvailableJobPostings = (): React.ReactNode => {
       setLoading(false);
     }
   };
-
-  console.log({ jobPostings });
-
+  console.log({
+    jobPostings,
+  });
   useEffect(() => {
     if (auth.token) {
       loadServiceRequest();
     }
-    // include currentPage and filters in the dependencies
   }, [auth.token, currentPage, filters]);
   return (
     <section className="min-h-screen pt-13  text-royalblue-shade5 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Page Starts*/}
+        {}
         <div className="mt-5">
           <FilterComponent
             isFilter={isFilter}
@@ -241,5 +239,4 @@ const AvailableJobPostings = (): React.ReactNode => {
     </section>
   );
 };
-
 export default AvailableJobPostings;

@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useMemo } from "react";
 import { notification } from "antd";
 import type { NotificationArgsProps } from "antd";
-
 type NotificationPlacement = NotificationArgsProps["placement"];
 type NotificationType = NotificationArgsProps["type"];
-
 interface NotificationContextType {
   openNotification: (
     placement: NotificationPlacement,
@@ -13,12 +11,9 @@ interface NotificationContextType {
     type: NotificationType,
   ) => void;
 }
-
-// Create a default context
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined,
 );
-
 export const useNotificationContext = (): NotificationContextType => {
   const context = useContext(NotificationContext);
   if (!context) {
@@ -28,21 +23,19 @@ export const useNotificationContext = (): NotificationContextType => {
   }
   return context;
 };
-
-// Notification Provider Component
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const NotificationProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const [api, contextHolder] = notification.useNotification();
-
-  // Function to open notifications
   const openNotification = (
     placement: NotificationPlacement,
     message: string,
     description: string,
     type: NotificationType,
   ) => {
-    console.log({ notificationType: type });
+    console.log({
+      notificationType: type,
+    });
     if (type == "info") {
       api.info({
         message,
@@ -73,10 +66,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
   };
-
-  // Memoize the context value
-  const contextValue = useMemo(() => ({ openNotification }), []);
-
+  const contextValue = useMemo(
+    () => ({
+      openNotification,
+    }),
+    [],
+  );
   return (
     <NotificationContext.Provider value={contextValue}>
       {contextHolder}

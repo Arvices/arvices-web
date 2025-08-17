@@ -1,40 +1,38 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import "./loading.css";
-
 import arvicesLogo from "../assets/logo.svg";
-
 interface LoadingContextProps {
   loading: boolean;
   loadingText: string;
   setLoading: (isLoading: boolean) => void;
   setLoadingText: (text: string) => void;
 }
-
 const LoadingContext = createContext<LoadingContextProps | undefined>(
   undefined,
 );
-
-export const LoadingProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const LoadingProvider: React.FC<{
+  children: ReactNode;
+}> = ({ children }) => {
   const [loading, setLoadingState] = useState(false);
   const [loadingText, setLoadingTextState] = useState("");
-
   const setLoading = (isLoading: boolean) => {
     setLoadingState(isLoading);
     if (!isLoading) {
-      setLoadingTextState(""); // clear text when loading ends
+      setLoadingTextState("");
     }
   };
-
   const setLoadingText = (text: string) => {
     setLoadingTextState(text);
   };
-
   return (
     <LoadingContext.Provider
-      value={{ loading, loadingText, setLoading, setLoadingText }}
+      value={{
+        loading,
+        loadingText,
+        setLoading,
+        setLoadingText,
+      }}
     >
       {loading && (
         <div className="loading-overlay-bg">
@@ -52,8 +50,6 @@ export const LoadingProvider: React.FC<{ children: ReactNode }> = ({
     </LoadingContext.Provider>
   );
 };
-
-// ✅ Custom hook to access loading context
 export const useLoading = () => {
   const context = useContext(LoadingContext);
   if (!context) {

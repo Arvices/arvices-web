@@ -3,13 +3,11 @@ import { User2, Layers } from "lucide-react";
 import { CounterOffer, Offer } from "../../types/main.types";
 import { useAuth } from "../../contexts/AuthContext";
 import { getLatestCounterOffer } from "../../util/jobutils";
-
 interface OfferDetailsProps {
   offer: CounterOffer | Offer;
   title: string;
   name: string;
 }
-
 export const OfferDetails: React.FC<OfferDetailsProps> = ({
   offer,
   title,
@@ -43,21 +41,15 @@ export const OfferDetails: React.FC<OfferDetailsProps> = ({
     </div>
   );
 };
-
 interface OfferHistoryProps {
   offer: Offer;
 }
-
 export const OfferHistory: React.FC<OfferHistoryProps> = ({ offer }) => {
   const auth = useAuth();
-
-  // Separate offers by type
   const clientOffers = offer.counterOffer.filter((x) => x.type === "Client");
   const providerOffers = offer.counterOffer.filter(
     (x) => x.type === "Service Provider",
   );
-
-  // Get latest ones
   const latestClientOffer = getLatestCounterOffer(clientOffers);
   const latestProviderOffer = getLatestCounterOffer(providerOffers) || offer;
   const latestOffer = getLatestCounterOffer(offer.counterOffer);
@@ -69,18 +61,17 @@ export const OfferHistory: React.FC<OfferHistoryProps> = ({ offer }) => {
   });
   const getPreviousOppositeTypeOffer = () => {
     if (!latestOffer) return null;
-
     if (latestOffer.type === "Client") {
       return latestProviderOffer;
     } else {
       return latestClientOffer;
     }
   };
-
-  // Usage
   const prevOffer = getPreviousOppositeTypeOffer();
-  console.log({ prevOffer, latestOffer });
-
+  console.log({
+    prevOffer,
+    latestOffer,
+  });
   const clientview = (
     <div>
       {latestOffer && (
@@ -112,7 +103,6 @@ export const OfferHistory: React.FC<OfferHistoryProps> = ({ offer }) => {
       )}
     </div>
   );
-
   const providerview = (
     <div>
       {latestOffer && (
@@ -154,7 +144,6 @@ export const OfferHistory: React.FC<OfferHistoryProps> = ({ offer }) => {
       )}
     </div>
   );
-
   return (
     <div>
       {!latestOffer && (

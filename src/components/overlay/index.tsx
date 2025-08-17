@@ -1,21 +1,16 @@
 import React, { CSSProperties, useEffect, useRef } from "react";
 import { Twirl as Hamburger } from "hamburger-react";
 import "./style.css";
-
 let color = "#272727";
-
 interface OverlayPropsType {
   children: React.JSX.Element | Array<React.JSX.Element>;
   toggle: () => void;
   isOpen: boolean;
   styles?: CSSProperties;
 }
-
 function Overlay({ styles, children, toggle, isOpen }: OverlayPropsType) {
   const divRef = useRef<HTMLDivElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
-
-  // 🔐 Handle open/close class logic
   useEffect(() => {
     if (divRef.current && overlayRef.current) {
       if (isOpen) {
@@ -27,8 +22,6 @@ function Overlay({ styles, children, toggle, isOpen }: OverlayPropsType) {
       }
     }
   }, [isOpen]);
-
-  // 🔐 Handle outside click
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (
@@ -39,13 +32,11 @@ function Overlay({ styles, children, toggle, isOpen }: OverlayPropsType) {
         toggle();
       }
     };
-
     document.addEventListener("mousedown", handleOutsideClick);
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [isOpen, toggle]);
-
   return (
     <div>
       <div ref={overlayRef}></div>
@@ -58,5 +49,4 @@ function Overlay({ styles, children, toggle, isOpen }: OverlayPropsType) {
     </div>
   );
 }
-
 export default Overlay;

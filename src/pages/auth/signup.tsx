@@ -11,7 +11,6 @@ import {
   signUpEmailAndPassword,
   SignUpEmailAndPasswordBody,
 } from "../../api-services/auth";
-
 interface SignupFormState {
   fullName: string;
   email: string;
@@ -20,17 +19,15 @@ interface SignupFormState {
   passwordConfirm: string;
   address: string;
 }
-
 export const MyCustomGoogleLogin = () => {
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
-      console.log(tokenResponse); // contains access_token
+      console.log(tokenResponse);
     },
     onError: () => {
       console.log("Login Failed");
     },
   });
-
   return (
     <button
       onClick={() => login()}
@@ -41,13 +38,11 @@ export const MyCustomGoogleLogin = () => {
     </button>
   );
 };
-
 const Signup: React.FC = () => {
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
   const notify = useNotificationContext();
   const [agreesToTerms, setAgreesToTerms] = useState(false);
-
   const [signupForm, setSignupForm] = useState<SignupFormState>({
     fullName: "",
     email: "",
@@ -56,20 +51,19 @@ const Signup: React.FC = () => {
     passwordConfirm: "",
     address: "",
   });
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name) {
-      setSignupForm((prev) => ({ ...prev, [name]: value }));
+      setSignupForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     } else {
       throw new Error("Supply Input Name to make updates to Signup Form");
     }
   };
-
   const validateForm = (): boolean => {
     let valid = true;
-
-    // Validate Full Name
     if (!signupForm.fullName.trim()) {
       notify.openNotification(
         "topRight",
@@ -79,8 +73,6 @@ const Signup: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Email
     if (!signupForm.email.trim()) {
       notify.openNotification(
         "topRight",
@@ -98,8 +90,6 @@ const Signup: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Account Type
     if (!signupForm.accountType.trim()) {
       notify.openNotification(
         "topRight",
@@ -109,8 +99,6 @@ const Signup: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Password
     if (!signupForm.password) {
       notify.openNotification(
         "topRight",
@@ -139,8 +127,6 @@ const Signup: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Password Confirmation
     if (signupForm.password !== signupForm.passwordConfirm) {
       notify.openNotification(
         "topRight",
@@ -150,8 +136,6 @@ const Signup: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Address
     if (!signupForm.address.trim()) {
       notify.openNotification(
         "topRight",
@@ -161,10 +145,8 @@ const Signup: React.FC = () => {
       );
       valid = false;
     }
-
     return valid;
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let valid = validateForm();
@@ -190,21 +172,19 @@ const Signup: React.FC = () => {
       );
       navigate(`/verify-email?email=${signupForm.email}`);
     } catch (err: any) {
-      //
       let message = err?.message || "unknown error";
       notify.openNotification("topRight", "Failed", message, "error");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <section className="min-h-screen pt-13 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Page Starts*/}
+        {}
         <div className="max-w-[500px] mx-auto mt-10">
           <div className="text-center">
-            <h1 className="tracking-tighter text-royalblue-shade3 leading-[140%] text-4xl md:text-5xl lg:text-6xl font-medium pb-4">
+            <h1 className="tracking-tighter text-gray-900 leading-[140%] text-4xl md:text-5xl lg:text-6xl font-medium pb-4">
               Create Account
             </h1>
             <p className="text-gray-500">
@@ -215,7 +195,7 @@ const Signup: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="fullName"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Full Name
               </label>
@@ -232,7 +212,7 @@ const Signup: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="email"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Email
               </label>
@@ -249,7 +229,7 @@ const Signup: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="accountType"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Choose an Account Type.
               </label>
@@ -300,7 +280,7 @@ const Signup: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="address"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Address
               </label>
@@ -316,7 +296,7 @@ const Signup: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="password"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Password
               </label>
@@ -332,7 +312,7 @@ const Signup: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="passwordConfirm"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Confirm Password
               </label>
@@ -367,7 +347,7 @@ const Signup: React.FC = () => {
               </span>
             </div>
             <div className="mt-14">
-              <button className="w-full bg-royalblue-main text-white p-3 rounded cursor-pointer">
+              <button className="w-full bg-gray-900 text-white p-3 rounded cursor-pointer">
                 Create Account
               </button>
             </div>
@@ -384,7 +364,7 @@ const Signup: React.FC = () => {
           <div className="mt-10 mb-5 border-t border-gray-300" />
           <div className="py-2 text-center">
             <p className="text-sm text-gray-500 mb-5"> Or Continue With</p>
-            {/* Google Auth Button */}
+            {}
             <MyCustomGoogleLogin />
           </div>
         </div>
@@ -392,5 +372,4 @@ const Signup: React.FC = () => {
     </section>
   );
 };
-
 export default Signup;

@@ -8,10 +8,8 @@ import {
   Handshake,
   CheckCircle,
 } from "lucide-react";
-
 import { Star, Repeat, FileText } from "lucide-react";
 import { JobStatus, OfferStatus } from "../../components/cards/appcards";
-
 export interface JobActionItem {
   label: string;
   action: () => void;
@@ -19,9 +17,6 @@ export interface JobActionItem {
   icon?: LucideIcon;
   show?: boolean;
 }
-
-// Define job states for clarity
-
 export const buttonClasses = {
   neutral:
     "cursor-pointer bg-gray-100 text-gray-700 hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-gray-300",
@@ -44,15 +39,11 @@ export const buttonClasses = {
   mutedSlate:
     "cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200 focus:bg-slate-200 focus:ring-2 focus:ring-slate-300",
 } as const;
-
 export type ButtonStyleName = keyof typeof buttonClasses;
-
 export type JobActionsMap<T extends string> = Record<T, JobActionItem[]>;
-
 export interface JobActionsProps {
   job: any;
 }
-
 export const offerActions: JobActionsMap<OfferStatus> = {
   Pending: [
     {
@@ -89,19 +80,6 @@ export const offerActions: JobActionsMap<OfferStatus> = {
     },
   ],
   Ongoing: [
-    /**
-    {
-      label: "Send Update",
-      action: () => console.log("Sending update"),
-      styleClass: "neutral",
-      icon: MessageCircle,
-    },
-    {
-      label: "Upload Work",
-      action: () => console.log("Uploading work"),
-      styleClass: "primary",
-      icon: Upload,
-    }, */
     {
       label: "Message Client",
       action: () => console.log("Messaging client"),
@@ -116,13 +94,6 @@ export const offerActions: JobActionsMap<OfferStatus> = {
     },
   ],
   Completed: [
-    /*    
-    {
-      label: "View Feedback",
-      action: () => console.log("Viewing feedback"),
-      styleClass: "subtle",
-    },
-    */
     {
       label: "Message Client",
       action: () => console.log("Messaging client"),
@@ -131,7 +102,6 @@ export const offerActions: JobActionsMap<OfferStatus> = {
     },
   ],
 };
-
 export const jobActions: JobActionsMap<JobStatus> = {
   Open: [
     {
@@ -164,21 +134,6 @@ export const jobActions: JobActionsMap<JobStatus> = {
     },
   ],
   Completed: [
-    /*
-    
-    {
-      label: "View Summary",
-      action: () => console.log("Viewing summary"),
-      styleClass: "subtle",
-      icon: FileText,
-    },
-    {
-      label: "Rehire Provider",
-      action: () => console.log("Rehiring provider"),
-      styleClass: "primary",
-      icon: Repeat,
-    },
-    */
     {
       label: "Rate Provider",
       action: () => console.log("Rating provider"),
@@ -195,22 +150,17 @@ export const jobActions: JobActionsMap<JobStatus> = {
     },
   ],
 };
-
 export const clientOfferActions: JobActionsMap<OfferStatus> = {
   Pending: [
     {
       label: "Start Negotiation",
-      action: () => {
-        // handle accept logic here
-      },
+      action: () => {},
       styleClass: "primary",
       icon: Handshake,
     },
     {
       label: "Message Provider",
-      action: () => {
-        // handle message logic here
-      },
+      action: () => {},
       styleClass: "mutedBlue",
       icon: MessageSquare,
     },
@@ -218,25 +168,19 @@ export const clientOfferActions: JobActionsMap<OfferStatus> = {
   Negotiating: [
     {
       label: "Message Provider",
-      action: () => {
-        // handle message logic here
-      },
+      action: () => {},
       styleClass: "mutedBlue",
       icon: MessageSquare,
     },
     {
       label: "Accept This Proposal",
-      action: () => {
-        // handle accept proposal logic here
-      },
+      action: () => {},
       styleClass: "mutedGreen",
       icon: CheckCircle,
     },
     {
       label: "Make Counter Offer",
-      action: () => {
-        // handle counter offer logic here
-      },
+      action: () => {},
       styleClass: "primary",
       icon: Repeat,
     },
@@ -244,9 +188,7 @@ export const clientOfferActions: JobActionsMap<OfferStatus> = {
   Ongoing: [
     {
       label: "Message Provider",
-      action: () => {
-        // handle message logic here
-      },
+      action: () => {},
       styleClass: "mutedBlue",
       icon: MessageSquare,
     },
@@ -254,19 +196,15 @@ export const clientOfferActions: JobActionsMap<OfferStatus> = {
   Completed: [
     {
       label: "Message Provider",
-      action: () => {
-        // handle message logic here
-      },
+      action: () => {},
       styleClass: "mutedBlue",
       icon: MessageSquare,
     },
   ],
 };
-
 interface ActionButtonsProps {
   actions: JobActionItem[];
 }
-
 const ActionButtons: React.FC<ActionButtonsProps> = ({ actions }) => {
   return (
     <div className="flex gap-3">
@@ -284,5 +222,4 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ actions }) => {
     </div>
   );
 };
-
 export default ActionButtons;

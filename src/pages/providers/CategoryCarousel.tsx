@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { CategoryDataItem, HomeCatCard } from "../../components/cards/appcards";
 import { Carousel } from "antd";
-
 export const CategoryCarousel = ({
   categoryData,
 }: {
@@ -20,7 +19,7 @@ export const CategoryCarousel = ({
           {
             breakpoint: 1540,
             settings: {
-              slidesToShow: 8, // 1280 / 150 ≈ 8.5
+              slidesToShow: 8,
             },
           },
           {
@@ -73,8 +72,7 @@ export const CategoryCarousel = ({
           </div>
         ))}
       </Carousel>
-      {/*      <button onClick={() => carouselRef.current?.prev()}>Prev</button>
-      <button onClick={() => carouselRef.current?.next()}>Next</button> */}
+      {}
     </div>
   );
 };

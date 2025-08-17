@@ -1,7 +1,6 @@
 import React from "react";
 import { Result, Button, Spin } from "antd";
 import { Inbox } from "feather-icons-react";
-
 interface ContentHOCProps {
   loading: boolean;
   error: boolean;
@@ -15,19 +14,16 @@ interface ContentHOCProps {
   loadingText?: string | React.JSX.Element;
   minHScreen?: boolean;
 }
-
 interface NoContentPropType {
   message?: string;
   onAction?: () => void;
   actionText?: string;
 }
-
 interface ReqErrProps {
   errorMessage?: string;
   actionText?: string;
   onAction?: () => void;
 }
-
 export const NoContent: React.FC<NoContentPropType> = ({
   message = "No content available",
   onAction,
@@ -50,7 +46,6 @@ export const NoContent: React.FC<NoContentPropType> = ({
     )}
   </div>
 );
-
 export const ReqErr: React.FC<ReqErrProps> = ({
   errorMessage = "Something went wrong",
   actionText = "Retry",
@@ -71,18 +66,14 @@ export const ReqErr: React.FC<ReqErrProps> = ({
     />
   </div>
 );
-
 interface LoaderProps {
   minHScreen?: boolean;
   loadingText?: string | React.JSX.Element;
 }
-
 export const Loader: React.FC<LoaderProps> = ({ minHScreen, loadingText }) => {
   return (
     <div
-      className={`w-full border border-gray-300 rounded-2xl text-center ${
-        minHScreen ? "min-h-screen" : "py-20"
-      } flex flex-col items-center justify-center`}
+      className={`w-full border border-gray-300 rounded-2xl text-center ${minHScreen ? "min-h-screen" : "py-20"} flex flex-col items-center justify-center`}
     >
       <div>
         <Spin size="small" />
@@ -91,7 +82,6 @@ export const Loader: React.FC<LoaderProps> = ({ minHScreen, loadingText }) => {
     </div>
   );
 };
-
 export const ContentHOC: React.FC<ContentHOCProps> = ({
   loading,
   error,
@@ -108,7 +98,6 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
   if (loading) {
     return <Loader minHScreen={minHScreen} loadingText={loadingText} />;
   }
-
   if (error) {
     return (
       <ReqErr
@@ -118,7 +107,6 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
       />
     );
   }
-
   if (noContent) {
     return (
       <NoContent
@@ -128,6 +116,5 @@ export const ContentHOC: React.FC<ContentHOCProps> = ({
       />
     );
   }
-
   return <>{UIComponent}</>;
 };

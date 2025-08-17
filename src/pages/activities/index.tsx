@@ -16,10 +16,7 @@ import {
 import { Heart, MessageCircle, Bookmark } from "feather-icons-react";
 import { Select, Modal, Input } from "antd";
 const { Option } = Select;
-
 const API_BASE = "https://arvicesapi.denateonlineservice.com";
-
-/* ------------ utils ------------ */
 function getToken(): string | null {
   const candidates = [
     "token",
@@ -41,7 +38,6 @@ function getMyIdSafe(): number | null {
   try {
     const payload = t.split(".")[1];
     if (!payload) return null;
-    // support base64url
     const norm = payload.replace(/-/g, "+").replace(/_/g, "/");
     const json = atob(norm);
     const obj = JSON.parse(json);
@@ -57,17 +53,14 @@ function formatFollowerCount(count: number): string {
     return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
   return String(count);
 }
-
-/* ------------ pastel avatar helpers ------------ */
 function stringToColor(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   const hue = Math.abs(hash) % 360;
-  return `hsl(${hue}, 60%, 75%)`; // pastel tone
+  return `hsl(${hue}, 60%, 75%)`;
 }
-
 function renderAvatarClickable(
   user: any,
   sizeClass = "w-10 h-10",
@@ -82,7 +75,9 @@ function renderAvatarClickable(
   return (
     <div
       className={`${sizeClass} rounded-full flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-80`}
-      style={{ backgroundColor: bgColor }}
+      style={{
+        backgroundColor: bgColor,
+      }}
       onClick={handleClick}
       title={`View ${displayName}'s profile`}
     >
@@ -90,36 +85,39 @@ function renderAvatarClickable(
     </div>
   );
 }
-
-/* ------------ types ------------ */
 export type ShowcaseComment = {
   id: number;
   post: string;
   like: number;
   liked: number[];
-  commentAttachments: { url?: string }[];
+  commentAttachments: {
+    url?: string;
+  }[];
   createdDate: string;
   user: {
     id: number;
     fullName?: string | null;
     username?: string | null;
-    picture?: string | null; // added so we can check for picture
+    picture?: string | null;
   };
 };
-
-/* ------------ api ------------ */
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getToken();
-  const headers: HeadersInit = { accept: "*/*", ...(init?.headers || {}) };
+  const headers: HeadersInit = {
+    accept: "*/*",
+    ...(init?.headers || {}),
+  };
   if (token) (headers as any)["Authorization"] = `Bearer ${token}`;
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers,
+  });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`HTTP ${res.status}: ${text}`);
   }
   return res.json();
 }
-
 async function getAllShowcase(orderBy = "DESC", page = 1, limit = 10) {
   return api<{
     status: number;
@@ -129,98 +127,121 @@ async function getAllShowcase(orderBy = "DESC", page = 1, limit = 10) {
   }>(`/showcase/getallshowcase?orderBy=${orderBy}&page=${page}&limit=${limit}`);
 }
 async function getComments(showcaseId: number) {
-  return api<{ status: number; message: string; response: ShowcaseComment[] }>(
-    `/showcase/getshowcasecommentbyshowcase/${showcaseId}`,
-  );
+  return api<{
+    status: number;
+    message: string;
+    response: ShowcaseComment[];
+  }>(`/showcase/getshowcasecommentbyshowcase/${showcaseId}`);
 }
 async function createComment(showcaseId: number, post: string) {
   const fd = new FormData();
   fd.append("post", post);
   fd.append("showcaseId", String(showcaseId));
-  return api<{ status: number; message: string; response: any }>(
-    "/showcase/createshowcasecomment",
-    { method: "POST", body: fd },
-  );
+  return api<{
+    status: number;
+    message: string;
+    response: any;
+  }>("/showcase/createshowcasecomment", {
+    method: "POST",
+    body: fd,
+  });
 }
 async function likeComment(commentId: number) {
-  return api<{ status: number; message: string }>(
-    `/showcase/likeshowcasecomment/${commentId}`,
-    { method: "POST" },
-  );
+  return api<{
+    status: number;
+    message: string;
+  }>(`/showcase/likeshowcasecomment/${commentId}`, {
+    method: "POST",
+  });
 }
 async function unlikeComment(commentId: number) {
-  return api<{ status: number; message: string }>(
-    `/showcase/unlikeshowcasecomment/${commentId}`,
-    { method: "POST" },
-  );
+  return api<{
+    status: number;
+    message: string;
+  }>(`/showcase/unlikeshowcasecomment/${commentId}`, {
+    method: "POST",
+  });
 }
 async function saveShowcase(showcaseId: number) {
-  return api<{ status: number; message: string }>(
-    `/showcase/saveshowcase/${showcaseId}`,
-    { method: "POST" },
-  );
+  return api<{
+    status: number;
+    message: string;
+  }>(`/showcase/saveshowcase/${showcaseId}`, {
+    method: "POST",
+  });
 }
 async function unsaveShowcase(showcaseId: number) {
-  return api<{ status: number; message: string }>(
-    `/showcase/unsaveshowcase/${showcaseId}`,
-    { method: "POST" },
-  );
+  return api<{
+    status: number;
+    message: string;
+  }>(`/showcase/unsaveshowcase/${showcaseId}`, {
+    method: "POST",
+  });
 }
 async function createShowcase(post: string, location: string, files: File[]) {
   const fd = new FormData();
   fd.append("post", post);
   fd.append("location", location);
   for (const f of files) fd.append("attachment", f, f.name);
-  return api<{ status: number; message: string; response: any }>(
-    "/showcase/createshowcase",
-    { method: "POST", body: fd },
-  );
+  return api<{
+    status: number;
+    message: string;
+    response: any;
+  }>("/showcase/createshowcase", {
+    method: "POST",
+    body: fd,
+  });
 }
 async function likeShowcase(showcaseId: number) {
-  return api<{ status: number; message: string }>(
-    `/showcase/likeshowcase/${showcaseId}`,
-    { method: "POST" },
-  );
+  return api<{
+    status: number;
+    message: string;
+  }>(`/showcase/likeshowcase/${showcaseId}`, {
+    method: "POST",
+  });
 }
 async function unlikeShowcase(showcaseId: number) {
-  return api<{ status: number; message: string }>(
-    `/showcase/unlikeshowcase/${showcaseId}`,
-    { method: "POST" },
-  );
+  return api<{
+    status: number;
+    message: string;
+  }>(`/showcase/unlikeshowcase/${showcaseId}`, {
+    method: "POST",
+  });
 }
-
-/* top professionals */
 async function getTopProfessionals() {
-  return api<{ status: number; message: string; response: any[] }>(
-    "/user/gettopprofessionals",
-  );
+  return api<{
+    status: number;
+    message: string;
+    response: any[];
+  }>("/user/gettopprofessionals");
 }
-// --- Follow API ---
 async function followUser(userId: number) {
   const token = getToken();
-  console.log("Token being sent:", token); // DEBUG
-  return api<{ status: number; message: string }>(
-    `/user/followuser/${userId}`,
-    { method: "POST" },
-  );
+  console.log("Token being sent:", token);
+  return api<{
+    status: number;
+    message: string;
+  }>(`/user/followuser/${userId}`, {
+    method: "POST",
+  });
 }
-
 async function unfollowUser(userId: number) {
   const token = getToken();
-  console.log("Token being sent:", token); // DEBUG
-  return api<{ status: number; message: string }>(
-    `/user/unfollowuser/${userId}`,
-    { method: "POST" },
-  );
+  console.log("Token being sent:", token);
+  return api<{
+    status: number;
+    message: string;
+  }>(`/user/unfollowuser/${userId}`, {
+    method: "POST",
+  });
 }
-
 async function getAccountById(userId: number) {
-  return api<{ status: number; message: string; response: any }>(
-    `/user/getaccountbyid?id=${userId}`,
-  );
+  return api<{
+    status: number;
+    message: string;
+    response: any;
+  }>(`/user/getaccountbyid?id=${userId}`);
 }
-
-/* ------------ static data ------------ */
 const updates = [
   {
     updateType: "Live Updates",
@@ -258,10 +279,12 @@ const updates = [
     description: "Find grooming and pet sitting services",
   },
 ] as const;
-
 export const updateIconMap: Record<
   string,
-  { icon: React.JSX.Element; colorClass: string }
+  {
+    icon: React.JSX.Element;
+    colorClass: string;
+  }
 > = {
   "Live Updates": {
     icon: <TrendingUp className="inline w-3 h-3 text-pink-600" />,
@@ -292,8 +315,6 @@ export const updateIconMap: Record<
     colorClass: "text-teal-600",
   },
 };
-
-/* ------------ component ------------ */
 const Activities = (): React.ReactNode => {
   const categories = [
     "Cleaning",
@@ -303,7 +324,6 @@ const Activities = (): React.ReactNode => {
     "Car Repair",
   ];
   const [selectedCategory, setSelectedCategory] = useState<string>();
-
   const [showcases, setShowcases] = useState<any[]>([]);
   const [savedMap, setSavedMap] = useState<Record<number, boolean>>({});
   const [commentsMap, setCommentsMap] = useState<
@@ -331,29 +351,19 @@ const Activities = (): React.ReactNode => {
     Record<number, number>
   >({});
   const commentRefs = useRef<Record<number, HTMLInputElement | null>>({});
-
-  // token -> myId (safe)
   const myId = useMemo(() => getMyIdSafe(), []);
-
-  // create showcase
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPostText, setNewPostText] = useState("");
   const [newPostLocation, setNewPostLocation] = useState("");
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [creatingShowcase, setCreatingShowcase] = useState(false);
-
-  // top providers
   const [topProviders, setTopProviders] = useState<any[]>([]);
   const [followingMap, setFollowingMap] = useState<Record<number, boolean>>({});
   const [followLoadingMap, setFollowLoadingMap] = useState<
     Record<number, boolean>
   >({});
-
-  // provider modal (View)
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [loadingProvider, setLoadingProvider] = useState(false);
-
-  /* initial showcases */
   useEffect(() => {
     (async () => {
       try {
@@ -385,22 +395,16 @@ const Activities = (): React.ReactNode => {
       }
     })();
   }, [myId]);
-
-  /* top providers & following state */
-  /* top providers & following state */
   useEffect(() => {
     (async () => {
       try {
         const res = await getTopProfessionals();
         const providers = Array.isArray(res.response) ? res.response : [];
-
-        // Map follow state directly from provider.followers array
         const followingMapFromAPI: Record<number, boolean> = {};
         const seeded = providers.map((p: any) => {
           const isFollowing =
             Array.isArray(p.followers) && p.followers.includes(myId);
           followingMapFromAPI[p.id] = isFollowing;
-
           return {
             ...p,
             _followersCountLocal: Array.isArray(p.followers)
@@ -408,7 +412,6 @@ const Activities = (): React.ReactNode => {
               : 0,
           };
         });
-
         setTopProviders(seeded);
         setFollowingMap(followingMapFromAPI);
       } catch (err) {
@@ -416,8 +419,6 @@ const Activities = (): React.ReactNode => {
       }
     })();
   }, [myId]);
-
-  /* helpers */
   async function refreshComments(showcaseId: number) {
     try {
       const data = await getComments(showcaseId);
@@ -429,50 +430,59 @@ const Activities = (): React.ReactNode => {
       console.warn("Failed to load comments", err);
     }
   }
-
   function handleViewMore(showcaseId: number) {
     setVisibleCountMap((prev) => ({
       ...prev,
       [showcaseId]: (prev[showcaseId] || 5) + 5,
     }));
   }
-
   async function handleCreateComment(showcaseId: number) {
     const text = commentTextMap[showcaseId] || "";
     if (!text.trim()) return;
-    setCreatingCommentMap((prev) => ({ ...prev, [showcaseId]: true }));
+    setCreatingCommentMap((prev) => ({
+      ...prev,
+      [showcaseId]: true,
+    }));
     try {
       await createComment(showcaseId, text.trim());
-      setCommentTextMap((prev) => ({ ...prev, [showcaseId]: "" }));
+      setCommentTextMap((prev) => ({
+        ...prev,
+        [showcaseId]: "",
+      }));
       await refreshComments(showcaseId);
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : "Failed to post comment");
     } finally {
-      setCreatingCommentMap((prev) => ({ ...prev, [showcaseId]: false }));
+      setCreatingCommentMap((prev) => ({
+        ...prev,
+        [showcaseId]: false,
+      }));
     }
   }
-
   async function toggleLikeComment(
     showcaseId: number,
     comment: ShowcaseComment,
   ) {
     const setForShowcase = likedByMeMap[showcaseId] || new Set<number>();
     const already = setForShowcase.has(comment.id);
-
-    // optimistic UI
     const clone = new Set(setForShowcase);
     if (already) clone.delete(comment.id);
     else clone.add(comment.id);
-    setLikedByMeMap((prev) => ({ ...prev, [showcaseId]: clone }));
+    setLikedByMeMap((prev) => ({
+      ...prev,
+      [showcaseId]: clone,
+    }));
     setCommentsMap((prev) => ({
       ...prev,
       [showcaseId]: prev[showcaseId].map((c) =>
         c.id === comment.id
-          ? { ...c, like: Math.max(0, (c.like || 0) + (already ? -1 : 1)) }
+          ? {
+              ...c,
+              like: Math.max(0, (c.like || 0) + (already ? -1 : 1)),
+            }
           : c,
       ),
     }));
-
     try {
       if (already) await unlikeComment(comment.id);
       else await likeComment(comment.id);
@@ -480,11 +490,12 @@ const Activities = (): React.ReactNode => {
       alert("Failed to update like");
     }
   }
-
   async function toggleLikeShowcase(showcaseId: number) {
     const already = !!showcaseLikedMap[showcaseId];
-    // optimistic
-    setShowcaseLikedMap((p) => ({ ...p, [showcaseId]: !already }));
+    setShowcaseLikedMap((p) => ({
+      ...p,
+      [showcaseId]: !already,
+    }));
     setShowcaseLikeCount((p) => ({
       ...p,
       [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? -1 : 1)),
@@ -494,29 +505,35 @@ const Activities = (): React.ReactNode => {
       else await likeShowcase(showcaseId);
     } catch {
       alert("Failed to update showcase like");
-      // revert
-      setShowcaseLikedMap((p) => ({ ...p, [showcaseId]: already }));
+      setShowcaseLikedMap((p) => ({
+        ...p,
+        [showcaseId]: already,
+      }));
       setShowcaseLikeCount((p) => ({
         ...p,
         [showcaseId]: Math.max(0, (p[showcaseId] || 0) + (already ? 1 : -1)),
       }));
     }
   }
-
   async function toggleSave(showcaseId: number) {
     try {
       if (savedMap[showcaseId]) {
         await unsaveShowcase(showcaseId);
-        setSavedMap((prev) => ({ ...prev, [showcaseId]: false }));
+        setSavedMap((prev) => ({
+          ...prev,
+          [showcaseId]: false,
+        }));
       } else {
         await saveShowcase(showcaseId);
-        setSavedMap((prev) => ({ ...prev, [showcaseId]: true }));
+        setSavedMap((prev) => ({
+          ...prev,
+          [showcaseId]: true,
+        }));
       }
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : "Failed to update save state");
     }
   }
-
   async function handleCreateShowcase() {
     if (!newPostText.trim()) return;
     setCreatingShowcase(true);
@@ -535,8 +552,6 @@ const Activities = (): React.ReactNode => {
       setCreatingShowcase(false);
     }
   }
-
-  /* View (provider modal) */
   async function handleViewProvider(userId: number) {
     try {
       setLoadingProvider(true);
@@ -550,19 +565,17 @@ const Activities = (): React.ReactNode => {
       setLoadingProvider(false);
     }
   }
-
-  //* Follow / Unfollow */
   async function handleToggleFollow(userId: number) {
     if (myId == null) {
       alert("Please sign in to follow providers.");
       return;
     }
-    if (userId === myId) return; // no self-follow
-
+    if (userId === myId) return;
     const currentlyFollowing = !!followingMap[userId];
-
-    // Optimistic UI update
-    setFollowingMap((prev) => ({ ...prev, [userId]: !currentlyFollowing }));
+    setFollowingMap((prev) => ({
+      ...prev,
+      [userId]: !currentlyFollowing,
+    }));
     setTopProviders((prev) =>
       prev.map((p) => {
         if (p.id !== userId) return p;
@@ -575,9 +588,10 @@ const Activities = (): React.ReactNode => {
         };
       }),
     );
-
-    setFollowLoadingMap((prev) => ({ ...prev, [userId]: true }));
-
+    setFollowLoadingMap((prev) => ({
+      ...prev,
+      [userId]: true,
+    }));
     try {
       if (currentlyFollowing) {
         await unfollowUser(userId);
@@ -587,9 +601,10 @@ const Activities = (): React.ReactNode => {
     } catch (err) {
       console.warn("Follow toggle failed", err);
       const msg = err instanceof Error ? err.message : "";
-
-      // Roll back UI on error
-      setFollowingMap((prev) => ({ ...prev, [userId]: currentlyFollowing }));
+      setFollowingMap((prev) => ({
+        ...prev,
+        [userId]: currentlyFollowing,
+      }));
       setTopProviders((prev) =>
         prev.map((p) => {
           if (p.id !== userId) return p;
@@ -602,18 +617,19 @@ const Activities = (): React.ReactNode => {
           };
         }),
       );
-
       alert(msg || "Could not update follow state.");
     } finally {
-      setFollowLoadingMap((prev) => ({ ...prev, [userId]: false }));
+      setFollowLoadingMap((prev) => ({
+        ...prev,
+        [userId]: false,
+      }));
     }
   }
-
   return (
     <section className="min-h-screen pt-13 bg-[#FBFBFB]">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         <div className="md:flex gap-x-3 mt-5">
-          {/* Left */}
+          {}
           <div className="card-shadow basis-1/5 py-5 px-3 rounded">
             <p className="font-medium ">Live Updates</p>
             {updates.map((u, i) => (
@@ -659,9 +675,9 @@ const Activities = (): React.ReactNode => {
             ))}
           </div>
 
-          {/* Middle */}
+          {}
           <div className="basis-3/5">
-            {/* Header */}
+            {}
             <div className="card-shadow rounded p-4 flex items-center justify-between">
               <div className="flex gap-x-3">
                 <div className="bg-amber-50 rounded border border-amber-300 p-2">
@@ -689,7 +705,7 @@ const Activities = (): React.ReactNode => {
               </div>
             </div>
 
-            {/* Showcases */}
+            {}
             <div className="mt-2 space-y-4">
               {showcases.map((sc) => (
                 <div
@@ -697,7 +713,7 @@ const Activities = (): React.ReactNode => {
                   className="card-shadow rounded p-4"
                   data-showcase-card-id={sc.id}
                 >
-                  {/* Author */}
+                  {}
                   <div className="flex items-center gap-3">
                     {sc.user?.picture ? (
                       <img
@@ -730,7 +746,7 @@ const Activities = (): React.ReactNode => {
                     </small>
                   </div>
 
-                  {/* Showcase Image */}
+                  {}
                   {sc.attachments?.length > 0 && sc.attachments[0]?.url && (
                     <div className="mt-5 relative rounded-2xl aspect-[5/3] overflow-hidden">
                       <img
@@ -741,10 +757,10 @@ const Activities = (): React.ReactNode => {
                     </div>
                   )}
 
-                  {/* Caption */}
+                  {}
                   <div className="mt-5">{sc.post}</div>
 
-                  {/* Actions */}
+                  {}
                   <div className="flex items-center gap-4 text-sm text-gray-700">
                     <button
                       onClick={() => toggleLikeShowcase(sc.id)}
@@ -781,7 +797,9 @@ const Activities = (): React.ReactNode => {
                           }
                           return newMap;
                         });
-                        setVisibleCountMap({ [sc.id]: 5 });
+                        setVisibleCountMap({
+                          [sc.id]: 5,
+                        });
                       }}
                       className="flex items-center gap-1"
                     >
@@ -798,7 +816,7 @@ const Activities = (): React.ReactNode => {
                     </button>
                   </div>
 
-                  {/* Comments */}
+                  {}
                   {visibleCommentsMap[sc.id] && (
                     <>
                       <div className="border-t my-3" />
@@ -885,7 +903,7 @@ const Activities = (): React.ReactNode => {
               ))}
             </div>
 
-            {/* Plus Button */}
+            {}
             <div className="flex justify-end mt-4">
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -895,7 +913,7 @@ const Activities = (): React.ReactNode => {
               </button>
             </div>
 
-            {/* Create Showcase Modal */}
+            {}
             <Modal
               title="Create New Showcase"
               open={showCreateModal}
@@ -926,7 +944,7 @@ const Activities = (): React.ReactNode => {
             </Modal>
           </div>
 
-          {/* Right: Top Providers */}
+          {}
           <div className="basis-1/5 py-5 px-3 rounded card-shadow">
             <p className="font-medium mb-3">🔥 Top Providers</p>
             {topProviders.map((p) => {
@@ -940,7 +958,6 @@ const Activities = (): React.ReactNode => {
                     : typeof p.followersCount === "number"
                       ? p.followersCount
                       : 0;
-
               return (
                 <div key={p.id} className="mb-3 p-2 border rounded-lg bg-white">
                   <div className="flex items-center gap-2">
@@ -968,11 +985,7 @@ const Activities = (): React.ReactNode => {
                     <button
                       onClick={() => handleToggleFollow(p.id)}
                       disabled={isMe || !!followLoadingMap[p.id]}
-                      className={`flex-1 text-xs px-3 py-1 rounded ${
-                        isFollowing
-                          ? "bg-gray-300 text-gray-700"
-                          : "bg-royalblue-main text-white"
-                      } ${isMe ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`flex-1 text-xs px-3 py-1 rounded ${isFollowing ? "bg-gray-300 text-gray-700" : "bg-royalblue-main text-white"} ${isMe ? "opacity-50 cursor-not-allowed" : ""}`}
                       title={isMe ? "You can't follow yourself" : ""}
                     >
                       {followLoadingMap[p.id]
@@ -997,7 +1010,7 @@ const Activities = (): React.ReactNode => {
         </div>
       </div>
 
-      {/* Provider Details Modal */}
+      {}
       <Modal
         title="Provider Details"
         open={!!selectedProvider}
@@ -1048,5 +1061,4 @@ const Activities = (): React.ReactNode => {
     </section>
   );
 };
-
 export default Activities;

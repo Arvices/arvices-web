@@ -1,6 +1,5 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
-
 const createProfileService = async (data: any, token: string) => {
   const config = {
     method: "post",
@@ -12,7 +11,6 @@ const createProfileService = async (data: any, token: string) => {
   };
   return await axios(config);
 };
-
 const updateProfileService = async (
   id: string | number,
   data: any,
@@ -28,7 +26,6 @@ const updateProfileService = async (
   };
   return await axios(config);
 };
-
 const getProfileServiceById = async (id: string | number) => {
   const config = {
     method: "get",
@@ -36,7 +33,6 @@ const getProfileServiceById = async (id: string | number) => {
   };
   return await axios(config);
 };
-
 const getAllProfileService = async (token: string) => {
   const config = {
     method: "get",
@@ -47,7 +43,6 @@ const getAllProfileService = async (token: string) => {
   };
   return await axios(config);
 };
-
 const deleteProfileService = async (id: string | number, token: string) => {
   const config = {
     method: "delete",
@@ -58,7 +53,6 @@ const deleteProfileService = async (id: string | number, token: string) => {
   };
   return await axios(config);
 };
-
 export {
   createProfileService,
   updateProfileService,

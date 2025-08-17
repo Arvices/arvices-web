@@ -2,7 +2,6 @@ import React from "react";
 import { Job, JobCardView } from "../../../components/cards/appcards";
 import OfferCardClient from "./clientoffercard";
 import { Offer } from "../../../types/main.types";
-
 const ClientView: React.FC<{
   job: Job;
   jobOffers: Offer[];
@@ -22,7 +21,7 @@ const ClientView: React.FC<{
   const acceptedOffer = jobOffers.filter((x) => x.accepted)[0];
   return (
     <section>
-      {/* Client Page Starts */}
+      {}
       <h1 className="text-2xl font-semibold mb-4 tracking-tight">
         Monitor This Job
       </h1>
@@ -30,7 +29,7 @@ const ClientView: React.FC<{
         Track your job request and manage incoming offers from service providers
         in real time.
       </p>
-      {/* Add client-specific components here */}
+      {}
       <div className="mt-5">
         <p className="mb-2 text-gray-600 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
@@ -94,9 +93,7 @@ const ClientView: React.FC<{
     </section>
   );
 };
-
 export default ClientView;
-
 const NoOffer = () => (
   <div className="flex flex-col items-center justify-center border border-gray-200 rounded-2xl shadow-sm p-6">
     <div className="bg-gray-100 p-4 rounded-full mb-3">

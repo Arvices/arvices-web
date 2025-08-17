@@ -1,29 +1,26 @@
-// ErrorBoundary.tsx
 import React from "react";
 import type { ReactNode, ErrorInfo } from "react";
-
 interface Props {
   children: ReactNode;
 }
-
 interface State {
   hasError: boolean;
 }
-
 class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = {
+      hasError: false,
+    };
   }
-
   static getDerivedStateFromError(): State {
-    return { hasError: true };
+    return {
+      hasError: true,
+    };
   }
-
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
-
   render() {
     if (this.state.hasError) {
       return (
@@ -37,9 +34,7 @@ class ErrorBoundary extends React.Component<Props, State> {
         </section>
       );
     }
-
     return this.props.children;
   }
 }
-
 export default ErrorBoundary;

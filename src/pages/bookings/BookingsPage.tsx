@@ -15,7 +15,6 @@ import { PlusOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../util/api";
 import dayjs, { Dayjs } from "dayjs";
-
 interface Booking {
   id: number;
   name?: string;
@@ -25,38 +24,30 @@ interface Booking {
   date?: string;
   serviceId?: number[];
 }
-
 interface Category {
   id: number;
   name: string;
 }
-
 interface Professional {
   id: number;
   fullName: string;
   email: string;
   picture?: string | null;
 }
-
 interface Product {
   id: number;
   title: string;
   price: number;
 }
-
 const BookingsPage: React.FC = () => {
   const auth = useAuth();
-
   const [tab, setTab] = useState<"bookings" | "orders">("bookings");
   const [status, setStatus] = useState<"In Progress" | "Paid" | "Completed">(
     "In Progress",
   );
-
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [orders, setOrders] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // Booking modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDate, setNewDate] = useState<string | null>(null);
@@ -67,8 +58,6 @@ const BookingsPage: React.FC = () => {
     number | null
   >(null);
   const [creatingBooking, setCreatingBooking] = useState(false);
-
-  // Order modal state
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
@@ -76,13 +65,11 @@ const BookingsPage: React.FC = () => {
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [creatingOrder, setCreatingOrder] = useState(false);
-
   useEffect(() => {
     refreshData();
     if (tab === "bookings") fetchCategories();
     if (tab === "orders") fetchProducts();
   }, [tab, status]);
-
   const refreshData = () => {
     if (tab === "bookings") {
       fetchBookings();
@@ -90,8 +77,6 @@ const BookingsPage: React.FC = () => {
       fetchOrders();
     }
   };
-
-  // -------- Fetch Bookings ----------
   const fetchBookings = async () => {
     setLoading(true);
     try {
@@ -115,15 +100,11 @@ const BookingsPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // -------- Fetch Orders ----------
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const res = await api.get(
-        `/order/getallorder?status=${encodeURIComponent(
-          status,
-        )}&orderBy=DESC&page=1&limit=10`,
+        `/order/getallorder?status=${encodeURIComponent(status)}&orderBy=DESC&page=1&limit=10`,
       );
       const newData = res.data.response.map((o: any) => ({
         id: o.id,
@@ -141,8 +122,6 @@ const BookingsPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // -------- Fetch Categories ----------
   const fetchCategories = async () => {
     try {
       const res = await api.get("/category/getallcategory");
@@ -151,8 +130,6 @@ const BookingsPage: React.FC = () => {
       message.error("Failed to load categories");
     }
   };
-
-  // -------- Fetch Professionals ----------
   const fetchProfessionals = async (categoryId: number) => {
     try {
       const res = await api.get(
@@ -163,8 +140,6 @@ const BookingsPage: React.FC = () => {
       message.error("Failed to load professionals");
     }
   };
-
-  // -------- Fetch Products ----------
   const fetchProducts = async () => {
     try {
       const res = await api.get(
@@ -175,34 +150,27 @@ const BookingsPage: React.FC = () => {
       message.error("Failed to load products");
     }
   };
-
-  // -------- PAY ----------
   const handlePay = async (item: Booking, method: "Wallet" | "Non Wallet") => {
     try {
-      // ✅ Corrected payload (camelCase like Swagger)
       const payload = {
         serviceRequestId: 0,
         method,
         orderId: item.type === "order" ? item.id : 0,
         bookingId: item.type === "booking" ? item.id : 0,
       };
-
       console.log("📦 Sending payload:", payload);
-
       const res = await api.post(
         "/wallet/initialize-service-request-transaction",
-        payload, // axios will JSON.stringify automatically
+        payload,
         {
           headers: {
-            Accept: "application/json", // ✅ match Swagger
+            Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         },
       );
-
       console.log("✅ Payment response:", res.data);
-
       if (method === "Non Wallet") {
         const url = res.data?.response?.data?.authorization_url;
         if (url) {
@@ -210,15 +178,12 @@ const BookingsPage: React.FC = () => {
           return;
         }
       }
-
       message.success("Payment successful!");
       setStatus("Paid");
     } catch (err: any) {
       console.error("❌ Pay failed (full error):", err);
     }
   };
-
-  // -------- COMPLETE ----------
   const handleComplete = async (item: Booking) => {
     try {
       await api.put(
@@ -241,7 +206,6 @@ const BookingsPage: React.FC = () => {
       message.error(err.response?.data?.message || "Failed to complete.");
     }
   };
-
   const handleCreateBooking = async () => {
     if (!newName.trim()) {
       message.warning("Please enter a booking name!");
@@ -251,7 +215,6 @@ const BookingsPage: React.FC = () => {
       message.warning("Please select a category!");
       return;
     }
-
     setCreatingBooking(true);
     try {
       const payload = {
@@ -262,16 +225,12 @@ const BookingsPage: React.FC = () => {
           professionalId: selectedProfessionalId,
         }),
       };
-
       console.log(
         "🔎 Final booking payload:",
         JSON.stringify(payload, null, 2),
       );
-
       const res = await api.post("/bookings/createbookings", payload);
-
       console.log("✅ Booking created response:", res.data);
-
       message.success("Booking created!");
       setShowCreateModal(false);
       setNewName("");
@@ -283,25 +242,27 @@ const BookingsPage: React.FC = () => {
       refreshData();
     } catch (err: any) {
       console.error("❌ Booking creation error object:", err);
-
-      // Make sure we always show something
       const errorContent = err?.response?.data
         ? JSON.stringify(err.response.data, null, 2)
         : err?.message || "Unknown error (no response at all)";
-
       Modal.error({
         title: "Booking Creation Failed",
-        content: <pre style={{ whiteSpace: "pre-wrap" }}>{errorContent}</pre>,
+        content: (
+          <pre
+            style={{
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {errorContent}
+          </pre>
+        ),
         width: 600,
       });
-
       message.error("Failed to create booking. Check modal for details.");
     } finally {
       setCreatingBooking(false);
     }
   };
-
-  // -------- CREATE Order ----------
   const handleCreateOrder = async () => {
     if (!selectedProductId) {
       message.warning("Please select a product!");
@@ -313,11 +274,8 @@ const BookingsPage: React.FC = () => {
         productId: selectedProductId,
         quantity,
       };
-
       console.log("Creating order with payload:", payload);
-
       await api.post("/order/createorder", payload);
-
       message.success("Order created!");
       setShowOrderModal(false);
       setSelectedProductId(null);
@@ -331,7 +289,6 @@ const BookingsPage: React.FC = () => {
       setCreatingOrder(false);
     }
   };
-
   return (
     <div className="max-w-4xl mx-auto p-6 relative">
       <div className="flex justify-between items-center mb-4">
@@ -339,26 +296,41 @@ const BookingsPage: React.FC = () => {
         <Button onClick={refreshData}>🔄 Refresh</Button>
       </div>
 
-      {/* Tabs for Bookings vs Orders */}
+      {}
       <Tabs
         activeKey={tab}
         onChange={(key) => setTab(key as "bookings" | "orders")}
         items={[
-          { key: "bookings", label: "Bookings" },
-          { key: "orders", label: "Orders" },
+          {
+            key: "bookings",
+            label: "Bookings",
+          },
+          {
+            key: "orders",
+            label: "Orders",
+          },
         ]}
       />
 
-      {/* Status Tabs */}
+      {}
       <Tabs
         activeKey={status}
         onChange={(key) =>
           setStatus(key as "In Progress" | "Paid" | "Completed")
         }
         items={[
-          { key: "In Progress", label: "In Progress" },
-          { key: "Paid", label: "Paid" },
-          { key: "Completed", label: "Completed" },
+          {
+            key: "In Progress",
+            label: "In Progress",
+          },
+          {
+            key: "Paid",
+            label: "Paid",
+          },
+          {
+            key: "Completed",
+            label: "Completed",
+          },
         ]}
       />
 
@@ -431,7 +403,7 @@ const BookingsPage: React.FC = () => {
           </Card>
         ))}
 
-      {/* Floating Add Button */}
+      {}
       <Button
         type="primary"
         shape="circle"
@@ -444,14 +416,14 @@ const BookingsPage: React.FC = () => {
         }
       />
 
-      {/* Create Booking Modal */}
+      {}
       <Modal
         title="Create Booking"
         open={showCreateModal}
         confirmLoading={creatingBooking}
         onCancel={() => setShowCreateModal(false)}
-        onOk={handleCreateBooking} // ✅ fires when "Create" is clicked
-        okText="Create" // button text
+        onOk={handleCreateBooking}
+        okText="Create"
         cancelText="Cancel"
       >
         <Input
@@ -490,9 +462,7 @@ const BookingsPage: React.FC = () => {
               dataSource={professionals}
               renderItem={(pro) => (
                 <List.Item
-                  className={`cursor-pointer ${
-                    selectedProfessionalId === pro.id ? "bg-blue-100" : ""
-                  }`}
+                  className={`cursor-pointer ${selectedProfessionalId === pro.id ? "bg-blue-100" : ""}`}
                   onClick={() => setSelectedProfessionalId(pro.id)}
                 >
                   <div className="flex items-center justify-between w-full">
@@ -501,7 +471,11 @@ const BookingsPage: React.FC = () => {
                       <small>{pro.email}</small>
                     </div>
                     {selectedProfessionalId === pro.id && (
-                      <CheckCircleOutlined style={{ color: "green" }} />
+                      <CheckCircleOutlined
+                        style={{
+                          color: "green",
+                        }}
+                      />
                     )}
                   </div>
                 </List.Item>
@@ -511,7 +485,7 @@ const BookingsPage: React.FC = () => {
         )}
       </Modal>
 
-      {/* Create Order Modal */}
+      {}
       <Modal
         title="Create Order"
         open={showOrderModal}
@@ -554,5 +528,4 @@ const BookingsPage: React.FC = () => {
     </div>
   );
 };
-
 export default BookingsPage;

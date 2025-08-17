@@ -1,11 +1,9 @@
 import React from "react";
 import { Job } from "../../components/cards/appcards";
 import { JobDescription, JobDetailsHeader } from "./jobdetailsheader";
-
 import { StatusTag } from "./statustag";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "feather-icons-react";
-
 interface JobCardProp {
   job: Job;
   isClient: boolean;
@@ -19,7 +17,6 @@ const JobDetails = ({
   const linkUrl = isClient
     ? `/client/manage-jobs/${job.id}`
     : `/provider/manage-jobs/${job.id}/${offerId}`;
-
   return (
     <section className="card-shadow p-4 rounded-[10px]">
       <div>
@@ -51,5 +48,4 @@ const JobDetails = ({
     </section>
   );
 };
-
 export default JobDetails;

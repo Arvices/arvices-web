@@ -47,17 +47,14 @@ import {
 import { GenericTag } from "../../pages/jobs&negotiations/statustag";
 import { initializeServiceRequestTransaction } from "../../api-services/wallet.services";
 import RateUserModal from "./rateusermodal";
-
 export function findAcceptedObject(arr: Offer[]) {
   return arr.find((item) => item.accepted === true) || null;
 }
-
 export interface CategoryDataItem {
   title: string;
   tagline: string;
   img: string;
 }
-
 export const CatCard: React.FC<CategoryDataItem> = ({
   title,
   tagline,
@@ -77,11 +74,9 @@ export const CatCard: React.FC<CategoryDataItem> = ({
     </div>
   );
 };
-
 interface ProviderCardInterface {
   provider: UserAccount;
 }
-
 export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
   const { openNotification } = useNotificationContext();
   const auth = useAuth();
@@ -91,9 +86,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
   const isUserFollowing =
     Array.isArray(provider.followers) &&
     provider.followers.includes(currentUserId);
-
   const [isFollowing, setIsFollowing] = useState(isUserFollowing);
-
   const handleFollowToggle = async () => {
     if (!auth.isAuthenticated) {
       openNotification(
@@ -121,7 +114,6 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
       setLoading(false);
     }
   };
-
   const handleViewUser = async (id: number) => {
     let url = `/user-profile/${id}`;
     if (!auth.isAuthenticated) {
@@ -139,10 +131,9 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
       navigate(url);
     }
   };
-
   return (
     <div className="rounded-[10px] card-shadow p-4 pb-5 pt-6">
-      {/* Card Header */}
+      {}
       <div className="flex mb-15">
         <div className="w-max">
           <span className="level-tag px-4 py-2 gradient text-white rounded">
@@ -157,7 +148,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
         </div>
       </div>
 
-      {/* Card Body */}
+      {}
       <div>
         <div className="w-[150px] h-[150px] mx-auto flex items-center justify-center overflow-hidden rounded-full bg-amber-50 text-4xl font-semibold text-royalblue-main">
           {provider?.picture ? (
@@ -189,7 +180,9 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
           </p>
           <div className="mb-2">
             <Rate
-              style={{ fontSize: "16px" }}
+              style={{
+                fontSize: "16px",
+              }}
               allowHalf
               disabled
               value={provider?.rating || 0}
@@ -200,7 +193,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
         </div>
       </div>
 
-      {/* Card Buttons */}
+      {}
       <div className="flex gap-x-3 mt-10">
         <div className="flex-1">
           <Button
@@ -235,7 +228,6 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
     </div>
   );
 };
-
 export const ActivityCard: React.FC = () => {
   return (
     <div className="rounded-[10px] card-shadow p-0">
@@ -269,7 +261,6 @@ export const ActivityCard: React.FC = () => {
     </div>
   );
 };
-
 export const JobStatus = {
   Open: "Open",
   Negotiating: "Negotiating",
@@ -277,18 +268,14 @@ export const JobStatus = {
   Completed: "Completed",
   Closed: "Closed",
 } as const;
-
-export type JobStatus = keyof typeof JobStatus; // Optional: if you want keys, or use `typeof JobStatus[keyof typeof JobStatus]` for values
-
+export type JobStatus = keyof typeof JobStatus;
 export const OfferStatus = {
   Pending: "Pending",
   Negotiating: "Negotiating",
   Ongoing: "Ongoing",
   Completed: "Completed",
 } as const;
-
 export type OfferStatus = (typeof OfferStatus)[keyof typeof OfferStatus];
-
 export function getOfferStatusStyle(
   status: OfferStatus,
 ): keyof typeof buttonClasses {
@@ -298,10 +285,8 @@ export function getOfferStatusStyle(
     [OfferStatus.Ongoing]: "mutedBlue",
     [OfferStatus.Completed]: "mutedGreen",
   };
-
   return statusMap[status] || "neutral";
 }
-
 export function getJobStatusStyle(
   status: JobStatus,
 ): keyof typeof buttonClasses {
@@ -312,12 +297,9 @@ export function getJobStatusStyle(
     [JobStatus.Completed]: "mutedGreen",
     [JobStatus.Closed]: "danger",
   };
-
   return statusMap[status] || "neutral";
 }
-
 export type JobStatusType = keyof typeof JobStatus;
-
 export interface Job {
   id: number;
   address: string;
@@ -330,14 +312,13 @@ export interface Job {
   };
   createdDate: string;
   description: string;
-  images: string[]; // Adjust if images have an object structure
-  offer: Offer[]; // Specify type if offer items have a defined structure
-  position: any | null; // Define more specifically if known
+  images: string[];
+  offer: Offer[];
+  position: any | null;
   status: JobStatusType;
   type: string;
   user?: UserAccount;
 }
-
 interface JobCardProp {
   job: Job;
   handleOfferAction: (
@@ -346,19 +327,15 @@ interface JobCardProp {
     updatedJob?: any,
   ) => void;
 }
-
 export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
   const auth = useAuth();
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
   const isMobile = window.innerWidth < 768;
-
   const userOffer = job?.offer.find((o) => o && o.user?.id === auth?.user?.id);
   const [editMode, setEditMode] = useState(!userOffer);
-
   const direction = isMobile ? "bottom" : "right";
   const [open, setOpen] = useState(false);
-
   const [offerData, setOfferData] = useState({
     price: userOffer?.price || "",
     includesMaterials:
@@ -370,14 +347,15 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
         ?.replace(/includes materials: yes|no/i, "")
         .trim() || "",
   });
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setOfferData((prev) => ({ ...prev, [name]: value }));
+    setOfferData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-
   const handleSubmit = async () => {
     if (
       !offerData.price ||
@@ -392,11 +370,9 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       );
       return;
     }
-
     try {
       setLoadingText("Sending offer...");
       setLoading(true);
-
       const payload = {
         price: offerData.price,
         description: `${offerData.description}\n\nIncludes materials: ${offerData.includesMaterials}`,
@@ -404,13 +380,14 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       };
       let response;
       if (userOffer) {
-        console.log({ userOffer });
+        console.log({
+          userOffer,
+        });
         response = await updateOffer(auth.token, userOffer.id, {
           price: offerData.price,
           description: offerData.description,
           accepted: userOffer.accepted,
         });
-
         openNotification(
           "topRight",
           "Success",
@@ -427,7 +404,6 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
           "Offer sent successfully",
           "success",
         );
-
         setEditMode(false);
         console.log({
           add: "add",
@@ -453,22 +429,18 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
       setLoadingText("");
     }
   };
-
   const handleCancelOffer = async () => {
     try {
       setLoadingText("Cancelling offer...");
       setLoading(true);
-
       await deleteOffer(auth.token, userOffer?.id || 0);
-
       openNotification(
         "topRight",
         "Success",
         "Offer cancelled successfully",
         "success",
       );
-
-      setOpen(false); // Optionally close slide-in
+      setOpen(false);
       handleOfferAction("delete", job?.id, userOffer);
     } catch (error: any) {
       openNotification(
@@ -484,10 +456,9 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
   };
   return (
     <div className="card-shadow rounded-[10px] p-5 py-6 sm:p-6 w-full">
-      {/* Slide from Right */}
+      {}
       <SlideIn from={direction} isOpen={open} toggle={() => setOpen(false)}>
         {userOffer && !editMode ? (
-          // View for existing offer
           <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition p-6 mt-6 mb-8">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               You've made an offer for this job
@@ -581,7 +552,6 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
             </div>
           </div>
         ) : (
-          // View for making a new offer
           <div>
             <div className="mt-10">
               <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
@@ -634,7 +604,7 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
           </div>
         )}
 
-        {/* Footer buttons */}
+        {}
         <div className="border-t pt-7 mb-8 flex gap-x-4 border-slate-200 dark:border-slate-700">
           {!userOffer && (
             <div className="flex-1">
@@ -702,13 +672,11 @@ export const JobCard = ({ job, handleOfferAction }: JobCardProp) => {
     </div>
   );
 };
-
 interface CancelJobModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
-
 const CancelJobModal: React.FC<CancelJobModalProps> = ({
   open,
   onClose,
@@ -734,39 +702,32 @@ const CancelJobModal: React.FC<CancelJobModalProps> = ({
     </Modal>
   );
 };
-
 export default CancelJobModal;
-
 interface JobCardViewProp {
   job: Job | null;
   onJobChange: (data: any) => void;
   onOfferChange?: (data: any) => void;
   load: () => void;
 }
-
 export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
   const auth = useAuth();
-
   const { openNotification } = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-
   let actions = jobActions[job?.status || "Open"];
-
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEditView, setShowEditView] = useState(false);
   const [showRateModal, setShowRateModal] = useState(false);
-
   const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
   const toggleEditView = () => setShowEditView((prev) => !prev);
-  console.log({ jobCardView: job });
-
+  console.log({
+    jobCardView: job,
+  });
   const handleEditSubmit = async (data: any) => {
     console.log("Edited offer submitted:", data);
     setLoading(true);
     setLoadingText("Updating service request...");
-
     try {
       let response = await updateServiceRequest(
         String(job?.id),
@@ -774,7 +735,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         auth.token,
       );
       onJobChange(response.data.response);
-
       openNotification("topRight", "Service Request Updated", "", "success");
       toggleEditView();
     } catch (error) {
@@ -789,19 +749,20 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
       setLoadingText("");
     }
   };
-
   const handlePayment = async () => {
     setLoading(true);
     setLoadingText("Initializing payment...");
-
     try {
       const response = await initializeServiceRequestTransaction(
-        { servicerequestId: job?.id || -1, method: "Non Wallet" },
-        { token: auth.token },
+        {
+          servicerequestId: job?.id || -1,
+          method: "Non Wallet",
+        },
+        {
+          token: auth.token,
+        },
       );
-
       const { authorization_url } = response.data.response.data;
-
       if (authorization_url) {
         setPaymentUrl(authorization_url);
         setShowPaymentModal(true);
@@ -825,19 +786,15 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
       setLoadingText("");
     }
   };
-
   const handleCancel = async () => {
     setLoading(true);
     setLoadingText("Verifying payment...");
-
     try {
       const response = await getServiceRequest(
         job?.id ? String(job.id) : String(-1),
         auth.token,
       );
-
       onJobChange(response.data.response);
-
       if (response?.data?.response?.status === "Completed") {
         load();
       }
@@ -847,7 +804,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         "Your payment has been confirmed successfully.",
         "success",
       );
-
       setShowPaymentModal(false);
     } catch (error) {
       openNotification(
@@ -856,29 +812,29 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         "Unable to verify payment. Please try again later.",
         "error",
       );
-      console.log({ error });
+      console.log({
+        error,
+      });
     } finally {
       setLoading(false);
       setLoadingText("");
     }
   };
-
   const handleEditCancel = () => {
     toggleEditView();
   };
-
   const handleCloseJob = async () => {
     try {
       setLoading(true);
       setLoadingText("Cancelling...");
-
       const response = await updateServiceRequest(
         String(job?.id),
-        { status: "Closed" },
+        {
+          status: "Closed",
+        },
         auth.token,
       );
       onJobChange(response.data.response);
-
       toggleCancelModal();
       openNotification("topRight", "Service Request Updated", "", "success");
     } catch (error) {
@@ -894,20 +850,18 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
       setLoadingText("");
     }
   };
-
   const handleOpenJob = async () => {
     try {
       setLoading(true);
       setLoadingText("Reopening...");
-
       const response = await updateServiceRequest(
         String(job?.id),
-        { status: "Open" },
+        {
+          status: "Open",
+        },
         auth.token,
       );
-
       onJobChange(response.data.response);
-
       openNotification("topRight", "Service Request Reopened", "", "success");
     } catch (error) {
       console.error("Error reopening request:", error);
@@ -922,21 +876,17 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
       setLoadingText("");
     }
   };
-
   const handleRateUser = async (rating: number, reviewComment: string) => {
     const acceptedOffer = findAcceptedObject(job?.offer ? job.offer : []);
-
     try {
       setLoading(true);
       setLoadingText("Submitting your review...");
-
       await rateUser(
         acceptedOffer?.user?.id || -1,
         rating,
         reviewComment,
         auth.token,
       );
-
       openNotification(
         "topRight",
         "Review Submitted",
@@ -956,8 +906,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
       setLoadingText("");
     }
   };
-
-  // SET NEW ACTION FUNCTIONS FOR ALL THE BUTTONS.
   if (job?.status === "Open") {
     actions = actions.map((action) => {
       if (action.label === "Edit Job") {
@@ -1023,7 +971,10 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         onCancel={() => setShowRateModal(false)}
         onSubmit={(rating, comment) => {
           handleRateUser(rating, comment);
-          console.log({ rating, comment });
+          console.log({
+            rating,
+            comment,
+          });
           setShowRateModal(false);
         }}
       />
@@ -1033,8 +984,10 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         open={showPaymentModal}
         onCancel={handleCancel}
         footer={null}
-        width={400} // match iframe max-width
-        bodyStyle={{ padding: 0 }}
+        width={400}
+        bodyStyle={{
+          padding: 0,
+        }}
         centered
       >
         {paymentUrl ? (
@@ -1049,7 +1002,7 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
           </div>
         )}
       </Modal>
-      {/* Top Row: User + Timestamp */}
+      {}
       <div className="flex justify-between items-start mb-5">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-neutral-100 rounded-full">
@@ -1067,7 +1020,7 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
           </div>
         </div>
 
-        {/* Status */}
+        {}
         <div className="mb-5 w-max">
           <GenericTag
             buttonStyle={getJobStatusStyle(job?.status || "Open")}
@@ -1076,7 +1029,7 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         </div>
       </div>
 
-      {/* Address and Category */}
+      {}
       <div className="p-3 bg-gray-100 rounded-[10px]">
         <div className="mb-5 space-y-1">
           <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
@@ -1089,7 +1042,7 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
           </p>
         </div>
 
-        {/* Description */}
+        {}
         <div className="mb-0">
           <p className="text-sm text-neutral-800 leading-relaxed">
             <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
@@ -1101,7 +1054,7 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         </div>
       </div>
 
-      {/* Actions (Client Only) */}
+      {}
       {auth.isClient && (
         <div className="pt-4 border-t border-neutral-100">
           <ActionButtons actions={actions} />
@@ -1110,7 +1063,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
     </div>
   );
 };
-
 export const HomeCatCard: React.FC<CategoryDataItem> = ({
   title,
   tagline,

@@ -18,7 +18,6 @@ import NegotiationPanel from "../negotiationpanel";
 import { GenericTag } from "../statustag";
 import { getLatestCounterOffer } from "../../../util/jobutils";
 import { OfferHistory } from "../offerdetails";
-
 interface Props {
   offer: Offer;
   job: Job;
@@ -26,7 +25,6 @@ interface Props {
   onOfferChange: (data: Offer) => void;
   onOfferCounterChange: (offerId: any, data: CounterOffer[]) => void;
 }
-
 const OfferCardClient: React.FC<Props> = ({
   job,
   offer,
@@ -39,18 +37,13 @@ const OfferCardClient: React.FC<Props> = ({
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
   const [showCounterForm, setShowCounterForm] = useState(false);
-
   const { createdDate } = offer;
-
   let latestOffer = getLatestCounterOffer(offer.counterOffer);
-
   let actions = clientOfferActions[offer.status];
-
   const handleUpdateJob = async (data: any) => {
     console.log("Edited offer submitted:", data);
     setLoading(true);
     setLoadingText("Updating service request...");
-
     try {
       let response = await updateServiceRequest(
         String(job.id),
@@ -58,7 +51,6 @@ const OfferCardClient: React.FC<Props> = ({
         auth.token,
       );
       onJobChange(response.data.response);
-
       openNotification("topRight", "Service Request Updated", "", "success");
     } catch (error) {
       openNotification(
@@ -72,12 +64,10 @@ const OfferCardClient: React.FC<Props> = ({
       setLoadingText("");
     }
   };
-
   const handleUpdateOffer = async (data: any) => {
     console.log("Update offer submitted:", data);
     setLoading(true);
     setLoadingText("Updating service request...");
-
     try {
       let response = await updateOffer(auth.token, offer.id, data);
       onOfferChange(response.data.response);
@@ -93,7 +83,6 @@ const OfferCardClient: React.FC<Props> = ({
       setLoadingText("");
     }
   };
-
   const getCounterOffers = async () => {
     try {
       const response = await getAllCounterOffers(auth.token, {
@@ -102,7 +91,6 @@ const OfferCardClient: React.FC<Props> = ({
         offer: offer.id,
       });
       let counterOffers = response?.data?.response;
-
       onOfferCounterChange(offer.id, counterOffers);
     } catch (error) {
       console.error("Failed to fetch counter offers:", error);
@@ -114,14 +102,12 @@ const OfferCardClient: React.FC<Props> = ({
       );
     }
   };
-
   const handleCreateCounterOffer = async (
     price: number,
     description: string,
   ) => {
     setLoading(true);
     setLoadingText("Creating counter offer...");
-
     let data = {
       price: String(price),
       description,
@@ -129,8 +115,9 @@ const OfferCardClient: React.FC<Props> = ({
     };
     try {
       let response = await createCounterOffer(auth.token, data);
-      console.log({ counterOfferResponse: response });
-      //let response = await updateOffer(auth.token, offer.id,  data);
+      console.log({
+        counterOfferResponse: response,
+      });
       onOfferChange(response.data.response);
       setShowCounterForm(false);
       getCounterOffers();
@@ -146,32 +133,30 @@ const OfferCardClient: React.FC<Props> = ({
       setLoadingText("");
     }
   };
-
   const goToMessageProvider = async () => {
     navigate(`/messaging/conversations?with=${offer.user.id}`);
   };
-
   const dummy = () => console.log("dummy called");
-
   let showBtns = true;
   if (latestOffer && latestOffer.type !== "Service Provider") {
     showBtns = false;
   }
-
-  // map out the whole lot and assign your action functions.
   actions.map((action) => {
     if (action.label === "Message Provider") {
       action.action = goToMessageProvider;
     }
     return action;
   });
-
   if (offer.status === "Pending") {
     actions.map((action) => {
       if (action.label === "Start Negotiation") {
         action.action = () => {
-          handleUpdateOffer({ status: "Negotiating" });
-          handleUpdateJob({ status: "Negotiating" });
+          handleUpdateOffer({
+            status: "Negotiating",
+          });
+          handleUpdateJob({
+            status: "Negotiating",
+          });
         };
       }
       return action;
@@ -180,8 +165,14 @@ const OfferCardClient: React.FC<Props> = ({
     actions.map((action) => {
       if (action.label === "Accept This Proposal") {
         action.action = () => {
-          handleUpdateOffer({ status: "Ongoing", accepted: true });
-          handleUpdateJob({ status: "Ongoing", accepted: true });
+          handleUpdateOffer({
+            status: "Ongoing",
+            accepted: true,
+          });
+          handleUpdateJob({
+            status: "Ongoing",
+            accepted: true,
+          });
         };
       } else if (action.label === "Make Counter Offer") {
         action.action = () => {
@@ -191,16 +182,12 @@ const OfferCardClient: React.FC<Props> = ({
       return action;
     });
   }
-
   if (!showBtns && offer.status === "Negotiating") {
-    actions = actions.filter(
-      (x) => x.label == "Message Provider", // remove Message Client button if showing counter/accept buttons
-    );
+    actions = actions.filter((x) => x.label == "Message Provider");
   }
-
   return (
     <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:shadow-md transition-all duration-300">
-      {/* Header */}
+      {}
       <div className="flex md:flex-row justify-between md:items-center mb-4">
         <div className="flex items-center justify-between gap-2 text-sm text-gray-500 w-max">
           <CalendarDays size={16} />
@@ -219,16 +206,7 @@ const OfferCardClient: React.FC<Props> = ({
       <OfferHistory offer={offer} />
       <div className="border-t border-gray-100 mb-4" />
 
-      {/* Footer Info 
-      <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <User2 size={16} />
-          <span>{user?.fullName || "Service Provider"}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-semibold text-royalblue-dark">
-          <Layers size={16} />₦{price}
-        </div>
-      </div>*/}
+      {}
 
       {offer.status === "Negotiating" && showCounterForm && (
         <NegotiationPanel
@@ -258,10 +236,9 @@ const OfferCardClient: React.FC<Props> = ({
       )}
 
       <div className="border-t border-gray-100 my-4" />
-      {/* Call to Action (if needed) */}
+      {}
       <ActionButtons actions={actions} />
     </div>
   );
 };
-
 export default OfferCardClient;

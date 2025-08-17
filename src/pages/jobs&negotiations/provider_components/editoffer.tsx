@@ -1,27 +1,22 @@
 import React, { useState, useEffect, FormEvent } from "react";
-
 export interface OfferData {
   description: string;
   price: number;
 }
-
 interface EditOfferProps {
   initialData: OfferData;
   onSubmit: (updatedOffer: OfferData) => void;
   onCancel?: () => void;
 }
-
 const EditOffer: React.FC<EditOfferProps> = ({
   initialData,
   onSubmit,
   onCancel,
 }) => {
   const [form, setForm] = useState<OfferData>(initialData);
-
   useEffect(() => {
-    setForm(initialData); // reset form if initialData changes
+    setForm(initialData);
   }, [initialData]);
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -31,12 +26,10 @@ const EditOffer: React.FC<EditOfferProps> = ({
       [name]: name === "price" ? Number(value) : value,
     }));
   };
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onSubmit(form);
   };
-
   return (
     <form onSubmit={handleSubmit} className="">
       <h2 className="text-xl font-semibold text-gray-800 tracking-tight mb-4">
@@ -90,5 +83,4 @@ const EditOffer: React.FC<EditOfferProps> = ({
     </form>
   );
 };
-
 export default EditOffer;

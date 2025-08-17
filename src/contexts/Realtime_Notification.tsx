@@ -5,7 +5,7 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import { useSocket } from "./SocketContext"; // adjust import
+import { useSocket } from "./SocketContext";
 import { useDispatch } from "react-redux";
 import {
   addNotification,
@@ -16,9 +16,6 @@ import {
 import { getAllUserNotifications } from "../api-services/notificationservice";
 import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
-
-// adjust import
-
 interface NotificationRealtimeContextType {
   latestNotification: ArviceNotification | null;
   getNotifications: (page: number) => Promise<void>;
@@ -26,11 +23,9 @@ interface NotificationRealtimeContextType {
   notificationError: string;
   sendNotification: (data: ArviceNotificationRequestPayload) => void;
 }
-
 const NotificationRealtimeContext = createContext<
   NotificationRealtimeContextType | undefined
 >(undefined);
-
 export const useNotificationRealtime = (): NotificationRealtimeContextType => {
   const context = useContext(NotificationRealtimeContext);
   if (!context) {
@@ -40,11 +35,9 @@ export const useNotificationRealtime = (): NotificationRealtimeContextType => {
   }
   return context;
 };
-
 interface Props {
   children: ReactNode;
 }
-
 export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
   let auth = useAuth();
   const { notificationsSocket } = useSocket();
@@ -52,11 +45,8 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
     null,
   );
   const dispatch = useDispatch();
-
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [notificationError, setNotificationError] = useState("");
-
-  // WE CAN GET
   const getNotifications = async (page = 1) => {
     setNotificationError("");
     try {
@@ -66,10 +56,6 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
         page: page,
         limit: 15,
       });
-
-      //const response = await getAllNotifications(auth.token);
-
-      // response.data will contain your notifications
       console.log("Notifications:", response.data);
       let data = response.data.response;
       if (data.length === 0) {
@@ -83,41 +69,33 @@ export const NotificationRealtimeProvider: React.FC<Props> = ({ children }) => {
       setNotificationLoading(false);
     }
   };
-
-  // WE CAN SEND
   const sendNotification = (data: ArviceNotificationRequestPayload) => {
-    console.log({ sendingNotification: true, payload: data });
+    console.log({
+      sendingNotification: true,
+      payload: data,
+    });
     if (notificationsSocket) {
       notificationsSocket.emit("sendnotification", data);
     }
   };
-
   useEffect(() => {
     getNotifications();
   }, []);
-
   useEffect(() => {
     if (!notificationsSocket) return;
-
-    // WE CAN INTERCEPT
-    // Example: listen to new notifications
     notificationsSocket.on("notificationsent", (data) => {
       console.log("Received notification:", data);
       dispatch(addNotification(data));
       setLatestNotification(data);
     });
-
-    // Example: listen to new notifications
     notificationsSocket.on("notificationsent", (data) => {
       console.log("Received notification:", data);
       setLatestNotification(data);
     });
-
     return () => {
       notificationsSocket.off("notificationsent");
     };
   }, [notificationsSocket, dispatch]);
-
   return (
     <NotificationRealtimeContext.Provider
       value={{

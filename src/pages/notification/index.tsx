@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
-
 import { useState } from "react";
 import { Bell, Clock, Check, Search } from "feather-icons-react";
-
 import { Pagination } from "../../components/pagination";
 import { useNotificationRealtime } from "../../contexts/Realtime_Notification";
 import { ArviceNotification, markAsRead } from "../../store/notificationSlice";
@@ -13,7 +11,6 @@ import { RootState } from "../../store/store";
 import moment from "moment";
 import { updateNotificationToRead } from "../../api-services/notificationservice";
 import { BellRing, CheckCheck } from "lucide-react";
-
 interface Notification {
   id: string;
   type:
@@ -37,69 +34,55 @@ const Notification = (): React.ReactNode => {
   const [filter, setFilter] = useState<"all" | "unread" | "important">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
-
   const notifications = useSelector(
     (state: RootState) => state.notification.notifications,
   );
-
   const limit = 15;
-
   const [currentPage, setCurrentPage] = useState(1);
   let notificationSize = notifications.length;
   let nextPageRequiredSize = currentPage * limit;
-
   let shouldFetchMore = false;
-
   if (notificationSize < nextPageRequiredSize) {
     shouldFetchMore = true;
   }
-
   const notificationsToShow = notifications.slice(
     (currentPage - 1) * limit,
     currentPage * limit,
   );
-
   const notificationRealtime = useNotificationRealtime();
   const markAsReadLocal = async (id: number) => {
     try {
-      console.log({ id });
-
+      console.log({
+        id,
+      });
       const updated = await updateNotificationToRead(Number(id), auth.token);
-      console.log({ updated });
-
-      // If API call succeeds, update Redux store
+      console.log({
+        updated,
+      });
       dispatch(markAsRead(id));
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
     }
   };
-
   const markAllAsRead = () => {};
-
   const filteredNotifications = notificationsToShow?.filter((notif) => {
     const matchesFilter =
       filter === "all" ||
       (filter === "unread" && !notif.read) ||
       (filter === "important" &&
         ["offer", "booking"].includes(notif.meta_type));
-
     const matchesSearch =
       notif?.header?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       notif?.message?.toLowerCase().includes(searchQuery.toLowerCase());
-
     return matchesFilter && matchesSearch;
   });
-
   const unreadCount = notifications.filter((n) => !n.read).length;
-
   const getNotificationStyle = (notif: ArviceNotification) => {
     if (!notif.read) {
       return "bg-gray-50 border border-gray-200 hover:bg-gray-100";
     }
-
     return "bg-white border border-gray-100 hover:bg-gray-50";
   };
-
   const getIconStyle = (color: string) => {
     const colorMap = {
       amber: "bg-amber-100 text-amber-600",
@@ -110,26 +93,27 @@ const Notification = (): React.ReactNode => {
       orange: "bg-orange-100 text-orange-600",
       indigo: "bg-indigo-100 text-indigo-600",
     };
-
     return (
       colorMap[color as keyof typeof colorMap] || "bg-gray-100 text-gray-600"
     );
   };
-
   useEffect(() => {
-    console.log({ notifications, notificationsToShow, shouldFetchMore });
+    console.log({
+      notifications,
+      notificationsToShow,
+      shouldFetchMore,
+    });
     if (shouldFetchMore) {
       notificationRealtime.getNotifications(currentPage);
     }
   }, [currentPage]);
-
   return (
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto mb-10">
-        {/* Page Starts*/}
+        {}
 
         <div className="w-full overflow-hidden flex flex-col">
-          {/* Header */}
+          {}
           <div className="mt-10 p-6 border-b border-gray-100 bg-gradient-to-r from-purple-500 to-pink-500 text-white mb-0">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -155,9 +139,9 @@ const Notification = (): React.ReactNode => {
                 )}
               </div>
             </div>
-            {/* Search and Filters */}
+            {}
             <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search (Mobile Only) */}
+              {}
               <div className="sm:hidden flex w-full">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
@@ -171,9 +155,9 @@ const Notification = (): React.ReactNode => {
                 </div>
               </div>
 
-              {/* Search (Desktop Only) & Filters */}
+              {}
               <div className="flex w-full items-center gap-4 justify-center">
-                {/* Search (Desktop Only) */}
+                {}
                 <div className="hidden sm:block flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
                   <input
@@ -185,18 +169,14 @@ const Notification = (): React.ReactNode => {
                   />
                 </div>
 
-                {/* Filter Buttons */}
+                {}
                 <div className="flex gap-2 text-xs sm:text-[16px]">
                   {(["all", "unread", "important"] as const).map(
                     (filterType) => (
                       <button
                         key={filterType}
                         onClick={() => setFilter(filterType)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                          filter === filterType
-                            ? "bg-white text-purple-600"
-                            : "bg-white/20 hover:bg-white/30 text-white"
-                        }`}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${filter === filterType ? "bg-white text-purple-600" : "bg-white/20 hover:bg-white/30 text-white"}`}
                       >
                         {filterType === "all" && "All"}
                         {filterType === "unread" && `Unread (${unreadCount})`}
@@ -269,7 +249,7 @@ const Notification = (): React.ReactNode => {
                         onClick={() => markAsReadLocal(notification.id)}
                       >
                         <div className="flex items-start gap-4 tracking-tight">
-                          {/* Avatar and Icon */}
+                          {}
                           <div className="relative">
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-r from-purple-300 to-pink-300 shadow-sm">
                               <BellRing className="w-6 h-6 text-purple-700" />
@@ -281,7 +261,7 @@ const Notification = (): React.ReactNode => {
                             </div>
                           </div>
 
-                          {/* Content */}
+                          {}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between mb-2">
                               <h3 className="font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
@@ -322,7 +302,7 @@ const Notification = (): React.ReactNode => {
             }
           />
 
-          {/* Footer Stats */}
+          {}
         </div>
         <div className="mt-5 flex justify-center">
           <Pagination
@@ -335,5 +315,4 @@ const Notification = (): React.ReactNode => {
     </section>
   );
 };
-
 export default Notification;

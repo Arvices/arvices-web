@@ -11,36 +11,32 @@ import {
   resendAccountVerificationMail,
 } from "../../api-services/auth";
 import { useAuth } from "../../contexts/AuthContext";
-
 interface LoginFormState {
   email: string;
   password: string;
 }
-
 const Login: React.FC = () => {
   const [loginForm, setLoginForm] = useState<LoginFormState>({
     email: "",
     password: "",
   });
-
   const navigate = useNavigate();
   const { setLoading, setLoadingText } = useLoading();
-
   const notify = useNotificationContext();
   let auth = useAuth();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name) {
-      setLoginForm((prev) => ({ ...prev, [name]: value }));
+      setLoginForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     } else {
       throw new Error("Supply Input Name to make updates to Signup Form");
     }
   };
-
   const validateForm = (): boolean => {
     let valid = true;
-
-    // Validate Email
     if (!loginForm.email.trim()) {
       notify.openNotification(
         "topRight",
@@ -58,8 +54,6 @@ const Login: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Password
     if (!loginForm.password) {
       notify.openNotification(
         "topRight",
@@ -77,7 +71,6 @@ const Login: React.FC = () => {
       );
       valid = false;
     }
-
     return valid;
   };
   const handleResendVerification = async () => {
@@ -86,7 +79,6 @@ const Login: React.FC = () => {
         loginForm.email as string,
       );
       console.log("Resend verification success:", response);
-
       notify.openNotification(
         "topRight",
         "Email Sent",
@@ -108,7 +100,6 @@ const Login: React.FC = () => {
       email_or_phonenumber: loginForm.email,
       password: loginForm.password,
     };
-
     try {
       setLoading(true);
       setLoadingText("Logging You In");
@@ -120,7 +111,6 @@ const Login: React.FC = () => {
         response.response.user,
         response.response.user.type,
       );
-
       notify.openNotification(
         "topRight",
         "Success",
@@ -131,7 +121,6 @@ const Login: React.FC = () => {
         ? navigate("/service-providers")
         : navigate("/job-posting");
     } catch (err: any) {
-      //
       let message = err?.message || "unknown error";
       if (message === "Account not verified") {
         notify.openNotification(
@@ -152,10 +141,10 @@ const Login: React.FC = () => {
   return (
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Page Starts - Page Header*/}
+        {}
         <div className="max-w-[500px] mx-auto mt-10 mb-15">
           <div className="text-center max-w-[500px] mx-auto mt-10">
-            <h1 className="tracking-tighter text-royalblue-shade3 leading-[140%] text-4xl md:text-5xl lg:text-6xl font-medium pb-4">
+            <h1 className="tracking-tighter text-gray-900 leading-[140%] text-4xl md:text-5xl lg:text-6xl font-medium pb-4">
               Login
             </h1>
             <p className="text-gray-500">
@@ -167,7 +156,7 @@ const Login: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="email"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Email
               </label>
@@ -185,7 +174,7 @@ const Login: React.FC = () => {
             <div className="mt-8">
               <label
                 htmlFor="password"
-                className="text-royalblue-shade3 mb-3 inline-block"
+                className="text-gray-900 mb-3 inline-block"
               >
                 Password
               </label>
@@ -200,7 +189,7 @@ const Login: React.FC = () => {
             </div>
 
             <div className="mt-14">
-              <button className="w-full bg-royalblue-main text-white p-3 rounded cursor-pointer">
+              <button className="w-full bg-gray-900 text-white p-3 rounded cursor-pointer">
                 Login
               </button>
             </div>
@@ -225,7 +214,7 @@ const Login: React.FC = () => {
           <div className="mt-10 mb-5 border-t border-gray-300" />
           <div className="py-2 text-center">
             <p className="text-sm text-gray-500 mb-5"> Or Continue With</p>
-            {/* Google Auth Button */}
+            {}
             <MyCustomGoogleLogin />
           </div>
         </div>
@@ -233,5 +222,4 @@ const Login: React.FC = () => {
     </section>
   );
 };
-
 export default Login;

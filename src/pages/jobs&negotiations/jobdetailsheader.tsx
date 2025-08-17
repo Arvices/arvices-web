@@ -4,31 +4,37 @@ import { Dropdown, Menu } from "antd";
 import moment from "moment";
 import { Job } from "../../components/cards/appcards";
 import { MapPin } from "feather-icons-react";
-
 interface JobDetailsHeaderProps {
   job: Job;
   isClient: boolean;
 }
-
 export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
   job,
   isClient,
 }) => {
-  const timeAgo = moment(job.createdDate).fromNow(); // e.g., "23 minutes ago"
-
+  const timeAgo = moment(job.createdDate).fromNow();
   const menu = (
     <Menu
       items={[
-        { key: "1", label: "View Details" },
-        { key: "2", label: "Edit Job" },
-        { key: "3", label: "Delete Job", danger: true },
+        {
+          key: "1",
+          label: "View Details",
+        },
+        {
+          key: "2",
+          label: "Edit Job",
+        },
+        {
+          key: "3",
+          label: "Delete Job",
+          danger: true,
+        },
       ]}
     />
   );
-
   return (
     <div className="flex items-start justify-between w-full">
-      {/* Left: Job text */}
+      {}
       <div className="text-muted-foreground tracking-tight">
         <div className="font-medium text-foreground tracking-tight">
           {isClient ? "You posted this" : `Posted by ${job.user?.fullName}`}
@@ -50,7 +56,7 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Menu */}
+      {}
       <div className="w-max">
         <Dropdown overlay={menu} trigger={["click"]}>
           <button className="rounded-full hover:bg-muted transition-colors">
@@ -61,14 +67,11 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
     </div>
   );
 };
-
 interface JobDescriptionProps {
   job?: Job;
 }
-
 export const JobDescription: React.FC<JobDescriptionProps> = ({ job }) => {
   if (!job?.description) return null;
-
   return (
     <div className="mt-6 text-muted-foreground tracking-tight text-[14]">
       <h3 className="font-medium tracking-tighter">Description</h3>

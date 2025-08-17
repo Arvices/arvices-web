@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { ChevronDown, Phone, Mail, MessageSquare, Search } from "lucide-react"; // Example icons
-
+import { ChevronDown, Phone, Mail, MessageSquare, Search } from "lucide-react";
 const HelpCenter = () => {
   const [activeTab, setActiveTab] = useState("faq");
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
   const faqs = [
     {
       question: "How do you vet your service providers?",
@@ -44,19 +42,16 @@ const HelpCenter = () => {
     "Technical Issue",
     "General Inquiry",
   ];
-
   const supportTicketPriorities = ["Low", "Medium", "High"];
   const handleToggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
-
   interface ContactCardProps {
     icon: React.ReactNode;
     title: string;
     content: string;
     linkText: string;
   }
-
   const ContactCard = ({
     icon,
     title,
@@ -81,14 +76,13 @@ const HelpCenter = () => {
       )}
     </div>
   );
-
   return (
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Page Starts*/}
+        {}
 
         <div className="p-8 bg-slate-50 dark:bg-slate-950 min-h-screen">
-          {/* Header Section */}
+          {}
           <div className="mb-8">
             <h1 className="text-2xl tracking-tight font-bold text-slate-900 dark:text-slate-100">
               Help Center
@@ -98,7 +92,7 @@ const HelpCenter = () => {
             </p>
           </div>
 
-          {/* Contact Cards */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <ContactCard
               icon={
@@ -126,34 +120,25 @@ const HelpCenter = () => {
             />
           </div>
 
-          {/* Tabs */}
+          {}
           <div className="flex space-x-6 mb-6">
             <button
               onClick={() => setActiveTab("faq")}
-              className={`pb-2 text-md font-medium transition-colors ${
-                activeTab === "faq"
-                  ? "text-slate-900 dark:text-white border-b-2 border-purple-600"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
-              }`}
+              className={`pb-2 text-md font-medium transition-colors ${activeTab === "faq" ? "text-slate-900 dark:text-white border-b-2 border-purple-600" : "text-slate-500 dark:text-slate-400 hover:text-slate-700"}`}
             >
               FAQ
             </button>
             <button
               onClick={() => setActiveTab("support")}
-              className={`pb-2 text-md font-medium transition-colors ${
-                activeTab === "support"
-                  ? "text-slate-900 dark:text-white border-b-2 border-purple-600"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
-              }`}
+              className={`pb-2 text-md font-medium transition-colors ${activeTab === "support" ? "text-slate-900 dark:text-white border-b-2 border-purple-600" : "text-slate-500 dark:text-slate-400 hover:text-slate-700"}`}
             >
               Support Tickets
             </button>
           </div>
 
-          {/* Main Content Area (FAQ or Support Tickets) */}
+          {}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
             {activeTab === "faq" ? (
-              // FAQ Section
               <div>
                 <div className="relative mb-6">
                   <Search
@@ -210,7 +195,6 @@ const HelpCenter = () => {
                 </div>
               </div>
             ) : (
-              // Support Tickets Section
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Create New Ticket
@@ -288,5 +272,4 @@ const HelpCenter = () => {
     </section>
   );
 };
-
 export default HelpCenter;

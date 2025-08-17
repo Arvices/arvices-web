@@ -7,7 +7,6 @@ import {
   User,
   MessageSquare,
 } from "feather-icons-react";
-
 interface Booking {
   id: string;
   clientName: string;
@@ -19,7 +18,6 @@ interface Booking {
   price: string;
   phone?: string;
 }
-
 const upcomingBookings: Booking[] = [
   {
     id: "1",
@@ -44,7 +42,6 @@ const upcomingBookings: Booking[] = [
     phone: "+234 802 345 6789",
   },
 ];
-
 const recentBookings: Booking[] = [
   {
     id: "3",
@@ -67,7 +64,6 @@ const recentBookings: Booking[] = [
     price: "₦15,000",
   },
 ];
-
 export function BookingStatus() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -77,7 +73,6 @@ export function BookingStatus() {
       day: "numeric",
     });
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -90,12 +85,11 @@ export function BookingStatus() {
         return "gray";
     }
   };
-
   return (
     <section className="py-16 px-6 bg-gradient-to-br from-slate-50 to-purple-50/30">
       <div className="max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Upcoming Appointments */}
+          {}
           <div>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-900">
@@ -191,7 +185,7 @@ export function BookingStatus() {
             </div>
           </div>
 
-          {/* Recent Bookings */}
+          {}
           <div>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Recent Work</h3>

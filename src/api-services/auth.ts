@@ -2,13 +2,10 @@ import { AccountTypeVal } from "../contexts/AuthContext";
 import { baseUrl } from "./baseUrl";
 import axios from "axios";
 import { Category } from "./categories.types";
-
-// --- Interfaces for Request Bodies ---
-
 export interface SignUpEmailAndPasswordBody {
   email: string;
   fullName: string;
-  type: AccountTypeVal; // Assuming 'Vendor' might also be a type, if not, keep only 'Client'
+  type: AccountTypeVal;
   address: string;
   password: string;
   username: string;
@@ -20,9 +17,8 @@ export interface Wallet {
   accountNumber: string | null;
   bank: string | null;
   balance: number | null;
-  createdDate: string; // ISO date string
+  createdDate: string;
 }
-
 export interface UserAccount {
   id: number;
   username: string;
@@ -36,60 +32,49 @@ export interface UserAccount {
   followers: number[];
   password: string;
   type: AccountTypeVal;
-  accountCreationDate: string; // ISO date string
+  accountCreationDate: string;
   accountVerified: boolean;
   accountDisable: number;
   picture: string | null;
   businessName: string | null;
-  position: string; // "lat,long" format string
+  position: string;
   rating: number | null;
   allRating: number;
   bio: string | null;
   numberOfRating: number;
   meanRating: number;
-  category: Category[]; // Could be a string array or a more complex object type if known
+  category: Category[];
   categoryId: number;
   wallet?: Wallet;
   website: string;
   specialties: string[] | null;
   satisfiedClients: number;
 }
-
 export interface LoginEmailAndPasswordBody {
   email_or_phonenumber: string;
   password: string;
 }
-
 export interface ForgotPasswordBody {
   email: string;
 }
-
 export interface PasswordResetBody {
   password: string;
   token: string;
 }
-
 export interface VerifyAccountBody {
   email: string;
   verificationCode: number;
 }
-
-// --- Interfaces for Responses (example - adjust based on actual API responses) ---
-// You'll need to define these based on what your API actually returns.
-// For demonstration, I'll provide some common patterns.
-
 export interface SuccessResponse {
   message: string;
   status: number;
-  data: any; // Data can be anything, or a specific interface if known
+  data: any;
 }
-
 export interface ErrorResponse {
   message: string;
   status: number;
   error: string;
 }
-
 export interface LoginSuccessResponse {
   message: string;
   response: {
@@ -98,11 +83,6 @@ export interface LoginSuccessResponse {
   };
   status: number;
 }
-/**
- * Signs up a new user with email and password.
- * @param data The user's sign-up details.
- * @returns A promise that resolves with the API response.
- */
 export const signUpEmailAndPassword = async (
   data: SignUpEmailAndPasswordBody,
 ): Promise<SuccessResponse | ErrorResponse> => {
@@ -116,12 +96,6 @@ export const signUpEmailAndPassword = async (
     throw error?.response?.data;
   }
 };
-
-/**
- * Logs in a user with email/phone number and password.
- * @param data The user's login credentials.
- * @returns A promise that resolves with the login response including a token.
- */
 export const loginEmailAndPassword = async (
   data: LoginEmailAndPasswordBody,
 ): Promise<LoginSuccessResponse> => {
@@ -135,21 +109,12 @@ export const loginEmailAndPassword = async (
     throw error?.response?.data;
   }
 };
-
-/**
- * Initiates the Google sign-up process.
- * (Note: Google sign-up/login typically involves redirection to Google's OAuth flow,
- * so this function might just initiate that process on the backend or frontend.)
- * @returns A promise that resolves with the API response.
- */
 export const signupGoogle = async (): Promise<
   SuccessResponse | ErrorResponse
 > => {
-  const urlPath = "/google"; // Assuming this endpoint handles the Google OAuth initiation
+  const urlPath = "/google";
   const fullUrl = `${baseUrl}${urlPath}`;
   try {
-    // For Google OAuth, you might just redirect the user to this URL
-    // or the backend might initiate the OAuth flow and return a redirect URL.
     const response = await axios.post<SuccessResponse>(fullUrl);
     return response.data;
   } catch (error: any) {
@@ -157,18 +122,12 @@ export const signupGoogle = async (): Promise<
     throw error?.response?.data;
   }
 };
-
-/**
- * Initiates the Google login process.
- * @returns A promise that resolves with the API response.
- */
 export const loginGoogle = async (): Promise<
   SuccessResponse | ErrorResponse
 > => {
-  const urlPath = "/google"; // Assuming this endpoint handles the Google OAuth initiation
+  const urlPath = "/google";
   const fullUrl = `${baseUrl}${urlPath}`;
   try {
-    // Similar to signupGoogle, this often involves redirection.
     const response = await axios.post<SuccessResponse>(fullUrl);
     return response.data;
   } catch (error: any) {
@@ -176,12 +135,6 @@ export const loginGoogle = async (): Promise<
     throw error?.response?.data;
   }
 };
-
-/**
- * Sends a password reset email to the specified email address.
- * @param data The email address for which to reset the password.
- * @returns A promise that resolves with the API response.
- */
 export const forgotPassword = async (
   data: ForgotPasswordBody,
 ): Promise<SuccessResponse | ErrorResponse> => {
@@ -195,12 +148,6 @@ export const forgotPassword = async (
     throw error?.response?.data;
   }
 };
-
-/**
- * Resets the user's password using a provided token.
- * @param data The new password and the reset token.
- * @returns A promise that resolves with the API response.
- */
 export const passwordReset = async (
   data: PasswordResetBody,
 ): Promise<SuccessResponse | ErrorResponse> => {
@@ -214,23 +161,19 @@ export const passwordReset = async (
     throw error?.response?.data;
   }
 };
-
-/**
- * Resends the account verification email.
- * (Note: The prompt did not provide a body for this. Assuming it might take an email, or nothing if user is logged in.)
- * If it requires an email, update the signature.
- * @param email The email address to resend verification to (optional, depending on API).
- * @returns A promise that resolves with the API response.
- */
 export const resendAccountVerificationMail = async (
   email?: string,
 ): Promise<SuccessResponse | ErrorResponse> => {
-  const urlPath = "/user/resendverification"; // Example path, please confirm with API docs
+  const urlPath = "/user/resendverification";
   const fullUrl = `${baseUrl}${urlPath}`;
   try {
     const response = await axios.post<SuccessResponse>(
       fullUrl,
-      email ? { email } : {},
+      email
+        ? {
+            email,
+          }
+        : {},
     );
     return response.data;
   } catch (error: any) {
@@ -238,12 +181,6 @@ export const resendAccountVerificationMail = async (
     throw error?.response?.data;
   }
 };
-
-/**
- * Verifies a user's account with a verification code.
- * @param data The email and verification code.
- * @returns A promise that resolves with the API response.
- */
 export const verifyAccount = async (
   data: VerifyAccountBody,
 ): Promise<SuccessResponse | ErrorResponse> => {
@@ -257,20 +194,12 @@ export const verifyAccount = async (
     throw error?.response?.data;
   }
 };
-
-/**
- * Generates a verification code for a given email.
- * @param email The email address for which to generate a verification code.
- * @returns A promise that resolves with the API response.
- */
 export const generatVeficationCode = async (
   email: string,
 ): Promise<SuccessResponse | ErrorResponse> => {
   const urlPath = `/user/generateverificationcode/${email}`;
   const fullUrl = `${baseUrl}${urlPath}`;
   try {
-    // This is a POST request, even though email is in path, a body might be empty or specific.
-    // Assuming an empty body for this POST with path parameter.
     const response = await axios.post<SuccessResponse>(fullUrl);
     return response.data;
   } catch (error: any) {

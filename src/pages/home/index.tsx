@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { MapPin, Search } from "feather-icons-react";
 import "./style.css";
-
 import heroImg from "../../assets/images/services.svg";
 import heroImg1 from "../../assets/images/services1.svg";
 import heroImg2 from "../../assets/images/services2.svg";
 import heroImg3 from "../../assets/images/services3.svg";
 import heroImg4 from "../../assets/images/services4.svg";
-
-// category icons imports
 import autoMechanics from "../../assets/images/h-cat-auto-mechanics.svg";
 import catering from "../../assets/images/h-cat-catering.svg";
 import cleaning from "../../assets/images/h-cat-cleaning.svg";
@@ -32,14 +29,17 @@ import { useCategory } from "../../contexts/CategoryContext";
 import { useNavigate } from "react-router-dom";
 import { ContentHOC } from "../../components/nocontent";
 import { parseHttpError } from "../../api-services/parseReqError";
-
 export const categoryData: CategoryDataItem[] = [
   {
     title: "Auto Mechanics",
     tagline: "Vehicle repairs & servicing",
     img: autoMechanics,
   },
-  { title: "Catering", tagline: "Delicious event catering", img: catering },
+  {
+    title: "Catering",
+    tagline: "Delicious event catering",
+    img: catering,
+  },
   {
     title: "Cleaning",
     tagline: "Professional home & office cleaning",
@@ -60,17 +60,32 @@ export const categoryData: CategoryDataItem[] = [
     tagline: "Interior decoration & design",
     img: interiors,
   },
-  { title: "Logistics", tagline: "Swift delivery & transport", img: logistics },
-  { title: "Makeup", tagline: "Beauty for all occasions", img: makeup },
-  { title: "Photography", tagline: "Capture your moments", img: photography },
-  { title: "Plumbing", tagline: "Pipes, taps, and repairs", img: plumbing },
+  {
+    title: "Logistics",
+    tagline: "Swift delivery & transport",
+    img: logistics,
+  },
+  {
+    title: "Makeup",
+    tagline: "Beauty for all occasions",
+    img: makeup,
+  },
+  {
+    title: "Photography",
+    tagline: "Capture your moments",
+    img: photography,
+  },
+  {
+    title: "Plumbing",
+    tagline: "Pipes, taps, and repairs",
+    img: plumbing,
+  },
   {
     title: "Tailoring",
     tagline: "Custom fashion & alterations",
     img: tailoring,
   },
 ];
-
 const Home: React.FC = () => {
   const [topLoading, setTopLoading] = useState(true);
   const [topError, setTopError] = useState("");
@@ -78,9 +93,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const category = useCategory();
   const [locationInput, setLocationInput] = useState("");
-
   const [selectedCategory, setSelectedCategory] = useState("");
-
   const fetchTopProfessionals = async () => {
     try {
       setTopLoading(true);
@@ -94,36 +107,25 @@ const Home: React.FC = () => {
       setTopLoading(false);
     }
   };
-
   useEffect(() => {
     fetchTopProfessionals();
   }, []);
-
   const [showModal, setShowModal] = useState(false);
   const handleSearch = () => {
     const queryParams = new URLSearchParams();
-
-    // Add category if it is a truthy value
     if (selectedCategory) {
       queryParams.append("category", selectedCategory);
     }
-
-    // Add location if its address is a truthy value
     if (locationInput) {
       queryParams.append("location", locationInput);
     }
-
-    // Construct the final URL with the filtered query string
     const queryString = queryParams.toString();
     const path = `/service-providers${queryString ? "?" + queryString : ""}`;
-
-    // Navigate to the new URL
     navigate(path);
   };
-
   return (
     <section className="min-h-screen text-royalblue-shade5 pt-10">
-      {/* Hero Section */}
+      {}
       <LocationInput
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -152,7 +154,7 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div>
-          <h1 className="tracking-tighter leading-[140%] text-center text-royalblue-main text-4xl md:text-5xl lg:text-6xl font-medium pb-4">
+          <h1 className="tracking-tighter leading-[140%] text-center text-gray-900 text-4xl md:text-5xl lg:text-6xl font-medium pb-4">
             Find Professional Service Providers in Your Area.
           </h1>
           <p className="leading-8 text-center">
@@ -165,8 +167,8 @@ const Home: React.FC = () => {
               Search by category and location. Enter your preferred search
               parameters.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 max-w-[750px] gap-3">
-              {/* Div 1: Category Select */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4  gap-3">
+              {}
               <div>
                 <select
                   className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
@@ -184,29 +186,29 @@ const Home: React.FC = () => {
                 </select>
               </div>
 
-              {/* Div 2 & 3: Location Input and "Add Location" Button */}
+              {}
               <div>
                 <input
                   name="location"
-                  placeholder="Enter location"
+                  placeholder="Enter the nearest address"
                   value={locationInput}
                   onChange={(e) => setLocationInput(e.target.value)}
                   className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
                 />
               </div>
 
-              {/* Div 3: Location Input and "Add Location" Button */}
+              {}
               <div>
                 <button
                   onClick={() => setShowModal((prev) => !prev)}
                   className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
                 >
                   <MapPin className="inline-block mr-2 w-4 h-4" />
-                  <span className="inline">Add Location</span>
+                  <span className="inline">Use GPS Location</span>
                 </button>
               </div>
 
-              {/* Div 4: Search Button */}
+              {}
               <div>
                 <button
                   onClick={handleSearch}
@@ -230,7 +232,7 @@ const Home: React.FC = () => {
         </div>
       </div>
       <div className="py-10" />
-      {/* Categories Section */}
+      {}
       <div
         id="home-category-section"
         className="pt-5 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto cat-bg-img"
@@ -248,7 +250,7 @@ const Home: React.FC = () => {
           })}
         </div>
       </div>
-      {/* Professionals Section */}
+      {}
       <div
         id="home-professional-section"
         className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border-b border-gray-100"
@@ -290,7 +292,7 @@ const Home: React.FC = () => {
           </button>
         </div>
       </div>
-      {/* Activities Section */}
+      {}
       <div
         id="home-activities-section"
         className="pt-20 sm:pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto"
@@ -318,5 +320,4 @@ const Home: React.FC = () => {
     </section>
   );
 };
-
 export default Home;

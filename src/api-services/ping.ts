@@ -1,6 +1,5 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
-
 const ping = async () => {
   let config = {
     method: "get",
@@ -8,5 +7,4 @@ const ping = async () => {
   };
   return await axios(config);
 };
-
 export { ping };

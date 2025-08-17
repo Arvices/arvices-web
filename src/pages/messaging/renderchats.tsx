@@ -7,7 +7,6 @@ import {
   MoreHorizontal,
   ArrowLeft,
 } from "feather-icons-react";
-
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArviceMessage,
@@ -35,7 +34,6 @@ import { useNotificationContext } from "../../contexts/NotificationContext";
 import { generateConversation } from "../../util/mainutils";
 import { getAccountById } from "../../api-services/auth-re";
 import { UserAccount } from "../../api-services/auth";
-
 const RenderChats: React.FC = () => {
   const auth = useAuth();
   const [SearchParam] = useSearchParams();
@@ -43,50 +41,39 @@ const RenderChats: React.FC = () => {
   const chattingWith = SearchParam.get("with");
   const userId = Number(auth?.user?.id);
   const toUser = Number(chattingWith);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const messageRealTime = useMessageRealtime();
-
   const conversations = useSelector(
     (state: RootState) => state.message.conversations,
   );
-
   const messages = useSelector((state: RootState) => state.message.messages);
-  console.log({ messages });
+  console.log({
+    messages,
+  });
   let userConvoMessages = messages[Number(chattingWith)] || [];
   let reversed = reverseArray(userConvoMessages);
-
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [conversationLoading, setConversationLoading] =
     useState<boolean>(false);
   const [conversationError, setConversationError] = useState("");
-
   const unreadMessages = userConvoMessages.filter((x) => !x.read);
-
   const readMessage = async (messageId: number) => {
     await updateMessageToRead(messageId, auth.token);
   };
-
   const lastMessageByMe =
     conversation?.lastmessage?.user?.id === auth?.user?.id;
-
   console.log({
     lastMessageByMe,
     unreadMessages,
     lastMessage: conversation?.lastmessage,
     userid: auth?.user?.id,
   });
-
   useEffect(() => {
-    // Only proceed if the user is authenticated and there are unread messages to process.
     if (auth.user && unreadMessages.length > 0 && !lastMessageByMe) {
-      // Collect all the promises from the updateMessageToRead calls
       const updatePromises = unreadMessages.map((message) =>
         readMessage(message.id),
       );
-
-      // Wait for all messages to be marked as read
       Promise.all(updatePromises)
         .then(() => {
           console.log("All unread messages have been marked as read.");
@@ -102,7 +89,6 @@ const RenderChats: React.FC = () => {
         });
     }
   }, [auth.user, messages]);
-
   const fetchConversation = async () => {
     setConversationError("");
     try {
@@ -111,7 +97,10 @@ const RenderChats: React.FC = () => {
       console.log("Fetching user convo:", auth.user);
       let userId = Number(auth?.user?.id);
       const toUser = Number(chattingWith);
-      console.log({ userId, toUser });
+      console.log({
+        userId,
+        toUser,
+      });
       const response = await getUserConversation(userId, toUser, auth.token);
       let data = response.data.response;
       console.log("Retrieved by id", response);
@@ -120,24 +109,18 @@ const RenderChats: React.FC = () => {
     } catch (error) {
       const message = parseHttpError(error);
       if (message === "conversation not found") {
-        // if not found. then trigger the initialization.
-        // first fetch user.
         initializeConversation();
       } else {
         openNotification("topRight", message.toString(), "", "error");
         setConversationError(message);
       }
-
       console.error("Failed to fetch conversation:", error);
     } finally {
       setConversationLoading(false);
     }
   };
-
-  // FUNCTIONAL SCOPE OF THE MESSAGING.
   const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
   const [messagesError, setMessagesError] = useState("");
-
   const fetchMessages = async () => {
     setMessagesError("");
     try {
@@ -146,7 +129,10 @@ const RenderChats: React.FC = () => {
       const response = await getAllMessagesInUserConversation(
         auth.user?.id || -1,
         Number(chattingWith),
-        { page: 1, limit: 30 },
+        {
+          page: 1,
+          limit: 30,
+        },
         auth.token,
       );
       let messagesData = response.data.response;
@@ -165,25 +151,24 @@ const RenderChats: React.FC = () => {
       setMessagesLoading(false);
     }
   };
-
   const [initializeError, setInitializeError] = useState("");
   const [initializeLoading, setInitializeLoading] = useState(false);
-
   const initializeConversation = async () => {
     setInitializeLoading(true);
     setInitializeError("");
-
     try {
-      console.log({ initializingConversation: true });
-
+      console.log({
+        initializingConversation: true,
+      });
       const response = await getAccountById(
         chattingWith ? chattingWith : "",
         auth.token,
       );
-
       const data = response.data.response as UserAccount;
-      console.log({ userData: data, response });
-
+      console.log({
+        userData: data,
+        response,
+      });
       const newConvo = generateConversation(
         Number(chattingWith),
         new Date().toDateString(),
@@ -191,7 +176,6 @@ const RenderChats: React.FC = () => {
         data.picture,
         null,
       );
-
       dispatch(setConversations([newConvo]));
       setConversation(newConvo);
     } catch (error: any) {
@@ -203,16 +187,12 @@ const RenderChats: React.FC = () => {
       setInitializeLoading(false);
     }
   };
-
   const goBack = () => {
     navigate(-1);
   };
-
   const [newMessage, setNewMessage] = useState("");
-
   const handleSendMessage = () => {
     if (newMessage.trim() && newMessage.trim().length === 0) {
-      // Add message logic here
       return;
     }
     let payload: ArviceMessage = {
@@ -225,19 +205,18 @@ const RenderChats: React.FC = () => {
     messageRealTime.sendMessage(payload);
     setNewMessage("");
   };
-
   const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [messages]);
-
   useEffect(() => {
-    console.log({ userId, toUser });
+    console.log({
+      userId,
+      toUser,
+    });
     if (chattingWith) {
-      // check the conversations and check it i'm already chatting with that user.
       let existingConvo = conversations.find((convo) => {
         return Number(convo.id) === toUser;
       });
@@ -252,9 +231,11 @@ const RenderChats: React.FC = () => {
       }
     }
   }, [chattingWith, auth.user]);
-
-  console.log({ conversationLoading, messagesLoading, initializeLoading });
-
+  console.log({
+    conversationLoading,
+    messagesLoading,
+    initializeLoading,
+  });
   return (
     <div
       className={`${Number(chattingWith) ? "flex" : "hidden md:flex"}  h-[calc(100vh-60px)] overflow-y-auto w-full md:w-2/3 flex-col`}
@@ -287,7 +268,7 @@ const RenderChats: React.FC = () => {
         !initializeError &&
         conversation && (
           <>
-            {/* Chat Header */}
+            {}
             <div className="p-6 border-b border-gray-100 bg-gradient-to-r bg-gray-400 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -318,7 +299,7 @@ const RenderChats: React.FC = () => {
               </div>
             </div>
 
-            {/* Messages */}
+            {}
             <div
               ref={containerRef}
               className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-purple-50/30"
@@ -349,11 +330,7 @@ const RenderChats: React.FC = () => {
                         className={`max-w-[70%] ${isOwn ? "order-2" : "order-1"}`}
                       >
                         <div
-                          className={`p-4 rounded-2xl shadow-sm ${
-                            isOwn
-                              ? "bg-gradient-to-r bg-royalblue-tint3 text-white rounded-br-md"
-                              : "bg-white text-gray-900 rounded-bl-md border border-gray-100"
-                          }`}
+                          className={`p-4 rounded-2xl shadow-sm ${isOwn ? "bg-gradient-to-r bg-royalblue-tint3 text-white rounded-br-md" : "bg-white text-gray-900 rounded-bl-md border border-gray-100"}`}
                         >
                           <p className="text-sm leading-relaxed">
                             {message.message}
@@ -380,7 +357,7 @@ const RenderChats: React.FC = () => {
                   );
                 })}
 
-              {/* Typing indicator */}
+              {}
               <div className="hidden justify-start">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full overflow-hidden">
@@ -393,11 +370,15 @@ const RenderChats: React.FC = () => {
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                       <div
                         className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
+                        style={{
+                          animationDelay: "0.1s",
+                        }}
                       ></div>
                       <div
                         className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
+                        style={{
+                          animationDelay: "0.2s",
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -405,7 +386,7 @@ const RenderChats: React.FC = () => {
               </div>
             </div>
 
-            {/* Message Input */}
+            {}
             <div className="p-6 border-t border-gray-100 bg-white">
               <div className="flex items-end gap-3">
                 <button className="p-3 text-gray-500 hover:text-purple-500 hover:bg-purple-50 rounded-full transition-all duration-200">
@@ -436,7 +417,7 @@ const RenderChats: React.FC = () => {
         )}
 
       {!chattingWith && (
-        /* Empty State */ <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
+        <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
           <div className="w-full h-full bg-gray-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-300 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
@@ -466,13 +447,10 @@ const RenderChats: React.FC = () => {
     </div>
   );
 };
-
 export default RenderChats;
-
 interface ChatReqLoadingProps {
   message: string;
 }
-
 const ChatReqLoading: React.FC<ChatReqLoadingProps> = ({ message }) => {
   return (
     <div className="flex-1 flex items-center justify-center p-4 h-full">
@@ -501,13 +479,11 @@ const ChatReqLoading: React.FC<ChatReqLoadingProps> = ({ message }) => {
     </div>
   );
 };
-
 interface ChatReqErrorViewProps {
   message: string;
   reloadFunction: () => void;
   reloadBtnText: string;
 }
-
 const ChatReqErrorView: React.FC<ChatReqErrorViewProps> = ({
   message,
   reloadFunction,

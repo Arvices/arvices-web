@@ -1,81 +1,79 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { baseUrl } from "./baseUrl";
-
-// POST /message/createmessage
 const createMessage = async (data: any, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/message/createmessage`,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
     data,
   };
   return axios(config);
 };
-
-// GET /message/getallmessage
 const getAllMessages = async (token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/message/getallmessage`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
-// GET /message/getmessage/{id}
 const getMessageById = async (id: string, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/message/getmessage/${id}`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
-// GET /message/getallusermessage/{userid}
 const getAllUserMessages = async (userId: number, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/message/getallusermessage/${userId}`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
-// PUT /message/updatemessagetoread/{id}
 const updateMessageToRead = async (id: number, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/message/updatemessagetoread/${id}`,
     method: "PUT",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
-// DELETE /message/deletemessage/{id}
 const deleteMessage = async (id: number, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/message/deletemessage/${id}`,
     method: "DELETE",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
-// GET /message/getalluserconversation/{userid}
 const getAllUserConversations = async (
   userId: number,
   search?: string,
@@ -85,15 +83,18 @@ const getAllUserConversations = async (
     url: `${baseUrl}/message/getalluserconversation/${userId}`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
     params: {
-      ...(search && { search }),
+      ...(search && {
+        search,
+      }),
     },
   };
   return axios(config);
 };
-
 const getUserConversation = async (
   userId: number,
   toUserId: number,
@@ -103,13 +104,13 @@ const getUserConversation = async (
     url: `${baseUrl}/message/getuserconversation/${userId}/${toUserId}`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
-// GET /message/getallmessagesinuserconversation/{userid}/{userconversationid}
 const getAllMessagesInUserConversation = async (
   userId: number,
   userConversationId: number,
@@ -127,20 +128,29 @@ const getAllMessagesInUserConversation = async (
     url: `${baseUrl}/message/getallmessagesinuserconversation/${userId}/${userConversationId}`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
     params: {
-      ...(options?.search && { search: options.search }),
-      ...(options?.startDate && { startDate: options.startDate }),
-      ...(options?.endDate && { endDate: options.endDate }),
-      ...(options?.orderBy && { orderBy: options.orderBy }),
+      ...(options?.search && {
+        search: options.search,
+      }),
+      ...(options?.startDate && {
+        startDate: options.startDate,
+      }),
+      ...(options?.endDate && {
+        endDate: options.endDate,
+      }),
+      ...(options?.orderBy && {
+        orderBy: options.orderBy,
+      }),
       page: options?.page ?? 1,
       limit: options?.limit ?? 10,
     },
   };
   return axios(config);
 };
-
 export {
   createMessage,
   getAllMessages,
