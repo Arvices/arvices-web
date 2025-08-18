@@ -1067,7 +1067,7 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
           </div>
         </div>
 
-        {/* Status */}
+        {}
         <div className="mb-5 w-max">
           <GenericTag
             buttonStyle={getJobStatusStyle(job?.status || "Open")}
@@ -1076,7 +1076,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         </div>
       </div>
 
-      {/* Address and Category */}
       <div className="p-3 bg-gray-100 rounded-[10px]">
         <div className="mb-5 space-y-1">
           <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
@@ -1091,13 +1090,13 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
 
         {/* Description */}
         <div className="mb-0">
-          <p className="text-sm text-neutral-800 leading-relaxed">
+          <div className="text-sm text-neutral-800 leading-relaxed">
             <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
               <Snowflake className="w-4 h-4 text-neutral-500" />
               Job Description{" "}
             </p>
             {job?.description || "No description provided."}
-          </p>
+          </div>
         </div>
       </div>
 

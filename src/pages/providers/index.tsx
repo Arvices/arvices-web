@@ -77,7 +77,7 @@ const ArvicesProviders = (): React.ReactNode => {
   };
 
   const handleFilterApply = () => {
-    fetchProfessionals();
+    loadServiceProviders();
     setIsFilter(true);
   };
 
@@ -242,10 +242,7 @@ const ArvicesProviders = (): React.ReactNode => {
   };
 
   useEffect(() => {
-    // Update state or directly use the values
-    if (category || location) {
-    }
-    if (location) {
+    if (filters.location) {
     }
 
     console.log("Extracted Category:", category);

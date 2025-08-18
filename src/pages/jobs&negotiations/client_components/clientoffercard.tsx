@@ -219,17 +219,6 @@ const OfferCardClient: React.FC<Props> = ({
       <OfferHistory offer={offer} />
       <div className="border-t border-gray-100 mb-4" />
 
-      {/* Footer Info 
-      <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <User2 size={16} />
-          <span>{user?.fullName || "Service Provider"}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-semibold text-royalblue-dark">
-          <Layers size={16} />₦{price}
-        </div>
-      </div>*/}
-
       {offer.status === "Negotiating" && showCounterForm && (
         <NegotiationPanel
           job={job}

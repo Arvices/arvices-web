@@ -29,7 +29,7 @@ export const getAllServiceRequests = ({
   type,
   startDate,
   endDate,
-  orderBy,
+  orderBy = "DESC",
 }: GetAllServiceRequestParams) => {
   const params: Record<string, any> = {};
   if (page) params.page = page;
@@ -117,10 +117,36 @@ export const getRecommendedServiceRequest = () => {
   return axios(config);
 };
 
-export const getServiceRequestAroundMe = () => {
+export const getServiceRequestAroundMe = (
+  token: string,
+  params: {
+    latitude: number;
+    longitude: number;
+    search?: string;
+    category?: number[];
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+  },
+) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getservicerequestaroundme`,
     method: "GET",
+    params: {
+      latitude: params.latitude,
+      longitude: params.longitude,
+      search: params.search,
+      category: params.category?.join(","), // Join array into a comma-separated string
+      startDate: params.startDate,
+      endDate: params.endDate,
+      orderBy: "DESC",
+      page: params.page,
+      limit: params.limit,
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };

@@ -25,9 +25,10 @@ const MapView: React.FC<MapViewProps> = ({ position, users }) => {
 
     // Initialize the map only once
     if (!mapRef.current) {
-      console.log({ position });
-      const [lng, lat] = parsePosition(position);
-
+      console.log({
+        position,
+      });
+      const [lng, lat] = position ? parsePosition(position) : [0, 0];
       mapRef.current = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: "mapbox://styles/mapbox/streets-v12",
