@@ -3,9 +3,10 @@ import {
   ArrowUpLeft,
   Download,
   Upload,
-  DollarSign,
   CreditCard,
   XCircle,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -34,16 +35,10 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
   } else if (rawType.includes("topup")) {
     type = "topup";
     label = "TopUp";
-  } else if (rawType.includes("credit")) {
+  } else if (rawType.includes("credit") || rawType.includes("receive")) {
     type = "received";
     label = "Received";
-  } else if (rawType.includes("debit")) {
-    type = "sent";
-    label = "Sent";
-  } else if (rawType.includes("receive")) {
-    type = "received";
-    label = "Received";
-  } else if (rawType.includes("send")) {
+  } else if (rawType.includes("debit") || rawType.includes("send")) {
     type = "sent";
     label = "Sent";
   } else {
@@ -57,44 +52,49 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
     partyName = ` to ${transaction.to.fullName}`;
   }
 
-  // Determine success/failure
+  // Determine success/failure/pending
   const isSuccessful = transaction.paid || transaction.reflected;
-  const isFailed = !isSuccessful;
-  const statusText = isSuccessful ? "Successful" : "Failed";
+  const isFailed = !isSuccessful && transaction.paid === false;
+  const isPending = !isSuccessful && !isFailed;
 
-  // Choose icon
+  let statusText = "Pending";
+  if (isSuccessful) statusText = "Successful";
+  if (isFailed) statusText = "Failed";
+
+  // Choose icon with direct color classes
   let icon;
-  if (isFailed) {
-    icon = <XCircle size={18} />;
+  if (isSuccessful) {
+    icon = <CheckCircle size={18} className="text-green-600" />;
+  } else if (isFailed) {
+    icon = <XCircle size={18} className="text-red-600" />;
+  } else if (isPending) {
+    icon = <Clock size={18} className="text-yellow-600" />;
   } else {
+    // fallback type-based icons with colors
     switch (type) {
-      case "topup":
-        icon = <DollarSign size={18} />;
-        break;
       case "withdrawal":
-        icon = <ArrowUpLeft size={18} />;
+        icon = <ArrowUpLeft size={18} className="text-red-700" />;
         break;
       case "received":
-        icon = <Download size={18} />;
+        icon = <Download size={18} className="text-blue-700" />;
         break;
       case "sent":
-        icon = <Upload size={18} />;
+        icon = <Upload size={18} className="text-yellow-800" />;
         break;
       default:
-        icon = <CreditCard size={18} />;
+        icon = <CreditCard size={18} className="text-blue-700" />;
     }
   }
 
-  // Icon colors
+  // Icon wrapper background colors only
   const iconWrapperClass = clsx(
     "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
     {
-      "bg-green-100 text-green-700": type === "topup" && !isFailed,
-      "bg-red-100 text-red-700": type === "withdrawal" && !isFailed,
-      "bg-blue-100 text-blue-700": type === "received" && !isFailed,
-      "bg-yellow-100 text-yellow-700": type === "sent" && !isFailed,
-      "bg-red-200 text-red-800": isFailed,
-    },
+      "bg-green-100": isSuccessful,
+      "bg-red-100": isFailed,
+      "bg-yellow-100": isPending,
+      "bg-gray-100": !isSuccessful && !isFailed && !isPending,
+    }
   );
 
   // Date handling with multiple fallbacks
@@ -108,7 +108,7 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
   if (rawDate) {
     let parsedDate = new Date(rawDate);
 
-    // If invalid, try parsing DD/MM/YYYY formats
+    // Handle DD/MM/YYYY
     if (isNaN(parsedDate.getTime()) && typeof rawDate === "string") {
       const match = rawDate.match(/(\d{2})\/(\d{2})\/(\d{4})/);
       if (match) {
@@ -150,6 +150,7 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
             className={clsx("text-xs mt-0.5", {
               "text-green-600": isSuccessful,
               "text-red-600": isFailed,
+              "text-yellow-600": isPending,
             })}
           >
             {statusText}
