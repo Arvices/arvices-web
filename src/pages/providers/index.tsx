@@ -71,7 +71,7 @@ const ArvicesProviders = (): React.ReactNode => {
     }));
   };
   const handleFilterApply = () => {
-    loadServiceProviders()
+    loadServiceProviders();
     setIsFilter(true);
   };
   const handeClearFilter = () => {
@@ -91,6 +91,7 @@ const ArvicesProviders = (): React.ReactNode => {
     });
     setIsFilter(false);
   };
+
   const geoCodeLocation = async (address: string) => {
     const accessToken = mapBoxPublickKey;
     const encodedAddress = encodeURIComponent(address);
@@ -120,6 +121,7 @@ const ArvicesProviders = (): React.ReactNode => {
       throw error;
     }
   };
+
   const fetchProfessionalsAroundMe = async () => {
     setLoading(true);
     setError("");
@@ -210,7 +212,7 @@ const ArvicesProviders = (): React.ReactNode => {
     }
   };
   useEffect(() => {
-    if(filters.location){
+    if (filters.location) {
     }
   }, [filters]);
 

@@ -300,6 +300,7 @@ export function getJobStatusStyle(
   return statusMap[status] || "neutral";
 }
 export type JobStatusType = keyof typeof JobStatus;
+
 export interface Job {
   id: number;
   address: string;
@@ -319,6 +320,7 @@ export interface Job {
   type: string;
   user?: UserAccount;
 }
+
 interface JobCardProp {
   job: Job;
   handleOfferAction: (
@@ -1019,8 +1021,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
             </p>
           </div>
         </div>
-
-        {}
         <div className="mb-5 w-max">
           <GenericTag
             buttonStyle={getJobStatusStyle(job?.status || "Open")}
@@ -1029,7 +1029,6 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
         </div>
       </div>
 
-      {}
       <div className="p-3 bg-gray-100 rounded-[10px]">
         <div className="mb-5 space-y-1">
           <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
@@ -1044,13 +1043,13 @@ export const JobCardView = ({ job, onJobChange, load }: JobCardViewProp) => {
 
         {}
         <div className="mb-0">
-          <p className="text-sm text-neutral-800 leading-relaxed">
+          <div className="text-sm text-neutral-800 leading-relaxed">
             <p className="text-sm font-medium tracking-tight text-neutral-800 flex items-center gap-1">
               <Snowflake className="w-4 h-4 text-neutral-500" />
               Job Description{" "}
             </p>
             {job?.description || "No description provided."}
-          </p>
+          </div>
         </div>
       </div>
 

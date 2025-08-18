@@ -206,8 +206,6 @@ const OfferCardClient: React.FC<Props> = ({
       <OfferHistory offer={offer} />
       <div className="border-t border-gray-100 mb-4" />
 
-      {}
-
       {offer.status === "Negotiating" && showCounterForm && (
         <NegotiationPanel
           job={job}

@@ -90,6 +90,7 @@ const ManageJob = (): React.ReactNode => {
       load();
     }
   }, [auth.token, currentPage, activeTab]);
+  
   return (
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto pb-15">
