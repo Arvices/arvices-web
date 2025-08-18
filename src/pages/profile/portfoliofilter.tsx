@@ -21,12 +21,25 @@ interface ProductItem {
   createdDate: string;
 }
 
-const sections = ["Portfolio", "Products", "Services"];
+interface ShowcaseItem {
+  id: number;
+  title: string;
+  description: string;
+  createdDate: string;
+  likes: number;
+  comments: number;
+  views: number;
+}
+
+const sections = ["Portfolio", "Products", "Showcase"];
 
 export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) {
   const [activeSection, setActiveSection] = useState("Portfolio");
+
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [productItems, setProductItems] = useState<ProductItem[]>([]);
+  const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>([]);
+
   const [loading, setLoading] = useState(false);
 
   // Pagination state
@@ -95,11 +108,43 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
     }
   };
 
+  // Fetch Showcase
+  const fetchShowcase = async (pageNum: number) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(
+        "https://arvicesapi.denateonlineservice.com/showcase/getgeneralshowcasetimeline",
+        {
+          params: { orderBy: "DESC", page: pageNum, limit: 10 },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const mapped: ShowcaseItem[] = (res.data.response || []).map((item: any) => ({
+        id: item.id,
+        title: item.title || "",
+        description: item.description || "",
+        createdDate: item.createdDate,
+        likes: item.likes ?? 0,
+        comments: item.comments ?? 0,
+        views: item.views ?? 0,
+      }));
+
+      setShowcaseItems(mapped);
+      setTotal(res.data.total || 0);
+    } catch (err) {
+      console.error("❌ Failed to load showcase", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Watch section or page changes
   useEffect(() => {
     if (activeSection === "Portfolio") fetchPortfolio(page);
     if (activeSection === "Products") fetchProducts(page);
-    // Services left out for now
+    if (activeSection === "Showcase") fetchShowcase(page);
   }, [activeSection, page]);
 
   // Which list to render
@@ -108,7 +153,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
       ? portfolioItems
       : activeSection === "Products"
       ? productItems
-      : [];
+      : showcaseItems;
 
   return (
     <section className="py-16 px-6 bg-white">
@@ -141,7 +186,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
           <Empty description={`No ${activeSection.toLowerCase()} items found`} />
         ) : (
           <>
-<div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6">
               {/* Portfolio */}
               {activeSection === "Portfolio" &&
                 portfolioItems.map((item) => (
@@ -197,26 +242,50 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
                   </div>
                 ))}
 
-              {/* Services (placeholder for now) */}
-              {activeSection === "Services" && (
-                <div className="col-span-full">
-                  <Empty description="No services found" />
-                </div>
-              )}
+              {/* Showcase */}
+              {activeSection === "Showcase" &&
+                showcaseItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group"
+                  >
+                    <div className="p-4">
+                      <h3 className="font-semibold tracking-tight text-base mb-2">
+                        {item.title}
+                      </h3>
+                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {new Date(item.createdDate).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-700">
+                        <div className="flex items-center space-x-1">
+                          <Heart className="w-4 h-4" />
+                          <span>{item.likes}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MessageCircle className="w-4 h-4" />
+                          <span>{item.comments}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Eye className="w-4 h-4" />
+                          <span>{item.views}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
 
             {/* Pagination */}
-            {activeSection !== "Services" && (
-              <div className="flex justify-center mt-8">
-                <Pagination
-                  current={page}
-                  pageSize={10}
-                  total={total}
-                  onChange={(p) => setPage(p)}
-                  showSizeChanger={false}
-                />
-              </div>
-            )}
+            <div className="flex justify-center mt-8">
+              <Pagination
+                current={page}
+                pageSize={10}
+                total={total}
+                onChange={(p) => setPage(p)}
+                showSizeChanger={false}
+              />
+            </div>
           </>
         )}
       </div>
