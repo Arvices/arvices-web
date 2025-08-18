@@ -58,7 +58,9 @@ const Header: React.FC = () => {
     setMobileOpen((prev) => !prev);
   };
 
-  {/* Provider context menu */}
+  {
+    /* Provider context menu */
+  }
   const JobsMenu = (
     <Menu
       items={[
@@ -126,7 +128,9 @@ const Header: React.FC = () => {
     />
   );
 
-  {/* Client context menu */}
+  {
+    /* Client context menu */
+  }
   const HireSomeoneMenu = (
     <Menu
       items={[
@@ -205,7 +209,9 @@ const Header: React.FC = () => {
     />
   );
 
-  {/* Account Context Menu */}
+  {
+    /* Account Context Menu */
+  }
   const AccountMenu = (
     <Menu
       items={[
@@ -449,7 +455,7 @@ const Header: React.FC = () => {
                 </div>
                 <div>
                   <Link to={"/signup"}>
-                    <button className="py-2 px-5 rounded-4xl bg-royalblue-main text-white cursor-pointer">
+                    <button className="py-2 px-5 rounded-[9px] bg-neutral-900 text-white cursor-pointer">
                       Get Started
                     </button>
                   </Link>

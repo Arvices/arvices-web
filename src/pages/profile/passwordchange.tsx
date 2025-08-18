@@ -1,44 +1,40 @@
-// src/components/forms/PasswordChange.tsx
-
 import React, { useState } from "react";
 import { changePassword } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
-// adjust the import to your structure
-
 interface PasswordChangeProps {
   userId: number;
 }
-
 const PasswordChange: React.FC<PasswordChangeProps> = ({ userId }) => {
   const auth = useAuth();
   const { openNotification } = useNotificationContext();
-
   const [passwordData, setPasswordData] = useState({
     old_password: "",
     new_password: "",
   });
-
   const [loading, setLoading] = useState(false);
-
   const handlePasswordDataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswordData((prev) => ({ ...prev, [name]: value }));
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       await changePassword(passwordData, userId, auth.token);
-      // success feedback
       openNotification(
         "topRight",
         "Password changed successfully",
         "",
         "success",
       );
-      setPasswordData({ old_password: "", new_password: "" });
+      setPasswordData({
+        old_password: "",
+        new_password: "",
+      });
     } catch (error) {
       console.error(error);
       openNotification(
@@ -51,7 +47,6 @@ const PasswordChange: React.FC<PasswordChangeProps> = ({ userId }) => {
       setLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleChangePassword} className="space-y-4 w-full max-w-md">
       <div className="mb-8">
@@ -90,5 +85,4 @@ const PasswordChange: React.FC<PasswordChangeProps> = ({ userId }) => {
     </form>
   );
 };
-
 export default PasswordChange;

@@ -24,12 +24,11 @@ export const UserFieldId = {
   Wallet: "wallet",
   Specialties: "specialties",
 } as const;
-
 export interface ServiceOfferingPayload {
   title: string;
-  price: string; // e.g. "10000" (₦10,000)
+  price: string;
   description: string;
-  duration: string; // e.g. "2"
-  timeUnit: string; // e.g. "hours", "days", etc.
+  duration: string;
+  timeUnit: string;
   id: number;
 }

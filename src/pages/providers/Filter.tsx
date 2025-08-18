@@ -3,6 +3,7 @@ import { Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useCategory } from "../../contexts/CategoryContext";
 import LocationInput from "../../components/map/LocationInput";
+import { LocationData } from ".";
 
 export interface FilterFormProps {
   filters: {
@@ -10,7 +11,7 @@ export interface FilterFormProps {
     category: string;
     location: string;
   };
-  onChange: (name: string, value: string) => void;
+  onChange: (name: string, value: string | LocationData) => void;
   onApply: () => void;
   onClear: () => void;
   isFilter?: boolean;
@@ -62,7 +63,7 @@ export const FilterComponent = ({
           options={[{ label: "Select Category", value: "" }].concat(
             category.categories.map((val) => ({
               label: val.name,
-              value: JSON.stringify(val),
+              value: String(val.id),
             })),
           )}
         />
@@ -129,6 +130,7 @@ export const FilterComponent = ({
         onApply={(locationData) => {
           console.log("Selected location:", locationData);
           onChange("location", locationData.address);
+          onChange("locationData", locationData);
           setShowModal(false);
         }}
       />

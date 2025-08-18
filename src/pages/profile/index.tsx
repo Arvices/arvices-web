@@ -2,7 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { Carousel, Badge, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
 import { PortfolioFilter } from "./portfoliofilter";
-import PortfolioPage from "./PortfolioTab"; // adjust path
+
+// ...
+<PortfolioFilter />
 
 import { Heart, MapPin, Star } from "feather-icons-react";
 import { BookingCalendar } from "./bookingcarlendar";
@@ -14,13 +16,11 @@ import { UserAccount } from "../../api-services/auth";
 import { parseHttpError } from "../../api-services/parseReqError";
 import AvailabilitySection from "./Availability";
 import { getInitials } from "../../util/getInitials";
-import { getAllOffers } from "../../api-services/offer.service";
-import { formatCount, formatRating } from "../../util/mainutils";
-import { CheckCheckIcon } from "lucide-react";
+import { formatRating } from "../../util/mainutils";
+import { CheckCheckIcon, MessageCircle } from "lucide-react";
 import moment from "moment";
 import { getAllProfileService } from "../../api-services/profileservice.service";
 import { ServiceOfferingPayload } from "./profile.types";
-
 export interface Review {
   createdDate: string;
   id: number;
@@ -29,109 +29,77 @@ export interface Review {
   user: UserAccount;
   userWhoWasReviewed: UserAccount;
 }
-
 const Profile = (): React.ReactNode => {
   const auth = useAuth();
   const { pathname } = useLocation();
   const params = useParams();
   const id = params.id || auth?.user?.id;
-
   const isMyProfile =
     pathname.includes("myprofile") || params.id === auth?.user?.id;
   const carouselRef = useRef<any>(null);
-
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileErr, setProfileErr] = useState<string | null>(null);
-  const [happyClients, setHappyClients] = useState<string>("");
-
-  const getHappyClients = async () => {
-    try {
-      const response = await getAllOffers(auth.token, {
-        user: auth?.user?.id,
-        page: 1,
-        limit: 50,
-        status: "Completed",
-      });
-
-      // Assuming the response has a `data` property with an array of offers.
-      // We can get the count from the array's length.
-      const completedOffersCount = response.data.response.length;
-      setHappyClients(formatCount(completedOffersCount));
-
-      console.log("Successfully fetched happy clients:", completedOffersCount);
-    } catch (error) {
-      console.error("Failed to fetch happy clients:", error);
-      // You could also set an error state here to display in the UI
-      // setHappyClientsError("Failed to load count.");
-    }
-  };
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState<boolean>(false);
   const [reviewsError, setReviewsError] = useState<string>("");
-
   const loadUserReviews = async () => {
-    console.log({ reviewsLoading, reviewsError });
+    console.log({
+      reviewsLoading,
+      reviewsError,
+    });
     setReviewsLoading(true);
     setReviewsError("");
-
     try {
       if (!auth?.user?.id) {
-        // Handle cases where the user ID is not available
         setReviewsError("User not authenticated.");
         setReviewsLoading(false);
         return;
       }
-
       const response = await getUserReviews(auth.user.id, auth.token);
-
-      // Assuming the API response has a `data` property with the reviews
       setReviews(response.data.response);
-      console.log({ reviews: response });
+      console.log({
+        reviews: response,
+      });
     } catch (error) {
       console.error("Failed to load user reviews:", error);
-      // You can parse the error to give a more user-friendly message
       setReviewsError("Failed to fetch reviews. Please try again.");
     } finally {
       setReviewsLoading(false);
     }
   };
-
   const [services, setServices] = useState<ServiceOfferingPayload[]>([]);
   const [servicesLoading, setServicesLoading] = useState<boolean>(false);
   const [servicesError, setServicesError] = useState<string>("");
-
+  console.log({
+    servicesLoading,
+    servicesError,
+  });
   const loadUserServices = async () => {
     setServicesLoading(true);
     setServicesError("");
-
     try {
       if (!auth?.token) {
         setServicesError("Authentication token is missing. Please log in.");
         setServicesLoading(false);
         return;
       }
-
       const response = await getAllProfileService(auth.token);
       setServices(response.data.response);
       console.log("User services fetched:", response.data.response);
     } catch (error) {
-      console.error("Failed to load user services:", error);
       setServicesError("Failed to fetch services. Please try again later.");
     } finally {
       setServicesLoading(false);
     }
   };
-
   const loadProfile = async () => {
     try {
       setProfileLoading(true);
       const response = await getAccountById(String(id), auth.token);
       setUserProfile(response.data.response);
-      console.log({ res: response.data });
       setProfileErr(null);
     } catch (error: any) {
-      console.log({ error });
       const message = parseHttpError(error);
       setProfileErr(message || "Failed to load profile");
       throw error;
@@ -139,20 +107,17 @@ const Profile = (): React.ReactNode => {
       setProfileLoading(false);
     }
   };
-
   useEffect(() => {
     if (id && auth?.token) {
       loadProfile();
-      getHappyClients();
       loadUserReviews();
       loadUserServices();
     }
   }, [id, auth?.token]);
-
   let UIComponent = (
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] relative mx-auto bg-[linear-gradient(to_right,_#ffe4f2,_#e8f4ff)]">
-        {/* Hero Section */}
+        {}
         {isMyProfile && (
           <Link to={"/profile/edit"}>
             <button className="border z-[50] border-blue-200 fixed cursor-pointer bottom-10 right-10 flex items-center space-x-1 text-sm px-5 py-2 bg-white text-gray-600 rounded">
@@ -205,8 +170,10 @@ const Profile = (): React.ReactNode => {
             </Badge>
 
             <div className="flex items-center justify-center space-x-1 mb-6">
-              {/* Stars */}
-              {Array.from({ length: 5 }).map((_, index) => (
+              {}
+              {Array.from({
+                length: 5,
+              }).map((_, index) => (
                 <Star
                   key={index}
                   className={
@@ -217,14 +184,14 @@ const Profile = (): React.ReactNode => {
                 />
               ))}
 
-              {/* Rating text */}
+              {}
               <span className="ml-2 text-gray-600">
                 {userProfile?.rating?.toFixed?.(1) || "0.0"} Rating from (
                 {userProfile?.numberOfRating} reviews)
               </span>
             </div>
 
-            {/* Enhanced Booking Section */}
+            {}
             {!isMyProfile && (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                 <BookingCalendar profile={userProfile} services={services} />
@@ -232,14 +199,18 @@ const Profile = (): React.ReactNode => {
                   <Heart className="w-4 h-4 mr-2" />
                   Save to Favorites
                 </Button>
+                <button className="flex items-center justify-center space-x-2 px-6 py-3 border border-transparent text-sm font-medium rounded-full text-blue-800 bg-white hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Chat With User</span>
+                </button>
               </div>
             )}
 
-            {/* Quick Stats */}
+            {}
             <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-8 items-center justify-center">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {happyClients}
+                  {userProfile?.satisfiedClients}
                 </div>
                 <div className="text-sm text-gray-600">Happy Clients</div>
               </div>
@@ -250,13 +221,7 @@ const Profile = (): React.ReactNode => {
                 </div>
                 <div className="text-sm text-gray-600">Average Rating</div>
               </div>
-              {/*
-                
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">95%</div>
-                <div className="text-sm text-gray-600">Return Rate</div>
-              </div>
-                */}
+              {}
             </div>
 
             <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -266,18 +231,21 @@ const Profile = (): React.ReactNode => {
         </section>
       </div>
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Page Starts*/}
+        {}
 
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-          {/* Booking Status - Show upcoming appointments 
-          <BookingStatus />
-          {/* Interactive Portfolio with Filtering*/ }
-          <PortfolioFilter />
+        {/* Booking Status - Show upcoming appointments */}
+{/* <BookingStatus /> */}
+
+{/* Interactive Portfolio with Filtering */}
+<PortfolioFilter />
+
+
           {/* Skills & Info */}
           <section className="py-16 px-6 bg-white">
             <div className="max-w-4xl mx-auto">
               <div className="grid md:grid-cols-2 gap-12">
-                {/* Skills */}
+                {}
                 <div>
                   <h3 className="text-2xl font-semibold text-gray-900 mb-6">
                     Specialties
@@ -295,7 +263,7 @@ const Profile = (): React.ReactNode => {
                   </div>
                 </div>
 
-                {/* Quick Info */}
+                {}
                 <div>
                   <h3 className="text-2xl font-semibold text-gray-900 mb-6">
                     Service Info
@@ -312,7 +280,7 @@ const Profile = (): React.ReactNode => {
             </div>
           </section>
 
-          {/* Written Reviews */}
+          {}
 
           <section className="py-16 px-6 bg-gradient-to-br from-gray-50 to-white">
             <div className="max-w-4xl mx-auto">
@@ -348,18 +316,20 @@ const Profile = (): React.ReactNode => {
                 </div>
               ) : (
                 <div className="relative">
-                  {/* Carousel */}
+                  {}
                   <Carousel
                     ref={carouselRef}
                     dots={false}
-                    autoplay={reviews.length > 1} // Autoplay only if more than one review
+                    autoplay={reviews.length > 1}
                     slidesToShow={reviews.length === 1 ? 1 : 2}
                     responsive={
                       reviews.length > 1
                         ? [
                             {
                               breakpoint: 768,
-                              settings: { slidesToShow: 1 },
+                              settings: {
+                                slidesToShow: 1,
+                              },
                             },
                           ]
                         : []
@@ -405,7 +375,7 @@ const Profile = (): React.ReactNode => {
                     ))}
                   </Carousel>
 
-                  {/* Prev/Next Buttons */}
+                  {}
                   <div className="absolute -left-8 md:-left-14 top-1/2 -translate-y-1/2 z-10">
                     <button
                       onClick={() => carouselRef.current?.prev()}
@@ -430,7 +400,6 @@ const Profile = (): React.ReactNode => {
       </div>
     </section>
   );
-
   return (
     <ContentHOC
       loading={profileLoading}
@@ -443,5 +412,4 @@ const Profile = (): React.ReactNode => {
     />
   );
 };
-
 export default Profile;

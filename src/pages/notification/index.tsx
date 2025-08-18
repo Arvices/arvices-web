@@ -45,13 +45,19 @@ const Notification = (): React.ReactNode => {
   const limit = 15;
 
   const [currentPage, setCurrentPage] = useState(1);
+  let notificationSize = notifications.length;
+  let nextPageRequiredSize = currentPage * limit;
+
+  let shouldFetchMore = false;
+
+  if (notificationSize < nextPageRequiredSize) {
+    shouldFetchMore = true;
+  }
 
   const notificationsToShow = notifications.slice(
     (currentPage - 1) * limit,
     currentPage * limit,
   );
-
-  console.log({ notifications });
 
   const notificationRealtime = useNotificationRealtime();
   const markAsReadLocal = async (id: number) => {
@@ -67,6 +73,7 @@ const Notification = (): React.ReactNode => {
       console.error("Failed to mark notification as read:", error);
     }
   };
+
   const markAllAsRead = () => {};
 
   const filteredNotifications = notificationsToShow?.filter((notif) => {
@@ -110,7 +117,10 @@ const Notification = (): React.ReactNode => {
   };
 
   useEffect(() => {
-    notificationRealtime.getNotifications(currentPage);
+    console.log({ notifications, notificationsToShow, shouldFetchMore });
+    if (shouldFetchMore) {
+      notificationRealtime.getNotifications(currentPage);
+    }
   }, [currentPage]);
 
   return (

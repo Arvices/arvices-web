@@ -52,6 +52,7 @@ export interface UserAccount {
   wallet?: Wallet;
   website: string;
   specialties: string[] | null;
+  satisfiedClients: number;
 }
 
 export interface LoginEmailAndPasswordBody {

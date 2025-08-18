@@ -7,9 +7,9 @@ const api = axios.create({
   },
 });
 
-// Attach token automatically before every request
+// Attach token automatically
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token"); // 👈 ensure this key matches your login storage
+  const token = localStorage.getItem("access_token"); // 👈 use correct key
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
     console.log("🔑 Attached token to request:", token); // debug log

@@ -23,7 +23,7 @@ interface ProductItem {
 
 const sections = ["Portfolio", "Products", "Services"];
 
-export function PortfolioFilter() {
+export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) {
   const [activeSection, setActiveSection] = useState("Portfolio");
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [productItems, setProductItems] = useState<ProductItem[]>([]);
@@ -57,7 +57,7 @@ export function PortfolioFilter() {
       }));
 
       setPortfolioItems(mapped);
-      setTotal(res.data.total || 0); // assumes API returns total
+      setTotal(res.data.total || 0);
     } catch (err) {
       console.error("❌ Failed to load portfolio", err);
     } finally {
@@ -87,7 +87,7 @@ export function PortfolioFilter() {
       }));
 
       setProductItems(mapped);
-      setTotal(res.data.total || 0); // assumes API returns total
+      setTotal(res.data.total || 0);
     } catch (err) {
       console.error("❌ Failed to load products", err);
     } finally {
@@ -99,6 +99,7 @@ export function PortfolioFilter() {
   useEffect(() => {
     if (activeSection === "Portfolio") fetchPortfolio(page);
     if (activeSection === "Products") fetchProducts(page);
+    // Services left out for now
   }, [activeSection, page]);
 
   // Which list to render
@@ -123,7 +124,7 @@ export function PortfolioFilter() {
               key={section}
               onClick={() => {
                 setActiveSection(section);
-                setPage(1); // reset to first page on switch
+                setPage(1);
               }}
               type={activeSection === section ? "primary" : "default"}
             >
@@ -141,6 +142,7 @@ export function PortfolioFilter() {
         ) : (
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Portfolio */}
               {activeSection === "Portfolio" &&
                 portfolioItems.map((item) => (
                   <div
@@ -174,6 +176,7 @@ export function PortfolioFilter() {
                   </div>
                 ))}
 
+              {/* Products */}
               {activeSection === "Products" &&
                 productItems.map((item) => (
                   <div
@@ -193,18 +196,27 @@ export function PortfolioFilter() {
                     </div>
                   </div>
                 ))}
+
+              {/* Services (placeholder for now) */}
+              {activeSection === "Services" && (
+                <div className="col-span-full">
+                  <Empty description="No services found" />
+                </div>
+              )}
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-center mt-8">
-              <Pagination
-                current={page}
-                pageSize={10}
-                total={total}
-                onChange={(p) => setPage(p)}
-                showSizeChanger={false}
-              />
-            </div>
+            {activeSection !== "Services" && (
+              <div className="flex justify-center mt-8">
+                <Pagination
+                  current={page}
+                  pageSize={10}
+                  total={total}
+                  onChange={(p) => setPage(p)}
+                  showSizeChanger={false}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { Button, Modal } from "antd";
-
 import { Badge } from "antd";
-
-import { Divider } from "antd";
 import {
   Clock,
   Calendar as CalendarIcon,
@@ -20,7 +17,25 @@ import CalendarAndTimeslots from "./carlender";
 import { UserAccount } from "../../api-services/auth";
 import { formatNumber } from "../util/formatNumber";
 import moment from "moment";
-
+import { useLoading } from "../../contexts/LoadingContext";
+import { createBooking } from "../../api-services/booking";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+export interface BookingData {
+  totalCost: number;
+  totalDuration: number;
+  bookingDate: string;
+  bookingFromTime: string;
+  bookingToTime: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientLocation: string;
+  clientNotes: string;
+  depositAmount: number;
+  serviceId: number[];
+}
 export const BookingCalendar: React.FC<{
   services: ServiceOfferingPayload[];
   profile: UserAccount | null;
@@ -28,13 +43,13 @@ export const BookingCalendar: React.FC<{
   const availableDays = profile?.availableDays || [];
   const availableFromTime = profile?.availableFromTime || "09:00";
   const availableToTime = profile?.availableToTime || "16:00";
-
-  const [selectedTime, setSelectedTime] = useState<string>();
-
+  const { setLoading, setLoadingText } = useLoading();
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const { openNotification } = useNotificationContext();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedFromTime, setSelectedFromTime] = useState<string | null>(null);
   const [selectedToTime, setSelectedToTime] = useState<string | null>(null);
-
   const [selectedService, setSelectedService] = useState<string[]>([]);
   const [clientDetails, setClientDetails] = useState({
     name: "",
@@ -43,81 +58,75 @@ export const BookingCalendar: React.FC<{
     location: "",
     notes: "",
   });
-
   const [bookingStep, setBookingStep] = useState<
     "time" | "selection" | "details" | "confirmation"
   >("selection");
   const [isOpen, setIsOpen] = useState(false);
-
-  // Correctly get the full service details from the `services` array
   const selectedServiceDetails = services.filter((service) =>
     selectedService.includes(service.title),
   );
-
-  // Correctly calculate total cost and duration by reducing the `selectedServiceDetails` array
   const totalCost = selectedServiceDetails.reduce(
     (total, service) => total + Number(service.price),
     0,
   );
-
   const totalDuration = selectedServiceDetails.reduce(
     (total, service) => total + Number(service.duration),
     0,
   );
-
   const depositAmount = totalCost / 2;
-
   const handleServiceSelection = (serviceName: string) => {
     setSelectedService((prevSelectedServices) => {
-      // Check if the serviceName is already in the array
       const isSelected = prevSelectedServices.includes(serviceName);
-
       if (isSelected) {
-        // If already selected, remove it
         return prevSelectedServices.filter((name) => name !== serviceName);
       } else {
-        // If not selected, add it
         return [...prevSelectedServices, serviceName];
       }
     });
   };
-
-  const handleBookingSubmit = () => {
-    if (
-      selectedDate &&
-      selectedTime &&
-      selectedService &&
-      clientDetails.name &&
-      clientDetails.email &&
-      clientDetails.phone
-    ) {
-      setBookingStep("confirmation");
+  const handleBookingSubmit = async () => {
+    const payload: BookingData = {
+      totalCost,
+      totalDuration,
+      bookingDate: moment(selectedDate).format("YYYY-MM-DD"),
+      bookingFromTime: selectedFromTime?.toString() || "",
+      bookingToTime: selectedToTime?.toString() || "",
+      clientEmail: clientDetails.email,
+      clientName: clientDetails.name,
+      clientPhone: clientDetails.phone,
+      clientLocation: clientDetails.location,
+      clientNotes: clientDetails.notes,
+      depositAmount: totalCost / 2,
+      serviceId: selectedServiceDetails.map((service) => service.id),
+    };
+    try {
+      setLoading(true);
+      setLoadingText("Creating your booking...");
+      await createBooking(payload, auth.token);
+      openNotification(
+        "topRight",
+        "Booking Confirmed",
+        "Your booking has been successfully created!",
+        "success",
+      );
+      navigate("/bookings");
+    } catch (error) {
+      console.error("Booking failed:", error);
+      openNotification(
+        "topRight",
+        "Booking Failed",
+        "An error occurred while creating your booking. Please try again.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
     }
   };
-
-  const handleFinalConfirmation = () => {
-    // Here you would typically send the booking data to your backend
-    alert(`Booking confirmed! You'll receive a confirmation email shortly.`);
-    setIsOpen(false);
-    // Reset form
-    setBookingStep("selection");
-    setSelectedDate(undefined);
-    setSelectedTime(undefined);
-    setSelectedService([]);
-    setClientDetails({
-      name: "",
-      email: "",
-      phone: "",
-      location: "",
-      notes: "",
-    });
-  };
-
   const resetBooking = () => {
     setIsOpen(false);
     setBookingStep("selection");
     setSelectedDate(undefined);
-    setSelectedTime(undefined);
     setSelectedService([]);
     setClientDetails({
       name: "",
@@ -127,25 +136,23 @@ export const BookingCalendar: React.FC<{
       notes: "",
     });
   };
-
   const goToTime = () => {
     if (selectedService.length > 0) {
       setBookingStep("time");
     }
   };
-
   const goToDetails = () => {
     setBookingStep("details");
   };
-
   const goToConfirmation = () => {
     setBookingStep("confirmation");
   };
-
   const goToSelection = () => {
     setBookingStep("selection");
   };
-  console.log({ selectedService });
+  console.log({
+    selectedService,
+  });
   return (
     <>
       <Button
@@ -162,7 +169,9 @@ export const BookingCalendar: React.FC<{
         open={isOpen}
         onCancel={resetBooking}
         footer={null}
-        style={{ top: 20 }}
+        style={{
+          top: 20,
+        }}
         styles={{}}
       >
         <div className="h-[80vh] w-full w-max-[500px] overflow-y-auto">
@@ -176,18 +185,14 @@ export const BookingCalendar: React.FC<{
                   Pick the services you are interested in.
                 </p>
               </div>
-              {/* Service Selection */}
+              {}
               <div className="space-y-6">
                 <div>
                   <div className="space-y-4 grid grid-cols-1 gap-4 px-0.5">
                     {services.map((service) => (
                       <div
                         key={service.title}
-                        className={`cursor-pointer transition-all rounded card-shadow ${
-                          selectedService?.includes(service.title)
-                            ? "border-2 border-pink-200 bg-gradient-to-r from-purple-50 to-pink-50"
-                            : "hover:shadow-lg"
-                        }`}
+                        className={`cursor-pointer transition-all rounded card-shadow ${selectedService?.includes(service.title) ? "border-2 border-pink-200 bg-gradient-to-r from-purple-50 to-pink-50" : "hover:shadow-lg"}`}
                         onClick={() => handleServiceSelection(service.title)}
                       >
                         <div className="p-5">
@@ -215,10 +220,10 @@ export const BookingCalendar: React.FC<{
                     ))}
                   </div>
                   <div className="flex items-center justify-between gap-4 my-10">
-                    {/* Previous Button */}
+                    {}
                     <button
                       disabled
-                      className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -237,7 +242,7 @@ export const BookingCalendar: React.FC<{
                       Previous
                     </button>
 
-                    {/* Next Button */}
+                    {}
                     <button
                       onClick={() => goToTime()}
                       disabled={selectedService.length === 0}
@@ -285,10 +290,10 @@ export const BookingCalendar: React.FC<{
               </div>
 
               <div className="flex items-center justify-between gap-4 my-10">
-                {/* Previous Button */}
+                {}
                 <button
                   onClick={goToSelection}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -307,7 +312,7 @@ export const BookingCalendar: React.FC<{
                   Previous
                 </button>
 
-                {/* Next Button */}
+                {}
                 <button
                   onClick={goToDetails}
                   disabled={
@@ -338,7 +343,7 @@ export const BookingCalendar: React.FC<{
           {bookingStep === "details" && (
             <div className="max-w-2xl mx-auto bg-gray-50 p-8 rounded-2xl shadow-sm space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Full Name */}
+                {}
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     Full Name *
@@ -357,7 +362,7 @@ export const BookingCalendar: React.FC<{
                   />
                 </div>
 
-                {/* Phone Number */}
+                {}
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     Phone Number *
@@ -377,7 +382,7 @@ export const BookingCalendar: React.FC<{
                 </div>
               </div>
 
-              {/* Email */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Email Address *
@@ -396,7 +401,7 @@ export const BookingCalendar: React.FC<{
                 />
               </div>
 
-              {/* Service Location */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Service Location *
@@ -415,7 +420,7 @@ export const BookingCalendar: React.FC<{
                 />
               </div>
 
-              {/* Notes */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Special Requests or Notes
@@ -433,13 +438,13 @@ export const BookingCalendar: React.FC<{
                 />
               </div>
 
-              {/* Actions */}
+              {}
 
               <div className="flex items-center justify-between gap-4 my-10">
-                {/* Previous Button */}
+                {}
                 <button
                   onClick={goToTime}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -458,7 +463,7 @@ export const BookingCalendar: React.FC<{
                   Previous
                 </button>
 
-                {/* Next Button */}
+                {}
                 <button
                   onClick={() => goToConfirmation()}
                   disabled={
@@ -502,9 +507,7 @@ export const BookingCalendar: React.FC<{
                 </p>
               </div>
               <div className="space-y-6">
-                {/* This is the regenerated selectedServicesSummary section.
-        It has been corrected to use `selectedServiceDetails` for calculations.
-      */}
+                {}
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <h3 className="text-lg font-semibold tracking-tight text-gray-800 mb-4">
                     Selected Services
@@ -552,7 +555,7 @@ export const BookingCalendar: React.FC<{
                     </div>
                   </div>
                 </div>
-                {/* Rest of your component */}
+                {}
               </div>
               <div className="bg-gray-50 p-6 rounded-lg mt-5">
                 <h3 className="text-lg font-semibold tracking-tight text-gray-800 mb-4">
@@ -672,10 +675,10 @@ export const BookingCalendar: React.FC<{
               </div>
 
               <div className="flex items-center justify-between gap-4 my-5">
-                {/* Previous Button */}
+                {}
                 <button
                   onClick={goToDetails}
-                  className="h-11 w-full flex cursor-pointer items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full flex items-center justify-center rounded-md border border-purple-300 text-purple-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -694,9 +697,9 @@ export const BookingCalendar: React.FC<{
                   Change Something
                 </button>
 
-                {/* Next Button */}
+                {}
                 <button
-                  onClick={() => goToConfirmation()}
+                  onClick={handleBookingSubmit}
                   className="h-11 w-full flex items-center cursor-pointer justify-center rounded-md bg-gradient-to-r from-purple-300 to-pink-500 text-white hover:from-purple-400 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Confirm Your Booking
