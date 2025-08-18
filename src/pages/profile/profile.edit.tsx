@@ -10,7 +10,9 @@ import { Button, Select, Divider } from "antd";
 
 const { Option } = Select;
 
-import { Plus, Save, X } from "feather-icons-react";
+import { Briefcase, Plus, Save, X } from "feather-icons-react";
+import PortfolioTab from "../../pages/profile/PortfolioTab"; // adjust path if needed
+import ProductsTab from "../../pages/profile/ProductsTab"; // adjust the path if needed
 
 import { UserAccount } from "../../api-services/auth";
 import { useAuth } from "../../contexts/AuthContext";
@@ -47,26 +49,27 @@ export function ProfileEdit() {
   // add this tab later.
 
   let tabOptions = [
-    { label: "Personal", value: "personal", icon: <UserOutlined /> },
-    {
-      label: "Availability",
-      value: "availability",
-      icon: <ClockCircleOutlined />,
-    },
-    { label: "Services", value: "services", icon: <DollarOutlined /> },
-    {
-      label: "Settings",
-      value: "settings",
-      icon: <Settings size={14} />,
-    },
-  ];
+  { label: "Personal", value: "personal", icon: <UserOutlined /> },
+  { label: "Availability", value: "availability", icon: <ClockCircleOutlined /> },
+  { label: "Services", value: "services", icon: <DollarOutlined /> },
+  { label: "Settings", value: "settings", icon: <Settings size={14} /> },
+];
 
-  if (auth.isClient) {
-    tabOptions = tabOptions.filter((x) => {
-      return !(x.value === "services" || x.value === "availability");
-    });
-  }
+// ✅ Only push these if logged in as a provider
+if (auth.isProvider) {
+  tabOptions.splice(1, 0, { label: "Products", value: "products", icon: <Briefcase /> });
+  tabOptions.splice(2, 0, { label: "Portfolio", value: "portfolio", icon: <Briefcase /> });
+}
 
+// If client, remove services + availability (already in your code)
+if (auth.isClient) {
+  tabOptions = tabOptions.filter(
+    (x) => x.value !== "services" && x.value !== "availability"
+  );
+}
+
+
+ 
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [editData, setEditData] = useState<UserAccount | null>(null);
 
@@ -461,6 +464,13 @@ export function ProfileEdit() {
               </div>
 
               {/* PERSONAL TAB */}
+                {/* PORTFOLIO TAB */}
+{activeTab === "portfolio" && <PortfolioTab />}
+              {/* PRODUCTS TAB */}
+{activeTab === "products" && <ProductsTab />}
+
+
+
               {activeTab === "personal" && (
                 <div className="space-y-6">
                   <h6 className="text-[18px] font-medium tracking-tighter">
@@ -494,8 +504,7 @@ export function ProfileEdit() {
                       </Button>
                     </div>
                   </div>
-
-                  <Divider />
+                  
 
                   <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Full Name */}
@@ -661,8 +670,10 @@ export function ProfileEdit() {
                   </form>
                 </div>
               )}
+              
 
               {/* SERVICES */}
+              
               {activeTab === "services" && (
                 <div>
                   {showForm && (

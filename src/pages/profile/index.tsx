@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Carousel, Badge, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
+import { PortfolioFilter } from "./portfoliofilter";
+import PortfolioPage from "./PortfolioTab"; // adjust path
 
 import { Heart, MapPin, Star } from "feather-icons-react";
 import { BookingCalendar } from "./bookingcarlendar";
@@ -269,9 +271,8 @@ const Profile = (): React.ReactNode => {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
           {/* Booking Status - Show upcoming appointments 
           <BookingStatus />
-          {/* Interactive Portfolio with Filtering 
-          <PortfolioFilter />*/}
-
+          {/* Interactive Portfolio with Filtering*/ }
+          <PortfolioFilter />
           {/* Skills & Info */}
           <section className="py-16 px-6 bg-white">
             <div className="max-w-4xl mx-auto">

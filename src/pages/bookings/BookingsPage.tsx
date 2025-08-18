@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Spin,
-  Tabs,
-  Modal,
-  Input,
-  DatePicker,
-  Select,
-  List,
-  message,
-} from "antd";
-import { PlusOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { Button, Card, Spin, Tabs, Popconfirm, message } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../util/api";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 interface Booking {
   id: number;
@@ -23,25 +12,11 @@ interface Booking {
   price?: number;
   type: "booking" | "order";
   date?: string;
-  serviceId?: number[];
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Professional {
-  id: number;
-  fullName: string;
-  email: string;
-  picture?: string | null;
-}
-
-interface Product {
-  id: number;
-  title: string;
-  price: number;
+  totalCost?: number | null;
+  totalDuration?: number | null;
+  bookingDate?: string | null;
+  clientName?: string | null;
+  services?: string[];
 }
 
 const BookingsPage: React.FC = () => {
@@ -56,39 +31,18 @@ const BookingsPage: React.FC = () => {
   const [orders, setOrders] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Booking modal state
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newDate, setNewDate] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [selectedProfessionalId, setSelectedProfessionalId] = useState<
-    number | null
-  >(null);
-  const [creatingBooking, setCreatingBooking] = useState(false);
-
-  // Order modal state
-  const [showOrderModal, setShowOrderModal] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+  const [deletingBookingId, setDeletingBookingId] = useState<number | null>(
     null
   );
-  const [quantity, setQuantity] = useState<number>(1);
-  const [creatingOrder, setCreatingOrder] = useState(false);
+  const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
 
   useEffect(() => {
     refreshData();
-    if (tab === "bookings") fetchCategories();
-    if (tab === "orders") fetchProducts();
   }, [tab, status]);
 
   const refreshData = () => {
-    if (tab === "bookings") {
-      fetchBookings();
-    } else {
-      fetchOrders();
-    }
+    if (tab === "bookings") fetchBookings();
+    else fetchOrders();
   };
 
   // -------- Fetch Bookings ----------
@@ -96,15 +50,21 @@ const BookingsPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await api.get(
-        `/bookings/getallbookings?status=${encodeURIComponent(status)}`
+        `/bookings/getallbookings?status=${encodeURIComponent(
+          status
+        )}&orderBy=DESC&page=1&limit=10`
       );
-      const newData = res.data.response.map((b: any) => ({
+      const newData = (res.data.response || []).map((b: any) => ({
         id: b.id,
-        name: b.name,
+        name: b.clientName || `Booking #${b.id}`,
         status: b.status,
         price: b.price,
-        date: b.date,
-        serviceId: b.serviceId || [],
+        date: b.createdDate,
+        totalCost: b.totalCost,
+        totalDuration: b.totalDuration,
+        bookingDate: b.bookingDate,
+        clientName: b.clientName,
+        services: (b.service || []).map((s: any) => s.title),
         type: "booking" as const,
       }));
       setBookings(newData);
@@ -125,7 +85,7 @@ const BookingsPage: React.FC = () => {
           status
         )}&orderBy=DESC&page=1&limit=10`
       );
-      const newData = res.data.response.map((o: any) => ({
+      const newData = (res.data.response || []).map((o: any) => ({
         id: o.id,
         name: o.product?.title || "Order",
         status: o.status,
@@ -142,82 +102,65 @@ const BookingsPage: React.FC = () => {
     }
   };
 
-  // -------- Fetch Categories ----------
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get("/category/getallcategory");
-      setCategories(res.data.response);
-    } catch {
-      message.error("Failed to load categories");
-    }
-  };
-
-  // -------- Fetch Professionals ----------
-  const fetchProfessionals = async (categoryId: number) => {
-    try {
-      const res = await api.get(
-        `/user/getprofessionals?category=${categoryId}&orderBy=DESC&page=1&limit=10`
-      );
-      setProfessionals(res.data.response || []);
-    } catch {
-      message.error("Failed to load professionals");
-    }
-  };
-
-  // -------- Fetch Products ----------
-  const fetchProducts = async () => {
-    try {
-      const res = await api.get(
-        "/product/getallproduct?orderBy=DESC&page=1&limit=10"
-      );
-      setProducts(res.data.response || []);
-    } catch {
-      message.error("Failed to load products");
-    }
-  };
-
   // -------- PAY ----------
   const handlePay = async (item: Booking, method: "Wallet" | "Non Wallet") => {
-  try {
-    // ✅ Corrected payload (camelCase like Swagger)
-    const payload = {
-      serviceRequestId: 0,
-      method,
-      orderId: item.type === "order" ? item.id : 0,
-      bookingId: item.type === "booking" ? item.id : 0,
-    };
+    try {
+      // 🔎 Step 1: Fetch the real servicerequestId
+      let servicerequestId = 0;
 
-    console.log("📦 Sending payload:", payload);
-
-    const res = await api.post(
-      "/wallet/initialize-service-request-transaction",
-      payload, // axios will JSON.stringify automatically
-      {
-        headers: {
-          Accept: "application/json",   // ✅ match Swagger
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      }
-    );
-
-    console.log("✅ Payment response:", res.data);
-
-    if (method === "Non Wallet") {
-      const url = res.data?.response?.data?.authorization_url;
-      if (url) {
-        window.open(url, "_blank");
+      try {
+        const res = await api.get(
+          `/servicerequest/getbybookingid/${item.id}`
+        );
+        servicerequestId = res.data?.response?.id ?? 0;
+        console.log("✅ Got servicerequestId:", servicerequestId);
+      } catch (err) {
+        console.error("❌ Failed to fetch servicerequestId:", err);
+        message.error("Could not find service request for this booking.");
         return;
       }
+
+      if (!servicerequestId) {
+        message.error("No service request found for this booking.");
+        return;
+      }
+
+      // 📝 Step 2: Build payload correctly
+      const payload = {
+        servicerequestId,
+        method,
+        orderId: item.type === "order" ? item.id : 0,
+        bookingId: item.type === "booking" ? item.id : 0,
+      };
+
+      console.log("📦 Sending payment payload:", payload);
+
+      // 🚀 Step 3: Call API
+      const res = await api.post(
+        "/wallet/initialize-service-request-transaction",
+        payload
+      );
+      console.log("✅ Raw payment response:", res);
+
+      // 🌍 Step 4: Handle redirect if Non Wallet
+      if (method === "Non Wallet") {
+        const url = res.data?.response?.data?.authorization_url;
+        if (url) {
+          console.log("🌍 Opening payment URL:", url);
+          window.open(url, "_blank");
+          return;
+        } else {
+          message.error("No payment URL returned from server.");
+        }
+      } else {
+        message.success("Payment successful!");
+        setStatus("Paid");
+      }
+    } catch (err: any) {
+      console.error("❌ Pay failed:", err.response || err);
+      message.error(err.response?.data?.message || "Payment failed");
     }
-
-    message.success("Payment successful!");
-    setStatus("Paid");
-  } catch (err: any) {
-    console.error("❌ Pay failed (full error):", err);
-  }
-};
-
+  };
 
   // -------- COMPLETE ----------
   const handleComplete = async (item: Booking) => {
@@ -229,7 +172,6 @@ const BookingsPage: React.FC = () => {
         {
           name: item.name ?? "Item",
           date: item.date ?? new Date().toISOString(),
-          serviceId: item.serviceId ?? [],
           status: "Completed",
         }
       );
@@ -239,97 +181,54 @@ const BookingsPage: React.FC = () => {
       setStatus("Completed");
     } catch (err: any) {
       console.error("Complete failed:", err);
-      message.error(err.response?.data?.message || "Failed to complete.");
+      message.error("Failed to complete.");
     }
   };
 
-const handleCreateBooking = async () => {
-  if (!newName.trim()) {
-    message.warning("Please enter a booking name!");
-    return;
-  }
-  if (!selectedCategory) {
-    message.warning("Please select a category!");
-    return;
-  }
-
-  setCreatingBooking(true);
-  try {
-    const payload = {
-      name: newName,
-      date: newDate || new Date().toISOString(),
-      serviceId: [selectedCategory],
-      ...(selectedProfessionalId && { professionalId: selectedProfessionalId }),
-    };
-
-    console.log("🔎 Final booking payload:", JSON.stringify(payload, null, 2));
-
-    const res = await api.post("/bookings/createbookings", payload);
-
-    console.log("✅ Booking created response:", res.data);
-
-    message.success("Booking created!");
-    setShowCreateModal(false);
-    setNewName("");
-    setNewDate(null);
-    setSelectedCategory(null);
-    setSelectedProfessionalId(null);
-    setProfessionals([]);
-    setStatus("In Progress");
-    refreshData();
-  } catch (err: any) {
-    console.error("❌ Booking creation error object:", err);
-
-    // Make sure we always show something
-    const errorContent =
-      err?.response?.data
-        ? JSON.stringify(err.response.data, null, 2)
-        : err?.message || "Unknown error (no response at all)";
-
-    Modal.error({
-      title: "Booking Creation Failed",
-      content: (
-        <pre style={{ whiteSpace: "pre-wrap" }}>{errorContent}</pre>
-      ),
-      width: 600,
-    });
-
-    message.error("Failed to create booking. Check modal for details.");
-  } finally {
-    setCreatingBooking(false);
-  }
-};
-
-
-
-  // -------- CREATE Order ----------
-  const handleCreateOrder = async () => {
-    if (!selectedProductId) {
-      message.warning("Please select a product!");
-      return;
-    }
-    setCreatingOrder(true);
+  // -------- DELETE ----------
+  const handleDeleteBooking = async (id: number) => {
     try {
-      const payload = {
-        productId: selectedProductId,
-        quantity,
-      };
+      setDeletingBookingId(id);
+      console.log("🗑️ Attempting to delete booking:", id);
 
-      console.log("Creating order with payload:", payload);
+      const res = await api.delete(`/bookings/deletebookings/${id}`);
+      console.log("✅ Booking delete response:", res.status, res.data);
 
-      await api.post("/order/createorder", payload);
-
-      message.success("Order created!");
-      setShowOrderModal(false);
-      setSelectedProductId(null);
-      setQuantity(1);
-      setStatus("In Progress");
-      refreshData();
+      if (res.status >= 200 && res.status < 300) {
+        setBookings((prev) => prev.filter((b) => b.id !== id));
+        message.success("Booking deleted!");
+      } else {
+        message.error("Failed to delete booking.");
+      }
     } catch (err: any) {
-      console.error("Create order failed:", err);
-      message.error(err.response?.data?.message || "Failed to create order.");
+      console.error("❌ Delete booking failed:", err.response || err);
+      message.error(
+        err.response?.data?.message || "Failed to delete booking."
+      );
     } finally {
-      setCreatingOrder(false);
+      setDeletingBookingId(null);
+    }
+  };
+
+  const handleDeleteOrder = async (id: number) => {
+    try {
+      setDeletingOrderId(id);
+      console.log("🗑️ Attempting to delete order:", id);
+
+      const res = await api.delete(`/order/deleteorder/${id}`);
+      console.log("✅ Order delete response:", res.status, res.data);
+
+      if (res.status >= 200 && res.status < 300) {
+        setOrders((prev) => prev.filter((o) => o.id !== id));
+        message.success("Order deleted!");
+      } else {
+        message.error("Failed to delete order.");
+      }
+    } catch (err: any) {
+      console.error("❌ Delete order failed:", err.response || err);
+      message.error(err.response?.data?.message || "Failed to delete order.");
+    } finally {
+      setDeletingOrderId(null);
     }
   };
 
@@ -364,17 +263,62 @@ const handleCreateBooking = async () => {
       />
 
       {loading && <Spin className="my-4" />}
+
+      {/* Bookings List */}
       {tab === "bookings" &&
         bookings.map((item) => (
           <Card key={item.id} className="mb-4">
-            <h3 className="font-semibold">Booking #{item.id}</h3>
-            <p>{item.name}</p>
-            <p>Status: {item.status}</p>
-            <p>Price: ₦{item.price}</p>
-            <p>
-              Date:{" "}
-              {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
-            </p>
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-semibold">Booking #{item.id}</h3>
+                <p>
+                  <strong>Client:</strong> {item.clientName || "N/A"}
+                </p>
+                <p>
+                  <strong>Status:</strong> {item.status}
+                </p>
+                <p>
+                  <strong>Total Cost:</strong> ₦{item.totalCost ?? 0}
+                </p>
+                <p>
+                  <strong>Total Duration:</strong> {item.totalDuration ?? 0} hrs
+                </p>
+                <p>
+                  <strong>Booking Date:</strong>{" "}
+                  {item.bookingDate
+                    ? dayjs(item.bookingDate).format("YYYY-MM-DD")
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Created Date:</strong>{" "}
+                  {item.date
+                    ? dayjs(item.date).format("YYYY-MM-DD")
+                    : "N/A"}
+                </p>
+                {item.services && item.services.length > 0 && (
+                  <p>
+                    <strong>Services:</strong> {item.services.join(", ")}
+                  </p>
+                )}
+              </div>
+
+              {item.status === "In Progress" && (
+                <Popconfirm
+                  title="Delete this booking?"
+                  description="This action cannot be undone."
+                  okText="Yes, Delete"
+                  cancelText="Cancel"
+                  onConfirm={() => handleDeleteBooking(item.id)}
+                >
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    loading={deletingBookingId === item.id}
+                  />
+                </Popconfirm>
+              )}
+            </div>
 
             {auth.isClient && item.status === "In Progress" && (
               <>
@@ -399,17 +343,39 @@ const handleCreateBooking = async () => {
           </Card>
         ))}
 
+      {/* Orders List */}
       {tab === "orders" &&
         orders.map((item) => (
           <Card key={item.id} className="mb-4">
-            <h3 className="font-semibold">Order #{item.id}</h3>
-            <p>{item.name}</p>
-            <p>Status: {item.status}</p>
-            <p>Price: ₦{item.price}</p>
-            <p>
-              Date:{" "}
-              {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
-            </p>
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-semibold">Order #{item.id}</h3>
+                <p>{item.name}</p>
+                <p>Status: {item.status}</p>
+                <p>Price: ₦{item.price}</p>
+                <p>
+                  Date:{" "}
+                  {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
+                </p>
+              </div>
+
+              {item.status === "In Progress" && (
+                <Popconfirm
+                  title="Delete this order?"
+                  description="This action cannot be undone."
+                  okText="Yes, Delete"
+                  cancelText="Cancel"
+                  onConfirm={() => handleDeleteOrder(item.id)}
+                >
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    loading={deletingOrderId === item.id}
+                  />
+                </Popconfirm>
+              )}
+            </div>
 
             {auth.isClient && item.status === "In Progress" && (
               <>
@@ -433,128 +399,6 @@ const handleCreateBooking = async () => {
             )}
           </Card>
         ))}
-
-      {/* Floating Add Button */}
-      <Button
-        type="primary"
-        shape="circle"
-        icon={<PlusOutlined />}
-        className="!fixed bottom-1/2 right-6 shadow-lg"
-        onClick={() =>
-          tab === "bookings"
-            ? setShowCreateModal(true)
-            : setShowOrderModal(true)
-        }
-      />
-
-      {/* Create Booking Modal */}
-<Modal
-  title="Create Booking"
-  open={showCreateModal}
-  confirmLoading={creatingBooking}
-  onCancel={() => setShowCreateModal(false)}
-  onOk={handleCreateBooking}   // ✅ fires when "Create" is clicked
-  okText="Create"              // button text
-  cancelText="Cancel"
->
-  <Input
-    placeholder="Booking Name"
-    value={newName}
-    onChange={(e) => setNewName(e.target.value)}
-    className="mb-2"
-  />
-  <DatePicker
-    className="w-full mb-2"
-    onChange={(date: Dayjs | null) =>
-      setNewDate(date ? date.toISOString() : null)
-    }
-  />
-  <Select
-    placeholder="Select Category"
-    className="w-full mb-2"
-    value={selectedCategory ?? undefined}
-    onChange={(val) => {
-      setSelectedCategory(Number(val));
-      fetchProfessionals(Number(val));
-    }}
-  >
-    {categories.map((cat) => (
-      <Select.Option key={cat.id} value={cat.id}>
-        {cat.name}
-      </Select.Option>
-    ))}
-  </Select>
-
-  {professionals.length > 0 && (
-    <>
-      <p className="font-semibold mb-2">Professionals</p>
-      <List
-        bordered
-        dataSource={professionals}
-        renderItem={(pro) => (
-          <List.Item
-            className={`cursor-pointer ${
-              selectedProfessionalId === pro.id ? "bg-blue-100" : ""
-            }`}
-            onClick={() => setSelectedProfessionalId(pro.id)}
-          >
-            <div className="flex items-center justify-between w-full">
-              <div>
-                <strong>{pro.fullName}</strong> <br />
-                <small>{pro.email}</small>
-              </div>
-              {selectedProfessionalId === pro.id && (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              )}
-            </div>
-          </List.Item>
-        )}
-      />
-    </>
-  )}
-</Modal>
-
-
-      {/* Create Order Modal */}
-      <Modal
-        title="Create Order"
-        open={showOrderModal}
-        confirmLoading={creatingOrder}
-        onCancel={() => setShowOrderModal(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setShowOrderModal(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="ok"
-            type="primary"
-            loading={creatingOrder}
-            onClick={handleCreateOrder}
-          >
-            Create
-          </Button>,
-        ]}
-      >
-        <Select
-          placeholder="Select Product"
-          className="w-full mb-2"
-          value={selectedProductId ?? undefined}
-          onChange={(val) => setSelectedProductId(Number(val))}
-        >
-          {products.map((prod) => (
-            <Select.Option key={prod.id} value={prod.id}>
-              {prod.title} - ₦{prod.price}
-            </Select.Option>
-          ))}
-        </Select>
-        <Input
-          type="number"
-          min={1}
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-        />
-      </Modal>
     </div>
   );
 };
