@@ -141,7 +141,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
           <Empty description={`No ${activeSection.toLowerCase()} items found`} />
         ) : (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div className="flex flex-col gap-6">
               {/* Portfolio */}
               {activeSection === "Portfolio" &&
                 portfolioItems.map((item) => (

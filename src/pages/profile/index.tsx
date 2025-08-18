@@ -3,8 +3,12 @@ import { Carousel, Badge, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
 import { PortfolioFilter } from "./portfoliofilter";
 
-// ...
-<PortfolioFilter />
+
+{/* Interactive Portfolio with Filtering */}
+<div className="w-full overflow-hidden">
+  <PortfolioFilter />
+</div>
+
 
 import { Heart, MapPin, Star } from "feather-icons-react";
 import { BookingCalendar } from "./bookingcarlendar";

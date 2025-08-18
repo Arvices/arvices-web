@@ -148,42 +148,54 @@ export default function PortfolioTab() {
         <Empty description="No portfolio yet" />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {portfolios.map((item) => (
-              <div key={item.id} className="border rounded-md p-3 shadow">
-                <h4 className="font-semibold">{item.title}</h4>
-                <p className="text-sm text-gray-500">{item.category}</p>
-                <p className="mt-2">{item.description}</p>
-                <div className="flex gap-2 mt-3">
-                  <Button
-                    size="small"
-                    icon={<Edit size={14} />}
-                    onClick={() => {
-                      setEditingPortfolio(item);
-                      setForm({
-                        title: item.title,
-                        category: item.category,
-                        description: item.description,
-                      });
-                      setIsModalOpen(true);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Popconfirm
-                    title="Delete this portfolio?"
-                    onConfirm={() => handleDelete(item.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button size="small" danger icon={<Trash size={14} />}>
-                      Delete
-                    </Button>
-                  </Popconfirm>
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="flex flex-col gap-4">
+  {portfolios.map((item) => (
+    <div
+      key={item.id}
+      className="p-4 border rounded-lg shadow-sm bg-white hover:shadow-md transition"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        {/* Left side: title, category, description */}
+        <div>
+          <h4 className="font-semibold text-lg text-gray-800">{item.title}</h4>
+          <p className="text-sm text-gray-500">{item.category}</p>
+          <p className="mt-1 text-gray-700">{item.description}</p>
+        </div>
+
+        {/* Right side: actions */}
+        <div className="mt-3 sm:mt-0 flex gap-2 justify-end">
+          <Button
+            size="small"
+            icon={<Edit size={14} />}
+            onClick={() => {
+              setEditingPortfolio(item);
+              setForm({
+                title: item.title,
+                category: item.category,
+                description: item.description,
+              });
+              setIsModalOpen(true);
+            }}
+          >
+            Edit
+          </Button>
+          <Popconfirm
+            title="Delete this portfolio?"
+            onConfirm={() => handleDelete(item.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button size="small" danger icon={<Trash size={14} />}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+
 
           {/* Pagination */}
           <div className="mt-4 flex justify-center">

@@ -190,83 +190,80 @@ const ProductsTab: React.FC = () => {
         <p className="text-gray-500 italic">No products yet. Add one above 🚀</p>
       ) : (
         <>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product, index) => {
-              const isEditing = editIndex === index;
+          <div className="flex flex-col gap-4">
+  {products.map((product, index) => {
+    const isEditing = editIndex === index;
 
-              return (
-                <Card
-                  key={product.id}
-                  className="rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300"
-                >
-                  {isEditing ? (
-                    <div className="space-y-2">
-                      <Input
-                        value={editProduct?.title}
-                        onChange={(e) =>
-                          setEditProduct((prev) =>
-                            prev ? { ...prev, title: e.target.value } : null
-                          )
-                        }
-                      />
-                      <Input.TextArea
-                        value={editProduct?.description}
-                        onChange={(e) =>
-                          setEditProduct((prev) =>
-                            prev
-                              ? { ...prev, description: e.target.value }
-                              : null
-                          )
-                        }
-                      />
-                      <Input
-                        type="number"
-                        value={editProduct?.price}
-                        onChange={(e) =>
-                          setEditProduct((prev) =>
-                            prev
-                              ? { ...prev, price: Number(e.target.value) }
-                              : null
-                          )
-                        }
-                      />
-                      <div className="flex gap-2">
-                        <Button onClick={() => setEditIndex(null)}>
-                          Cancel
-                        </Button>
-                        <Button type="primary" onClick={handleSaveEdit}>
-                          Save
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <h3 className="font-semibold text-lg text-gray-800">
-                        {product.title}
-                      </h3>
-                      <p className="text-gray-600 mt-1">{product.description}</p>
-                      <p className="text-gray-900 font-bold mt-2">
-                        ₦{product.price}
-                      </p>
-                      <div className="flex gap-2 mt-3">
-                        <Button
-                          onClick={() => {
-                            setEditIndex(index);
-                            setEditProduct(product);
-                          }}
-                        >
-                          ✏️ Edit
-                        </Button>
-                        <Button danger onClick={() => handleDelete(product.id)}>
-                          🗑️ Delete
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              );
-            })}
+    return (
+      <Card
+        key={product.id}
+        className="rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300"
+      >
+        {isEditing ? (
+          <div className="space-y-2">
+            <Input
+              value={editProduct?.title}
+              onChange={(e) =>
+                setEditProduct((prev) =>
+                  prev ? { ...prev, title: e.target.value } : null
+                )
+              }
+            />
+            <Input.TextArea
+              value={editProduct?.description}
+              onChange={(e) =>
+                setEditProduct((prev) =>
+                  prev ? { ...prev, description: e.target.value } : null
+                )
+              }
+            />
+            <Input
+              type="number"
+              value={editProduct?.price}
+              onChange={(e) =>
+                setEditProduct((prev) =>
+                  prev ? { ...prev, price: Number(e.target.value) } : null
+                )
+              }
+            />
+            <div className="flex gap-2">
+              <Button onClick={() => setEditIndex(null)}>Cancel</Button>
+              <Button type="primary" onClick={handleSaveEdit}>
+                Save
+              </Button>
+            </div>
           </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-semibold text-lg text-gray-800">
+                {product.title}
+              </h3>
+              <p className="text-gray-600 mt-1">{product.description}</p>
+            </div>
+            <div className="mt-3 sm:mt-0 text-right">
+              <p className="text-gray-900 font-bold">₦{product.price}</p>
+              <div className="flex gap-2 mt-2 justify-end">
+                <Button
+                  onClick={() => {
+                    setEditIndex(index);
+                    setEditProduct(product);
+                  }}
+                >
+                  ✏️ Edit
+                </Button>
+                <Button danger onClick={() => handleDelete(product.id)}>
+                  🗑️ Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+    );
+  })}
+</div>
+
 
           {/* Pagination */}
           <div className="flex justify-center mt-6">
