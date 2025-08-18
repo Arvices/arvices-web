@@ -24,6 +24,7 @@ const parsePosition = (
 const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  console.log({ jobs });
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -44,13 +45,13 @@ const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
     const markers: mapboxgl.Marker[] = [];
 
     jobs.forEach((job) => {
-      if (!job.position) return;
-      const [lng, lat] = parsePosition(job.position);
+      if (!position) return;
+      const [lng, lat] = parsePosition(position);
       const el = document.createElement("div");
       el.className = "job-marker";
       el.innerHTML = `
-        <div class="category">${job.category.name}</div>
-        <div class="address">${job.address}</div>
+        <div class="category">Job Category</div>
+        <div class="address">${job?.description}</div>
       `;
 
       const marker = new mapboxgl.Marker(el)
@@ -59,8 +60,8 @@ const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
           new mapboxgl.Popup({
             offset: 25,
           }).setHTML(`<div style="text-align:center">
-                <strong>${job.address}</strong><br/>
-                <small>${job.category.name}</small>
+                <strong>${job?.address || ""}</strong><br/>
+                <small>${job?.category?.name || ""}</small>
               </div>`),
         )
         .addTo(map);
