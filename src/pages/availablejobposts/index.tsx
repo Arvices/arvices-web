@@ -37,11 +37,10 @@ const AvailableJobPostings = (): React.ReactNode => {
       state: "",
     },
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [jobPostings, setJobPostings] = useState<Job[]>([]);
-
 
   const [geoCodeResponse, setGeoCodeResponse] = useState({
     latitude: 0,
@@ -63,7 +62,7 @@ const AvailableJobPostings = (): React.ReactNode => {
   const [isFilter, setIsFilter] = useState(false);
 
   const handleFilterApply = () => {
-    load()
+    load();
     setIsFilter(true);
   };
 
@@ -284,19 +283,19 @@ const AvailableJobPostings = (): React.ReactNode => {
   };
 
   const load = () => {
-          if (filters.location) {
-        loadServiceRequestsAroundMe();
-      } else {
-        loadServiceRequest();
-      }
-  }
+    if (filters.location) {
+      loadServiceRequestsAroundMe();
+    } else {
+      loadServiceRequest();
+    }
+  };
 
   console.log({
     jobPostings,
   });
   useEffect(() => {
     if (auth.token) {
-      load()
+      load();
     }
   }, [auth.token, currentPage]);
   return (
@@ -367,7 +366,7 @@ const AvailableJobPostings = (): React.ReactNode => {
                         geoCodeResponse.latitude,
                         geoCodeResponse.longitude,
                       ].join(",")}
-                      jobs={jobPostings.filter(x=> !!x.position)}
+                      jobs={jobPostings.filter((x) => !!x.position)}
                     />
                   ) : (
                     <div className="flex flex-wrap gap-5">

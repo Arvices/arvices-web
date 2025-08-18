@@ -52,18 +52,20 @@ const ClientView: React.FC<{
             {job.status !== "Ongoing" &&
             job.status !== "Completed" &&
             jobOffers &&
-             jobOffers.filter(x=>!!x.user).length > 0 ? (
-              jobOffers.filter(x=>!!x.user).map((offer, index) => (
-                <div className="py-2" key={index}>
-                  <OfferCardClient
-                    onJobChange={onJobChange}
-                    onOfferChange={onOfferChange}
-                    onOfferCounterChange={onOfferCounterChange}
-                    job={job}
-                    offer={offer}
-                  />
-                </div>
-              ))
+            jobOffers.filter((x) => !!x.user).length > 0 ? (
+              jobOffers
+                .filter((x) => !!x.user)
+                .map((offer, index) => (
+                  <div className="py-2" key={index}>
+                    <OfferCardClient
+                      onJobChange={onJobChange}
+                      onOfferChange={onOfferChange}
+                      onOfferCounterChange={onOfferCounterChange}
+                      job={job}
+                      offer={offer}
+                    />
+                  </div>
+                ))
             ) : (
               <NoOffer />
             )}

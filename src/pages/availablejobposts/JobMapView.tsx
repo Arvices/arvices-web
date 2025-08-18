@@ -24,7 +24,7 @@ const parsePosition = (
 const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  console.log({jobs})
+  console.log({ jobs });
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
