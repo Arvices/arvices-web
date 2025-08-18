@@ -1,8 +1,5 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
-
-// AUTH & ACCOUNT
-
 const addAccount = async (data: any) => {
   const config = {
     url: `${baseUrl}/user/addaccount`,
@@ -11,37 +8,41 @@ const addAccount = async (data: any) => {
   };
   return axios(config);
 };
-
 const updateAccountById = async (data: FormData, id: number, token: string) => {
   const config = {
     url: `${baseUrl}/user/updateaccountbyid?id=${id}`,
     method: "PUT",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
 const updateAccountByEmail = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/updateaccountbyemail`,
     method: "PUT",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
 const getAccountById = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/user/getaccountbyid`,
     method: "GET",
-    params: { id },
-    headers: { Authorization: `Bearer ${token}` },
+    params: {
+      id,
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 const getAllUsers = async () => {
   const config = {
     url: `${baseUrl}/user/getallusers`,
@@ -49,16 +50,16 @@ const getAllUsers = async () => {
   };
   return axios(config);
 };
-
 const getAccountByEmail = async (email: string) => {
   const config = {
     url: `${baseUrl}/user/getaccountbyemail`,
     method: "GET",
-    params: { email },
+    params: {
+      email,
+    },
   };
   return axios(config);
 };
-
 const login = async (data: any) => {
   const config = {
     url: `${baseUrl}/user/login`,
@@ -67,56 +68,54 @@ const login = async (data: any) => {
   };
   return axios(config);
 };
-
-// ACCOUNT STATE
-
 const disableAccountById = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/disableaccountbyid`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
 const disableAccountByEmail = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/disableaccountbyemail`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
 const enableAccountById = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/enableaccountbyid`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
 const enableAccountByEmail = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/enableaccountbyemail`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
-// PASSWORD & VERIFICATION
-
 interface ChangePasswordData {
   old_password: string;
   new_password: string;
 }
-
 const changePassword = async (
   data: ChangePasswordData,
   id: number,
@@ -127,13 +126,12 @@ const changePassword = async (
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json", // Optional, but good practice
+      "Content-Type": "application/json",
     },
     data,
   };
   return axios(config);
 };
-
 const forgetPassword = async (data: any) => {
   const config = {
     url: `${baseUrl}/user/forgetpassword`,
@@ -142,7 +140,6 @@ const forgetPassword = async (data: any) => {
   };
   return axios(config);
 };
-
 const resetPassword = async (data: any) => {
   const config = {
     url: `${baseUrl}/user/resetpassword`,
@@ -151,17 +148,17 @@ const resetPassword = async (data: any) => {
   };
   return axios(config);
 };
-
 const deleteAccountById = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/deleteaccountbyid`,
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data,
   };
   return axios(config);
 };
-
 const verifyAccount = async (data: any) => {
   const config = {
     url: `${baseUrl}/user/verifyaccount`,
@@ -170,7 +167,6 @@ const verifyAccount = async (data: any) => {
   };
   return axios(config);
 };
-
 const generateVerificationCode = async (email: string) => {
   const config = {
     url: `${baseUrl}/user/generateverificationcode/${email}`,
@@ -178,9 +174,6 @@ const generateVerificationCode = async (email: string) => {
   };
   return axios(config);
 };
-
-// RATING & REVIEWS
-
 const rateUser = async (
   id: number,
   rating: number,
@@ -195,42 +188,46 @@ const rateUser = async (
   const config = {
     url: `${baseUrl}/user/rateuser`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data: payload,
   };
   return axios(config);
 };
-
 const deleteReview = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/user/deletereview/${id}`,
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 const getMyPersonalReviews = async (token: string) => {
   const config = {
     url: `${baseUrl}/user/getmypersonalreviews`,
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 const getUserReviews = async (userId: number, token: string) => {
   const config = {
     url: `${baseUrl}/user/getuserreviews`,
     method: "GET",
-    params: { userId },
-    headers: { Authorization: `Bearer ${token}` },
+    params: {
+      userId,
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
-// MEDIA & DISCOVERY
-
 const getFile = async (filename: string) => {
   const config = {
     url: `${baseUrl}/user/getfile/${filename}`,
@@ -238,7 +235,6 @@ const getFile = async (filename: string) => {
   };
   return axios(config);
 };
-
 const getReputableProfessionals = async () => {
   const config = {
     url: `${baseUrl}/user/getreputableprofessionals`,
@@ -246,7 +242,6 @@ const getReputableProfessionals = async () => {
   };
   return axios(config);
 };
-
 const getRecentShowcase = async () => {
   const config = {
     url: `${baseUrl}/user/getrecentshowcase`,
@@ -254,7 +249,6 @@ const getRecentShowcase = async () => {
   };
   return axios(config);
 };
-
 const getTopProfessionals = async () => {
   const config = {
     url: `${baseUrl}/user/gettopprofessionals`,
@@ -262,7 +256,6 @@ const getTopProfessionals = async () => {
   };
   return axios(config);
 };
-
 const getRisingTalent = async (token: string) => {
   const config = {
     url: `${baseUrl}/user/getrisingtalent`,
@@ -273,19 +266,17 @@ const getRisingTalent = async (token: string) => {
   };
   return axios(config);
 };
-
 interface GetServiceProvidersParams {
   latitude: number;
   longitude: number;
   search?: string;
-  category?: number[]; // array of category IDs
+  category?: number[];
   startDate?: string;
   endDate?: string;
   orderBy?: "ASC" | "DESC";
   page?: number;
   limit?: number;
 }
-
 const getServiceProvidersAroundMe = async (
   params: GetServiceProvidersParams,
 ) => {
@@ -294,15 +285,14 @@ const getServiceProvidersAroundMe = async (
     method: "GET" as const,
     params: {
       ...params,
-      category: params.category ? params.category.join(",") : undefined, // convert array to string
+      category: params.category ? params.category.join(",") : undefined,
     },
   };
   return axios(config);
 };
-
 const getProfessionals = async (params: {
   search?: string;
-  category?: string; // e.g., "1,2,3"
+  category?: string;
   professionalType?: string;
   orderBy?: string;
   page: number;
@@ -315,45 +305,46 @@ const getProfessionals = async (params: {
   };
   return axios(config);
 };
-
-// FOLLOW SYSTEM
-
 const followUser = async (userId: string, token: string) => {
   const config = {
     url: `${baseUrl}/user/followuser/${userId}`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 const unfollowUser = async (userId: string, token: string) => {
   const config = {
     url: `${baseUrl}/user/unfollowuser/${userId}`,
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 const getAllUserFollowing = async (token: string) => {
   const config = {
     url: `${baseUrl}/user/getalluserfollowing`,
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 const getAllUserFollowers = async (token: string) => {
   const config = {
     url: `${baseUrl}/user/getalluserfollowers`,
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };
-
 export {
   addAccount,
   updateAccountById,

@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-
 interface UserState {
   isAuthenticated: boolean;
   token: string | null;
@@ -8,7 +7,6 @@ interface UserState {
   name: string | null;
   avatar: string | null;
 }
-
 const initialState: UserState = {
   isAuthenticated: false,
   token: null,
@@ -16,7 +14,6 @@ const initialState: UserState = {
   name: null,
   avatar: null,
 };
-
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -45,14 +42,15 @@ const userSlice = createSlice({
     },
     updateProfile: (
       state,
-      action: PayloadAction<{ name?: string; avatar?: string }>,
+      action: PayloadAction<{
+        name?: string;
+        avatar?: string;
+      }>,
     ) => {
       if (action.payload.name) state.name = action.payload.name;
       if (action.payload.avatar) state.avatar = action.payload.avatar;
     },
   },
 });
-
 export const { setUser, clearUser, updateProfile } = userSlice.actions;
-
 export default userSlice.reducer;

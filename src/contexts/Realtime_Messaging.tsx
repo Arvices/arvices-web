@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useSocket } from "./SocketContext";
-import { useDispatch } from "react-redux"; // adjust import
+import { useDispatch } from "react-redux";
 import { getAllUserConversations } from "../api-services/messageservice";
 import { useAuth } from "./AuthContext";
 import { parseHttpError } from "../api-services/parseReqError";
@@ -18,7 +18,6 @@ import {
 } from "../store/messageSlice";
 import { useNotificationContext } from "./NotificationContext";
 import { UserAccount } from "../api-services/auth";
-
 export interface ArviceMessage {
   message: string;
   userId: number;
@@ -28,18 +27,15 @@ export interface ArviceMessage {
   user?: UserAccount;
   toUser?: UserAccount;
 }
-
 interface MessageRealtimeContextType {
   loadUserConversations: () => Promise<void>;
   sendMessage: (data: ArviceMessage) => Promise<void> | void;
   conversationLoadError: string;
   conversationsLoading: boolean;
 }
-
 const MessageRealtimeContext = createContext<
   MessageRealtimeContextType | undefined
 >(undefined);
-
 export const useMessageRealtime = (): MessageRealtimeContextType => {
   const context = useContext(MessageRealtimeContext);
   if (!context) {
@@ -49,24 +45,19 @@ export const useMessageRealtime = (): MessageRealtimeContextType => {
   }
   return context;
 };
-
 interface Props {
   children: ReactNode;
 }
-
 export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
   const { messagesSocket } = useSocket();
   const auth = useAuth();
   const { openNotification } = useNotificationContext();
   const dispatch = useDispatch();
-
   const [conversationLoadError, setConversationLoadError] = useState("");
   const [conversationsLoading, setConversationsLoading] = useState(false);
-
   const loadUserConversations = async () => {
     setConversationsLoading(true);
     setConversationLoadError("");
-
     try {
       const response = await getAllUserConversations(
         auth?.user?.id as number,
@@ -74,8 +65,9 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
         auth.token,
       );
       let conversations = response.data.response;
-      console.log({ conversations });
-
+      console.log({
+        conversations,
+      });
       console.log("Conversations:", conversations);
       dispatch(setConversations(conversations));
       if (conversations.length === 0) {
@@ -89,44 +81,48 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
       setConversationsLoading(false);
     }
   };
-
   const sendMessage = async (data: ArviceMessage) => {
-    console.log({ message: true, payload: data });
+    console.log({
+      message: true,
+      payload: data,
+    });
     if (messagesSocket) {
       messagesSocket.emit("sendmessage", data);
     }
   };
-
   useEffect(() => {
     if (auth?.user?.id) {
       loadUserConversations();
     }
   }, [auth.user]);
-
   useEffect(() => {
     if (!messagesSocket) return;
-
-    // Example: listen to new messages
-
     messagesSocket.on("messagesuccessful", (data: Message) => {
       dispatch(
-        addMessage({ conversationId: String(data.toUser.id), message: data }),
+        addMessage({
+          conversationId: String(data.toUser.id),
+          message: data,
+        }),
       );
     });
-
     messagesSocket.on("messagesent", (data: Message) => {
       dispatch(
-        addMessage({ conversationId: String(data?.user?.id), message: data }),
+        addMessage({
+          conversationId: String(data?.user?.id),
+          message: data,
+        }),
       );
-      dispatch(increaseUnreadCount({ conversationId: Number(data?.user?.id) }));
+      dispatch(
+        increaseUnreadCount({
+          conversationId: Number(data?.user?.id),
+        }),
+      );
     });
-
     return () => {
       messagesSocket.off("messagesent");
       messagesSocket.off("messagesuccessful");
     };
   }, [messagesSocket, dispatch]);
-
   return (
     <MessageRealtimeContext.Provider
       value={{

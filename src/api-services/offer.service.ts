@@ -1,6 +1,5 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
-
 export const createOffer = async (
   token: string,
   data: {
@@ -19,7 +18,6 @@ export const createOffer = async (
   };
   return await axios(config);
 };
-
 export const getAllOffers = async (
   token: string,
   params: {
@@ -35,8 +33,9 @@ export const getAllOffers = async (
     limit: number;
   },
 ) => {
-  console.log({ params });
-
+  console.log({
+    params,
+  });
   const config = {
     method: "get",
     url: `${baseUrl}/offer/getalloffer`,
@@ -45,22 +44,21 @@ export const getAllOffers = async (
       Authorization: `Bearer ${token}`,
     },
   };
-
   return await axios(config);
 };
-
 export const getOfferById = async (token: string, id: number) => {
   const config = {
     method: "get",
     url: `${baseUrl}/offer/getoffer/${id}`,
-    params: { id },
+    params: {
+      id,
+    },
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
   return await axios(config);
 };
-
 export const getAcceptedOfferForRequest = async (
   token: string,
   servicerequestId: number,
@@ -68,26 +66,28 @@ export const getAcceptedOfferForRequest = async (
   const config = {
     method: "get",
     url: `${baseUrl}/offer/getservicerequestacceptedoffer`,
-    params: { servicerequestId },
+    params: {
+      servicerequestId,
+    },
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
   return await axios(config);
 };
-
 export const deleteOffer = async (token: string, id: number) => {
   const config = {
     method: "delete",
     url: `${baseUrl}/offer/deleteoffer/${id}`,
-    params: { id },
+    params: {
+      id,
+    },
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
   return await axios(config);
 };
-
 export const updateOffer = async (
   token: string,
   id: number,
@@ -113,7 +113,6 @@ export const updateOffer = async (
   };
   return await axios(config);
 };
-
 export const createCounterOffer = async (
   token: string,
   data: {
@@ -132,7 +131,6 @@ export const createCounterOffer = async (
   };
   return await axios(config);
 };
-
 export const getAllCounterOffers = async (
   token: string,
   params: {
@@ -140,10 +138,10 @@ export const getAllCounterOffers = async (
     type?: string;
     offer?: number;
     user?: number;
-    startDate?: string; // ISO date-time string
-    endDate?: string; // ISO date-time string
+    startDate?: string;
+    endDate?: string;
     accepted?: number;
-    orderBy?: string; // e.g., "ASC" | "DESC"
+    orderBy?: string;
     page: number;
     limit: number;
   },
@@ -154,7 +152,7 @@ export const getAllCounterOffers = async (
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    params, // Axios will automatically serialize this into query params
+    params,
   };
   return await axios(config);
 };

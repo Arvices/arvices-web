@@ -1,27 +1,22 @@
 import React, { useState, useEffect, FormEvent } from "react";
-
 export interface EditJobData {
   description: string;
   address: string;
 }
-
 interface EditJobProps {
   initialData: EditJobData;
   onSubmit: (updatedJob: EditJobData) => void;
   onCancel?: () => void;
 }
-
 const EditJob: React.FC<EditJobProps> = ({
   initialData,
   onSubmit,
   onCancel,
 }) => {
   const [form, setForm] = useState<EditJobData>(initialData);
-
   useEffect(() => {
-    setForm(initialData); // Sync if initial data changes
+    setForm(initialData);
   }, [initialData]);
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -31,12 +26,10 @@ const EditJob: React.FC<EditJobProps> = ({
       [name]: value,
     }));
   };
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onSubmit(form);
   };
-
   return (
     <form onSubmit={handleSubmit} className="">
       <h2 className="text-xl font-semibold text-gray-800 tracking-tight mb-4">
@@ -89,5 +82,4 @@ const EditJob: React.FC<EditJobProps> = ({
     </form>
   );
 };
-
 export default EditJob;

@@ -8,26 +8,29 @@ import {
   XCircle,
 } from "lucide-react";
 import clsx from "clsx";
-
 interface TransactionItemProps {
   transaction: {
     id: string | number;
-    type: string; // from API
+    type: string;
     reference?: string;
     paid?: boolean;
-    reflected?: boolean; // true if amount reflected in balance
+    reflected?: boolean;
     createdDate?: string;
-    from?: { fullName?: string; email?: string };
-    to?: { fullName?: string; email?: string };
+    from?: {
+      fullName?: string;
+      email?: string;
+    };
+    to?: {
+      fullName?: string;
+      email?: string;
+    };
     amount: string | number;
   };
 }
-
 const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
   const rawType = transaction.type?.toLowerCase();
   let type: "topup" | "withdrawal" | "received" | "sent" = "topup";
   let label = "";
-
   if (rawType.includes("withdraw")) {
     type = "withdrawal";
     label = "Withdrawal";
@@ -49,20 +52,15 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
   } else {
     label = "TopUp";
   }
-
   let partyName = "";
   if (type === "received" && transaction.from?.fullName) {
     partyName = ` from ${transaction.from.fullName}`;
   } else if (type === "sent" && transaction.to?.fullName) {
     partyName = ` to ${transaction.to.fullName}`;
   }
-
-  // Determine success/failure
   const isSuccessful = transaction.paid || transaction.reflected;
   const isFailed = !isSuccessful;
   const statusText = isSuccessful ? "Successful" : "Failed";
-
-  // Choose icon
   let icon;
   if (isFailed) {
     icon = <XCircle size={18} />;
@@ -84,8 +82,6 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
         icon = <CreditCard size={18} />;
     }
   }
-
-  // Icon colors
   const iconWrapperClass = clsx(
     "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
     {
@@ -96,26 +92,20 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
       "bg-red-200 text-red-800": isFailed,
     },
   );
-
-  // Date handling with multiple fallbacks
   let dateTimeStr = "";
   const rawDate =
     transaction.createdDate ||
     (transaction as any).created_at ||
     (transaction as any).transactionDate ||
     (transaction as any).date;
-
   if (rawDate) {
     let parsedDate = new Date(rawDate);
-
-    // If invalid, try parsing DD/MM/YYYY formats
     if (isNaN(parsedDate.getTime()) && typeof rawDate === "string") {
       const match = rawDate.match(/(\d{2})\/(\d{2})\/(\d{4})/);
       if (match) {
         parsedDate = new Date(`${match[2]}/${match[1]}/${match[3]}`);
       }
     }
-
     if (!isNaN(parsedDate.getTime())) {
       dateTimeStr = new Intl.DateTimeFormat("en-US", {
         month: "long",
@@ -128,7 +118,6 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
       }).format(parsedDate);
     }
   }
-
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-100">
       <div className="flex items-center gap-3">
@@ -165,5 +154,4 @@ const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
     </div>
   );
 };
-
 export default TransactionItem;

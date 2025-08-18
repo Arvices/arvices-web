@@ -1,4 +1,3 @@
-// AccountVerification.tsx
 import React, { useState } from "react";
 import { Input } from "antd";
 import { useLoading } from "../../contexts/LoadingContext";
@@ -8,7 +7,6 @@ import {
   verifyAccount,
 } from "../../api-services/auth";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
 const AccountVerification: React.FC = () => {
   const [otp, setOtp] = useState("");
   const [SearchParams] = useSearchParams();
@@ -16,7 +14,6 @@ const AccountVerification: React.FC = () => {
   const email = SearchParams.get("email");
   const { setLoading, setLoadingText } = useLoading();
   const notify = useNotificationContext();
-
   const handleVerify = async () => {
     console.log("Verify with OTP:", otp);
     try {
@@ -26,7 +23,6 @@ const AccountVerification: React.FC = () => {
         email: email as string,
         verificationCode: Number(otp),
       });
-
       console.log("Verification success:", response);
       notify.openNotification(
         "topRight",
@@ -49,15 +45,12 @@ const AccountVerification: React.FC = () => {
       setLoadingText("");
     }
   };
-
   const handleResendVerification = async () => {
     try {
       setLoading(true);
       setLoadingText("Resending verification email...");
-
       const response = await resendAccountVerificationMail(email as string);
       console.log("Resend verification success:", response);
-
       notify.openNotification(
         "topRight",
         "Email Sent",
@@ -78,12 +71,11 @@ const AccountVerification: React.FC = () => {
       setLoadingText("");
     }
   };
-
   return (
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         <div className="max-w-[500px] mx-auto mt-10 ">
-          <h1 className="text-4xl mt-20 font-medium text-center text-royalblue-shade3 mb-6">
+          <h1 className="text-4xl mt-20 font-medium text-center text-gray-900 mb-6">
             Verify Your Account
           </h1>
           <p className="text-gray-500 mb-6 text-center">
@@ -111,7 +103,7 @@ const AccountVerification: React.FC = () => {
           <button
             onClick={handleVerify}
             disabled={otp.length < 6}
-            className="w-full bg-royalblue-main text-white p-3 rounded cursor pointer"
+            className="w-full bg-gray-900 text-white p-3 rounded cursor pointer"
           >
             Verify Account
           </button>
@@ -120,5 +112,4 @@ const AccountVerification: React.FC = () => {
     </section>
   );
 };
-
 export default AccountVerification;

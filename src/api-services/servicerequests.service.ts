@@ -1,7 +1,5 @@
-// src/services/servicerequest.ts
 import axios from "axios";
 import { AxiosRequestConfig } from "axios";
-
 import { baseUrl } from "./baseUrl";
 interface GetAllServiceRequestParams {
   token: string;
@@ -29,7 +27,7 @@ export const getAllServiceRequests = ({
   type,
   startDate,
   endDate,
-  orderBy,
+  orderBy = "DESC",
 }: GetAllServiceRequestParams) => {
   const params: Record<string, any> = {};
   if (page) params.page = page;
@@ -43,7 +41,6 @@ export const getAllServiceRequests = ({
   if (startDate) params.startDate = startDate;
   if (endDate) params.endDate = endDate;
   if (orderBy) params.orderBy = orderBy;
-
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getallservicerequest`,
     method: "GET",
@@ -52,22 +49,24 @@ export const getAllServiceRequests = ({
     },
     params,
   };
-  console.log({ config });
-
+  console.log({
+    config,
+  });
   return axios(config);
 };
 export const getServiceRequest = (id: string, token: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getservicerequest`,
     method: "GET",
-    params: { id },
+    params: {
+      id,
+    },
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
   return axios(config);
 };
-
 export const closeServiceRequest = (params: { [key: string]: any }) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/closeservicerequest`,
@@ -76,7 +75,6 @@ export const closeServiceRequest = (params: { [key: string]: any }) => {
   };
   return axios(config);
 };
-
 export const deleteServiceRequest = (id: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/deleteservicerequest/${id}`,
@@ -84,7 +82,6 @@ export const deleteServiceRequest = (id: string) => {
   };
   return axios(config);
 };
-
 export const createServiceRequest = (data: any, token: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/createservicerequest`,
@@ -96,7 +93,6 @@ export const createServiceRequest = (data: any, token: string) => {
   };
   return axios(config);
 };
-
 export const updateServiceRequest = (id: string, data: any, token: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/updateservicerequest/${id}`,
@@ -108,7 +104,6 @@ export const updateServiceRequest = (id: string, data: any, token: string) => {
   };
   return axios(config);
 };
-
 export const getRecommendedServiceRequest = () => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getrecommendedservicerequest`,
@@ -117,10 +112,36 @@ export const getRecommendedServiceRequest = () => {
   return axios(config);
 };
 
-export const getServiceRequestAroundMe = () => {
+export const getServiceRequestAroundMe = (
+  token: string,
+  params: {
+    latitude: number;
+    longitude: number;
+    search?: string;
+    category?: number[];
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+  },
+) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/servicerequest/getservicerequestaroundme`,
     method: "GET",
+    params: {
+      latitude: params.latitude,
+      longitude: params.longitude,
+      search: params.search,
+      category: params.category?.join(","), // Join array into a comma-separated string
+      startDate: params.startDate,
+      endDate: params.endDate,
+      orderBy: "DESC",
+      page: params.page,
+      limit: params.limit,
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
   return axios(config);
 };

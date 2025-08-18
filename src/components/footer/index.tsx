@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import mobileApp from "../../assets/images/arvices-mobile-apps.png";
-
 const Footer: React.FC = () => {
   const serviceCategories = [
     "Beauty & Glamour",
@@ -110,5 +109,4 @@ const Footer: React.FC = () => {
     </footer>
   );
 };
-
 export default Footer;

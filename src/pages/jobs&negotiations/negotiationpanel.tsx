@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Job } from "../../components/cards/appcards";
 import { Offer } from "../../types/main.types";
-
 interface NegotiationPanelProps {
   job: Job;
   offer: Offer;
@@ -11,7 +10,6 @@ interface NegotiationPanelProps {
   onUpdate: (offerId: number, newPrice: string) => void;
   onAccept: (offerId: number) => void;
 }
-
 const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
   offer,
   isClient,
@@ -20,11 +18,9 @@ const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
 }) => {
   const [counterPrice, setCounterPrice] = useState(offer.price);
   const [reason, setReason] = useState("");
-
   const makeCounter = () => {
     onCounter(Number(counterPrice), reason);
   };
-
   return (
     <div className="border border-gray-200 rounded-lg p-5 bg-white space-y-5">
       <header>
@@ -36,7 +32,7 @@ const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
         </p>
       </header>
 
-      {/* Counter / Update Price */}
+      {}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-5">
           {isClient ? "Counter Offer Price" : "Update Offer Price"}
@@ -49,7 +45,7 @@ const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
         />
       </div>
 
-      {/* Counter / Update Price */}
+      {}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Reason For This Counter Offer
@@ -61,7 +57,7 @@ const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
         />
       </div>
 
-      {/* Action Buttons */}
+      {}
       <div className="flex gap-2 flex-wrap justify-end">
         <>
           <button
@@ -81,5 +77,4 @@ const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
     </div>
   );
 };
-
 export default NegotiationPanel;

@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ArrowUpRight, ArrowDownLeft, Plus, X } from "lucide-react";
-
 const Transactions = (): React.ReactNode => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
-
-  // Filters
   const [search, setSearch] = useState("");
   const [paid, setPaid] = useState("");
   const [type, setType] = useState("");
@@ -17,34 +14,33 @@ const Transactions = (): React.ReactNode => {
   const [orderBy, setOrderBy] = useState("DESC");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-
   const ensureToken = async (): Promise<string | null> => {
     let token = localStorage.getItem("access_token");
     if (token) return token;
-
     const savedEmail = localStorage.getItem("user_email");
     const savedPassword = localStorage.getItem("user_password");
-
     if (!savedEmail || !savedPassword) {
       setError("No login details found. Please log in again.");
       return null;
     }
-
     try {
       const res = await fetch(
         "https://arvicesapi.denateonlineservice.com/user/login",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: savedEmail, password: savedPassword }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: savedEmail,
+            password: savedPassword,
+          }),
         },
       );
-
       if (!res.ok) throw new Error(`Login failed: ${res.status}`);
       const data = await res.json();
       const accessToken = data?.access_token;
       if (!accessToken) throw new Error("No token received");
-
       localStorage.setItem("access_token", accessToken);
       return accessToken;
     } catch (err: any) {
@@ -52,28 +48,23 @@ const Transactions = (): React.ReactNode => {
       return null;
     }
   };
-
   const fetchTransactions = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const token = await ensureToken();
       if (!token) return;
-
       const params = new URLSearchParams({
         orderBy,
         page: String(page),
         limit: String(limit),
       });
-
       if (search) params.append("search", search);
       if (paid) params.append("paid", paid);
       if (type) params.append("type", type);
       if (method) params.append("method", method);
       if (startDate) params.append("startDate", startDate);
       if (endDate) params.append("endDate", endDate);
-
       const res = await fetch(
         `https://arvicesapi.denateonlineservice.com/wallet/getalltransactions?${params.toString()}`,
         {
@@ -83,13 +74,10 @@ const Transactions = (): React.ReactNode => {
           },
         },
       );
-
       if (!res.ok)
         throw new Error(`Error ${res.status}: Unauthorized or invalid request`);
-
       const data = await res.json();
       const txs = data?.response || [];
-
       setTransactions(txs);
       setTotalPages(txs.length < limit ? page : page + 1);
     } catch (err: any) {
@@ -98,18 +86,15 @@ const Transactions = (): React.ReactNode => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchTransactions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit, orderBy]);
-
   return (
     <section className="min-h-screen pt-16">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         <h1 className="text-2xl font-bold mb-3">Transactions</h1>
 
-        {/* Filters */}
+        {}
         <div className="bg-white p-2.5 rounded shadow-sm mb-3">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
             <input
@@ -206,25 +191,22 @@ const Transactions = (): React.ReactNode => {
             {transactions.map((tx) => {
               let icon;
               let circleColor = "";
-
               if (!tx.paid) {
-                // Any unpaid transaction = red X
-                icon = <X size={16} color="#b91c1c" />; // red-700
+                icon = <X size={16} color="#b91c1c" />;
                 circleColor = "bg-red-200";
               } else if (tx.type === "credit" || tx.type === "received") {
-                icon = <ArrowDownLeft size={16} color="#15803d" />; // green-700
+                icon = <ArrowDownLeft size={16} color="#15803d" />;
                 circleColor = "bg-green-200";
               } else if (tx.type === "debit" || tx.type === "sent") {
-                icon = <ArrowUpRight size={16} color="#b91c1c" />; // red-700
+                icon = <ArrowUpRight size={16} color="#b91c1c" />;
                 circleColor = "bg-red-200";
               } else if (tx.type === "topup") {
-                icon = <Plus size={16} color="#1d4ed8" />; // blue-700
+                icon = <Plus size={16} color="#1d4ed8" />;
                 circleColor = "bg-blue-200";
               } else {
-                icon = <ArrowUpRight size={16} color="#374151" />; // gray-700
+                icon = <ArrowUpRight size={16} color="#374151" />;
                 circleColor = "bg-gray-200";
               }
-
               return (
                 <li
                   key={tx.id}
@@ -259,7 +241,7 @@ const Transactions = (): React.ReactNode => {
           </ul>
         )}
 
-        {/* Pagination */}
+        {}
         <div className="flex gap-4 mt-6 items-center">
           <button
             disabled={page === 1}
@@ -283,5 +265,4 @@ const Transactions = (): React.ReactNode => {
     </section>
   );
 };
-
 export default Transactions;

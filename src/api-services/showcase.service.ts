@@ -1,6 +1,5 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
-
 const createShowcase = async (data: FormData, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/createshowcase`,
@@ -12,7 +11,6 @@ const createShowcase = async (data: FormData, token: string) => {
   };
   return axios(config);
 };
-
 const updateShowcase = async (id: string, data: any, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/updateshowcase/${id}`,
@@ -24,7 +22,6 @@ const updateShowcase = async (id: string, data: any, token: string) => {
   };
   return axios(config);
 };
-
 const getShowcase = async (id: string) => {
   const config = {
     url: `${baseUrl}/showcase/getshowcase/${id}`,
@@ -32,7 +29,6 @@ const getShowcase = async (id: string) => {
   };
   return axios(config);
 };
-
 const getAllShowcase = async () => {
   const config = {
     url: `${baseUrl}/showcase/getallshowcase`,
@@ -40,7 +36,6 @@ const getAllShowcase = async () => {
   };
   return axios(config);
 };
-
 const deleteShowcase = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/deleteshowcase/${id}`,
@@ -51,7 +46,6 @@ const deleteShowcase = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const likeShowcase = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/likeshowcase/${id}`,
@@ -62,7 +56,6 @@ const likeShowcase = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const unlikeShowcase = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/unlikeshowcase/${id}`,
@@ -73,7 +66,6 @@ const unlikeShowcase = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const saveShowcase = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/saveshowcase/${id}`,
@@ -84,7 +76,6 @@ const saveShowcase = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const getSavedShowcase = async (token: string) => {
   const config = {
     url: `${baseUrl}/showcase/getsavedshowcase`,
@@ -95,7 +86,6 @@ const getSavedShowcase = async (token: string) => {
   };
   return axios(config);
 };
-
 const deleteShowcaseAttachment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/deleteshowcaseattachment/${id}`,
@@ -106,7 +96,6 @@ const deleteShowcaseAttachment = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const deleteShowcaseCommentAttachment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/deleteshowcasecommentattachment/${id}`,
@@ -117,7 +106,6 @@ const deleteShowcaseCommentAttachment = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const createShowcaseComment = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/createshowcasecomment`,
@@ -129,7 +117,6 @@ const createShowcaseComment = async (data: any, token: string) => {
   };
   return axios(config);
 };
-
 const updateShowcaseComment = async (id: string, data: any, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/updateshowcasecomment/${id}`,
@@ -141,7 +128,6 @@ const updateShowcaseComment = async (id: string, data: any, token: string) => {
   };
   return axios(config);
 };
-
 const getShowcaseComment = async (id: string) => {
   const config = {
     url: `${baseUrl}/showcase/getshowcasecomment/${id}`,
@@ -149,7 +135,6 @@ const getShowcaseComment = async (id: string) => {
   };
   return axios(config);
 };
-
 const getAllShowcaseComment = async () => {
   const config = {
     url: `${baseUrl}/showcase/getallshowcasecomment`,
@@ -157,7 +142,6 @@ const getAllShowcaseComment = async () => {
   };
   return axios(config);
 };
-
 const deleteShowcaseComment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/deleteshowcasecomment/${id}`,
@@ -168,7 +152,6 @@ const deleteShowcaseComment = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const likeShowcaseComment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/likeshowcasecomment/${id}`,
@@ -179,7 +162,6 @@ const likeShowcaseComment = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const unlikeShowcaseComment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/unlikeshowcasecomment/${id}`,
@@ -190,7 +172,6 @@ const unlikeShowcaseComment = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 const getShowcaseTimeline = async () => {
   const config = {
     url: `${baseUrl}/showcase/getshowcasetimeline`,
@@ -198,7 +179,6 @@ const getShowcaseTimeline = async () => {
   };
   return axios(config);
 };
-
 export {
   createShowcase,
   updateShowcase,

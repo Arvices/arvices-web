@@ -1,17 +1,11 @@
 import React from "react";
 import { JobStatusType } from "../../components/cards/appcards";
 import { buttonClasses, ButtonStyleName } from "./jobsaction";
-
-// ---- Status Enum Replacement ----
-
-// ---- Role Definition ----
 export type Role = "client" | "serviceProvider";
-
 type TagMeta = {
   label: string;
-  className: string; // color class or AntD/Vuesax color string
+  className: string;
 };
-// ---- Tag Mapping per Role ----
 const jobStatusTagMap: Record<Role, Record<JobStatusType, TagMeta>> = {
   client: {
     Open: {
@@ -68,36 +62,28 @@ const jobStatusTagMap: Record<Role, Record<JobStatusType, TagMeta>> = {
     },
   },
 };
-
-// ---- Helper Function ----
 export function getJobStatusTag(role: Role, status: JobStatusType): TagMeta {
   return jobStatusTagMap[role][status];
 }
-
-// ---- StatusTag Component ----
 interface StatusTagProps {
   role: Role;
   status: JobStatusType;
   className?: string;
 }
-
 export const StatusTag: React.FC<StatusTagProps> = ({
   role,
   status,
   className,
 }) => {
   const { label, className: defaultClassName } = getJobStatusTag(role, status);
-
   return (
     <span className={`${defaultClassName} ${className || ""}`}>{label}</span>
   );
 };
-
 interface GenericTagProps {
   label: string;
   buttonStyle: ButtonStyleName;
 }
-
 export const GenericTag: React.FC<GenericTagProps> = ({
   label,
   buttonStyle,

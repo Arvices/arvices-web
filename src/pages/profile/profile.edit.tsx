@@ -5,13 +5,9 @@ import {
   UploadOutlined,
   DollarOutlined,
 } from "@ant-design/icons";
-
 import { Button, Select, Divider } from "antd";
-
 const { Option } = Select;
-
 import { Plus, Save, X } from "feather-icons-react";
-
 import { UserAccount } from "../../api-services/auth";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAccountById, updateAccountById } from "../../api-services/auth-re";
@@ -22,7 +18,6 @@ import { useCategory } from "../../contexts/CategoryContext";
 import { useLoading } from "../../contexts/LoadingContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { ServiceOfferingPayload } from "./profile.types";
-
 import {
   createProfileService,
   deleteProfileService,
@@ -33,60 +28,61 @@ import { formatTime } from "../util/timeUtil";
 import { Settings } from "lucide-react";
 import PasswordChange from "./passwordchange";
 import { ServiceDetailCard } from "./userservicecomponents";
-
 type ChangeLikeEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  | { target: { name: string; value: any } };
-
+  | {
+      target: {
+        name: string;
+        value: any;
+      };
+    };
 export function ProfileEdit() {
   const auth = useAuth();
   const id = auth?.user?.id;
   const { setLoading, setLoadingText } = useLoading();
   const { openNotification } = useNotificationContext();
-
-  // add this tab later.
-
   let tabOptions = [
-    { label: "Personal", value: "personal", icon: <UserOutlined /> },
+    {
+      label: "Personal",
+      value: "personal",
+      icon: <UserOutlined />,
+    },
     {
       label: "Availability",
       value: "availability",
       icon: <ClockCircleOutlined />,
     },
-    { label: "Services", value: "services", icon: <DollarOutlined /> },
+    {
+      label: "Services",
+      value: "services",
+      icon: <DollarOutlined />,
+    },
     {
       label: "Settings",
       value: "settings",
       icon: <Settings size={14} />,
     },
   ];
-
   if (auth.isClient) {
     tabOptions = tabOptions.filter((x) => {
       return !(x.value === "services" || x.value === "availability");
     });
   }
-
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [editData, setEditData] = useState<UserAccount | null>(null);
-
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileErr, setProfileErr] = useState<string | null>(null);
-
   const [services, setServices] = useState<any[]>([]);
   const [serviceLoading, setServiceLoading] = useState(false);
   const [serviceErr, setServiceErr] = useState<string | null>(null);
-
   const [imgFile, setImgFile] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageSrc = getImagePreview(imgFile ?? editData?.picture ?? null);
   const category = useCategory();
-
   const [changesSaved, setChangesSaved] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [serviceEditIndex, setServiceEditIndex] = useState<number>();
   const [serviceEdit, setServiceEdit] = useState<ServiceOfferingPayload>();
-
   const [newServiceForm, setNewServiceForm] = useState<ServiceOfferingPayload>({
     title: "",
     price: "",
@@ -95,30 +91,24 @@ export function ProfileEdit() {
     timeUnit: "",
     id: 0,
   });
-
   const [input, setInput] = useState("");
-
   const specialities: string[] = editData?.specialties || [];
-
   const updateSpecialities = (list: string[]) => {
     setEditData((prev: any) => ({
       ...prev,
       specialties: list.length > 0 ? list : null,
     }));
   };
-
   const handleAdd = () => {
     const trimmed = input.trim();
     if (!trimmed || specialities.includes(trimmed)) return;
     updateSpecialities([...specialities, trimmed]);
     setInput("");
   };
-
   const handleRemove = (index: number) => {
     const updated = specialities.filter((_, i) => i !== index);
     updateSpecialities(updated);
   };
-
   const handleNewServiceFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -130,15 +120,12 @@ export function ProfileEdit() {
       [name]: value,
     }));
   };
-
   const toggleDay = (day: string) => {
     if (!editData) return;
-
     const isSelected = editData.availableDays?.includes(day) ?? false;
     const updatedDays = isSelected
       ? (editData.availableDays?.filter((d) => d !== day) ?? [])
       : [...(editData.availableDays ?? []), day];
-
     setEditData((prev) =>
       prev
         ? {
@@ -149,24 +136,19 @@ export function ProfileEdit() {
     );
     setChangesSaved(false);
   };
-
   const handleChange = (e: ChangeLikeEvent) => {
     const { name, value } = e.target;
-
     if (name === "categoryId") {
       const found = category.findCategoryById(value[0]);
       if (!found) return;
-
       setEditData((prev) => {
         if (!prev) return prev;
-
         return {
           ...prev,
-          category: [found], // ✅ this is now Category[]
+          category: [found],
         };
       });
     }
-
     setEditData((prev) => {
       if (!prev) return prev;
       return {
@@ -174,10 +156,8 @@ export function ProfileEdit() {
         [name]: value,
       };
     });
-
     setChangesSaved(false);
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -185,17 +165,20 @@ export function ProfileEdit() {
       setChangesSaved(false);
     }
   };
-
   const loadProfile = async () => {
     try {
       setProfileLoading(true);
       const response = await getAccountById(String(id), auth.token);
       setUserProfile(response.data.response);
       setEditData(response.data.response);
-      console.log({ res: response.data });
+      console.log({
+        res: response.data,
+      });
       setProfileErr(null);
     } catch (error: any) {
-      console.log({ error });
+      console.log({
+        error,
+      });
       const message = parseHttpError(error);
       setProfileErr(message || "Failed to load profile");
       throw error;
@@ -208,7 +191,9 @@ export function ProfileEdit() {
     setServiceErr(null);
     try {
       const res = await getAllProfileService(auth.token);
-      console.log({ servicesRes: res });
+      console.log({
+        servicesRes: res,
+      });
       setServices(res?.data?.response || []);
     } catch (error: any) {
       console.error(error);
@@ -217,18 +202,14 @@ export function ProfileEdit() {
       setServiceLoading(false);
     }
   };
-
   const handleSaveNewService = async () => {
     try {
       setLoading(true);
       setLoadingText("Saving new service...");
-
       const payload = {
         ...newServiceForm,
       };
-
-      await createProfileService(payload, auth.token); // send token if required
-
+      await createProfileService(payload, auth.token);
       setShowForm(false);
       openNotification(
         "topRight",
@@ -237,7 +218,6 @@ export function ProfileEdit() {
         "success",
       );
       fetchServices();
-      // refetch services or notify success
     } catch (error) {
       console.error(error);
       openNotification(
@@ -246,28 +226,22 @@ export function ProfileEdit() {
         error?.toString() || "Something went wrong",
         "error",
       );
-      // show error notification
     } finally {
       setLoading(false);
       setLoadingText("");
     }
   };
-
   const saveEditedService = async () => {
     if (!serviceEdit || serviceEditIndex === undefined) return;
-
     try {
       setLoading(true);
       setLoadingText("Saving service changes...");
-
       await updateProfileService(serviceEdit.id, serviceEdit, auth.token);
-
       setServices((prev) => {
         const copy = [...prev];
         copy[serviceEditIndex] = serviceEdit;
         return copy;
       });
-
       openNotification(
         "topRight",
         "Service updated successfully",
@@ -283,16 +257,13 @@ export function ProfileEdit() {
       setLoadingText("");
     }
   };
-
   useEffect(() => {
     if (id && auth?.token) {
       loadProfile();
       fetchServices();
     }
   }, [id, auth?.token]);
-
   const [activeTab, setActiveTab] = useState("personal");
-
   const handleSave = async () => {
     if (changesSaved) {
       return openNotification(
@@ -302,35 +273,35 @@ export function ProfileEdit() {
         "info",
       );
     }
-
     const data = new FormData();
-    console.log({ editData });
-
-    // Append image if present
+    console.log({
+      editData,
+    });
     if (imgFile) {
       data.append("image", imgFile);
     }
-
     const skipFields = ["accountDisable", "password"];
-    console.log({ editData });
+    console.log({
+      editData,
+    });
     if (editData && userProfile) {
       Object.entries(editData).forEach(([key, value]) => {
         const originalValue = userProfile[key as keyof typeof userProfile];
-
         const hasChanged = value !== originalValue;
         const shouldSkip = skipFields.includes(key);
-
         if (
           hasChanged &&
           !shouldSkip &&
           value !== undefined &&
           value !== null
         ) {
-          console.log({ isUpdating: { key, value } });
-
+          console.log({
+            isUpdating: {
+              key,
+              value,
+            },
+          });
           if (Array.isArray(value)) {
-            // Append each item in the array with the same key (e.g., key[])
-
             if (value.length <= 1) {
               value.push("");
               value.push("");
@@ -339,24 +310,20 @@ export function ProfileEdit() {
               data.append(`${key}`, String(item));
             });
           } else {
-            // Append scalar value
             data.append(key, String(value));
           }
         }
       });
     }
-
     try {
       setLoading(true);
       setLoadingText("Updating Profile. Please wait");
-
       const res = await updateAccountById(
         data,
         auth?.user?.id as number,
         auth.token,
       );
       console.log("Update response:", res);
-
       openNotification(
         "topRight",
         "Profile updated successfully",
@@ -372,23 +339,18 @@ export function ProfileEdit() {
       setLoadingText("");
     }
   };
-
   const handleDeleteService = async (serviceId: string) => {
     try {
       setLoading(true);
       setLoadingText("Deleting service...");
-
       await deleteProfileService(serviceId, auth.token);
-
       openNotification(
         "topRight",
         "Service deleted successfully",
         "",
         "success",
       );
-
-      // Optionally refresh services or update UI
-      fetchServices?.(); // if you have a refetcher
+      fetchServices?.();
     } catch (err: any) {
       openNotification(
         "topRight",
@@ -400,9 +362,10 @@ export function ProfileEdit() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    console.log({ editData });
+    console.log({
+      editData,
+    });
   }, [editData]);
   return (
     <ContentHOC
@@ -414,7 +377,7 @@ export function ProfileEdit() {
       actionFn={loadProfile}
       UIComponent={
         <div className="min-h-screen px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-          {/* Header */}
+          {}
           <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 mt-14"></header>
 
           <div className="py-8">
@@ -460,7 +423,7 @@ export function ProfileEdit() {
                 </Select>
               </div>
 
-              {/* PERSONAL TAB */}
+              {}
               {activeTab === "personal" && (
                 <div className="space-y-6">
                   <h6 className="text-[18px] font-medium tracking-tighter">
@@ -498,7 +461,7 @@ export function ProfileEdit() {
                   <Divider />
 
                   <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Full Name */}
+                    {}
                     <div className="flex flex-col">
                       <label className="mb-2 font-medium">Full Name</label>
                       <input
@@ -511,7 +474,7 @@ export function ProfileEdit() {
                       />
                     </div>
 
-                    {/* Profession */}
+                    {}
                     {auth.isProvider && (
                       <div className="flex flex-col">
                         <label className="mb-2 font-medium">Category</label>
@@ -521,7 +484,10 @@ export function ProfileEdit() {
                           value={Number(editData?.category[0]?.id) || undefined}
                           onChange={(value) =>
                             handleChange({
-                              target: { name: "categoryId", value: [value] },
+                              target: {
+                                name: "categoryId",
+                                value: [value],
+                              },
                             })
                           }
                         >
@@ -534,7 +500,7 @@ export function ProfileEdit() {
                       </div>
                     )}
 
-                    {/* Profession */}
+                    {}
                     {auth.isProvider && (
                       <div className="flex flex-col">
                         <label className="mb-2 font-medium">
@@ -542,9 +508,9 @@ export function ProfileEdit() {
                         </label>
 
                         <div className="space-y-4 p-4 border border-gray-200 rounded-2xl">
-                          {/* Display existing specialities */}
-                          {/* Divider */}
-                          {/* Input and Add Button */}
+                          {}
+                          {}
+                          {}
                           <div className="flex gap-2">
                             <input
                               value={input}
@@ -586,7 +552,7 @@ export function ProfileEdit() {
                       </div>
                     )}
 
-                    {/* Phone Number */}
+                    {}
                     <div className="flex flex-col">
                       <label className="mb-2 font-medium">Phone Number</label>
                       <input
@@ -599,7 +565,7 @@ export function ProfileEdit() {
                       />
                     </div>
 
-                    {/* Email Address */}
+                    {}
                     <div className="flex flex-col">
                       <label className="mb-2 font-medium">Email Address</label>
                       <input
@@ -612,7 +578,7 @@ export function ProfileEdit() {
                       />
                     </div>
 
-                    {/* Location */}
+                    {}
                     <div className="flex flex-col">
                       <label className="mb-2 font-medium">Location</label>
                       <input
@@ -625,7 +591,7 @@ export function ProfileEdit() {
                       />
                     </div>
 
-                    {/* Website */}
+                    {}
                     {auth.isProvider && (
                       <div className="flex flex-col">
                         <label className="mb-2 font-medium">Website</label>
@@ -640,7 +606,7 @@ export function ProfileEdit() {
                       </div>
                     )}
 
-                    {/* Bio */}
+                    {}
                     {auth.isProvider && (
                       <div className="flex flex-col md:col-span-2">
                         <label className="mb-2 font-medium">Bio</label>
@@ -662,12 +628,12 @@ export function ProfileEdit() {
                 </div>
               )}
 
-              {/* SERVICES */}
+              {}
               {activeTab === "services" && (
                 <div>
                   {showForm && (
                     <div className="w-full flex justify-end gap-2 mb-4">
-                      {/* Cancel Button */}
+                      {}
                       <button
                         onClick={() => setShowForm(false)}
                         className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition text-sm"
@@ -675,7 +641,7 @@ export function ProfileEdit() {
                         Cancel
                       </button>
 
-                      {/* Save Button */}
+                      {}
                       <button
                         onClick={handleSaveNewService}
                         className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 transition text-sm"
@@ -782,7 +748,6 @@ export function ProfileEdit() {
                         <div className="space-y-6 mt-6">
                           {services.map((service, index) => {
                             const isEditing = serviceEditIndex === index;
-
                             if (isEditing) {
                               return (
                                 <div
@@ -793,7 +758,7 @@ export function ProfileEdit() {
                                     Edit Service Details
                                   </h3>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                                    {/* Service Title Input */}
+                                    {}
                                     <div>
                                       <label
                                         htmlFor="service-title"
@@ -818,7 +783,7 @@ export function ProfileEdit() {
                                       </p>
                                     </div>
 
-                                    {/* Price Input */}
+                                    {}
                                     <div>
                                       <label
                                         htmlFor="service-price"
@@ -844,7 +809,7 @@ export function ProfileEdit() {
                                       </p>
                                     </div>
 
-                                    {/* Duration Input */}
+                                    {}
                                     <div>
                                       <label
                                         htmlFor="service-duration"
@@ -854,9 +819,9 @@ export function ProfileEdit() {
                                       </label>
                                       <input
                                         id="service-duration"
-                                        type="number" // Set type to number for better UX
+                                        type="number"
                                         placeholder="e.g., 30"
-                                        className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" // Tailwind to hide spin buttons
+                                        className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         value={serviceEdit?.duration || ""}
                                         onChange={(e) =>
                                           setServiceEdit((prev) => ({
@@ -864,7 +829,7 @@ export function ProfileEdit() {
                                             duration:
                                               parseFloat(
                                                 e.target.value,
-                                              ).toString() || "0", // Parse to number
+                                              ).toString() || "0",
                                           }))
                                         }
                                       />
@@ -873,7 +838,7 @@ export function ProfileEdit() {
                                       </p>
                                     </div>
 
-                                    {/* Time Unit Select */}
+                                    {}
                                     <div>
                                       <label
                                         htmlFor="time-unit"
@@ -905,7 +870,7 @@ export function ProfileEdit() {
                                     </div>
                                   </div>
 
-                                  {/* Description Textarea */}
+                                  {}
                                   <div className="mt-5">
                                     <label
                                       htmlFor="service-description"
@@ -917,7 +882,7 @@ export function ProfileEdit() {
                                       id="service-description"
                                       placeholder="Provide a detailed description of the service..."
                                       className="px-4 py-2 border border-gray-200 rounded-md w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-royalblue-500 focus:border-royalblue-500 transition-colors resize-y"
-                                      rows={4} // Increased rows for more visible input area
+                                      rows={4}
                                       value={serviceEdit?.description || ""}
                                       onChange={(e) =>
                                         setServiceEdit((prev) => ({
@@ -932,7 +897,7 @@ export function ProfileEdit() {
                                     </p>
                                   </div>
 
-                                  {/* Action Buttons */}
+                                  {}
                                   <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
                                     <button
                                       className="px-5 cursor-pointer py-2.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200 font-medium"
@@ -953,7 +918,6 @@ export function ProfileEdit() {
                                 </div>
                               );
                             }
-
                             return (
                               <ServiceDetailCard
                                 handleDeleteService={handleDeleteService}
@@ -974,7 +938,7 @@ export function ProfileEdit() {
 
               {activeTab === "availability" && (
                 <div className="space-y-6">
-                  {/* Days Selector */}
+                  {}
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Available Days
@@ -999,11 +963,7 @@ export function ProfileEdit() {
                               toggleDay(day);
                             }}
                             className={`px-4 py-2 text-[13px] cursor-pointer rounded-full border capitalize transition 
-                              ${
-                                isSelected
-                                  ? "bg-black text-white"
-                                  : "border-gray-300 text-gray-600"
-                              }`}
+                              ${isSelected ? "bg-black text-white" : "border-gray-300 text-gray-600"}`}
                           >
                             {day}
                           </button>
@@ -1012,7 +972,7 @@ export function ProfileEdit() {
                     </div>
                   </div>
 
-                  {/* Time Inputs */}
+                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">
@@ -1050,7 +1010,7 @@ export function ProfileEdit() {
               {activeTab === "settings" && (
                 <PasswordChange userId={editData?.id || 0} />
               )}
-              {/* Other tabs to be implemented similarly... */}
+              {}
             </div>
           </div>
           <div className="my-8 border-t border-gray-300" />

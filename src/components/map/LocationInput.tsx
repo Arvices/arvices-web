@@ -7,58 +7,50 @@ import MapView from "./map";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { useUserGeoLocation } from "../../contexts/LocationContext";
 import { mapBoxPublickKey } from "../../pages/providers/mapbox.util";
-
 mapboxgl.accessToken = mapBoxPublickKey;
-
 const { Option } = Select;
-
 export interface LocationData {
   country: string;
   state: string;
   lga: string;
   address: string;
-  coordinates: { lat: number; lng: number };
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 }
-
 interface Props {
   open: boolean;
   onClose: () => void;
   onApply: (locationData: LocationData) => void;
 }
-
 const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
   const { openNotification } = useNotificationContext();
   const defaultCountryCode = "NG";
   const states = State.getStatesOfCountry(defaultCountryCode);
-
-  // plug it into this place
   const userGeoLocation = useUserGeoLocation();
-
-  console.log({ userGeoLocation: userGeoLocation.getLocationData() });
-
+  console.log({
+    userGeoLocation: userGeoLocation.getLocationData(),
+  });
   const [locationForm, setLocationForm] = useState({
     country: "Nigeria",
     state: "",
     lga: "",
     address: "",
   });
-
   const validateForm = (): boolean => {
     if (!locationForm.state.trim()) {
       openNotification("topRight", "State is required", "", "error");
       return false;
     }
-
     if (!locationForm.lga.trim()) {
       openNotification("topRight", "LGA is required", "", "error");
       return false;
     }
-
     if (!locationForm.address.trim()) {
       openNotification("topRight", "Address is required", "", "error");
       return false;
     }
-
     if (!location) {
       openNotification(
         "topRight",
@@ -68,40 +60,45 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
       );
       return false;
     }
-
     return true;
   };
   const [cities, setCities] = useState<any[]>([]);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(false);
-  console.log({ locationLoading: loading });
+  console.log({
+    locationLoading: loading,
+  });
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"manual" | "auto">("manual");
-
   const handleChange = (field: string, value: string) => {
-    setLocationForm((prev) => ({ ...prev, [field]: value }));
+    setLocationForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
     if (field === "state") {
       const newCities = City.getCitiesOfState(defaultCountryCode, value);
       setCities(newCities);
-      setLocationForm((prev) => ({ ...prev, lga: "" }));
+      setLocationForm((prev) => ({
+        ...prev,
+        lga: "",
+      }));
     }
   };
-
   const handleApply = () => {
     if (activeTab === "manual") {
       if (!validateForm()) return;
-
       const finalData: LocationData = {
         ...locationForm,
-        coordinates: { lng: -1, lat: -1 },
+        coordinates: {
+          lng: -1,
+          lat: -1,
+        },
       };
-
-      userGeoLocation.clearLocationData(); // Clear any previously saved auto location
+      userGeoLocation.clearLocationData();
       userGeoLocation.saveLocationData(finalData);
       onApply(finalData);
       return;
     }
-
     if (!location && activeTab === "auto") {
       openNotification(
         "topRight",
@@ -111,41 +108,31 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
       );
       return;
     }
-
     if (location && activeTab === "auto") {
       const finalData = {
         ...locationForm,
         coordinates: location.coordinates,
       };
-
-      userGeoLocation.saveLocationData(finalData); // Save detected location
+      userGeoLocation.saveLocationData(finalData);
       onApply(finalData);
     }
   };
-
-  // add use effect to prefill the form if there is a cached location / form data
-
   const fetchLocation = () => {
     setLoading(true);
     setError("");
-
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-
         try {
           const res = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`,
           );
           const data = await res.json();
           const place = data?.features?.[0];
-
           if (!place) throw new Error("Location not found.");
-
           const context = place.context || [];
           const getContext = (id: string) =>
             context.find((c: any) => c.id.includes(id))?.text || "";
-
           const locationData: LocationData = {
             country: getContext("country"),
             state: getContext("region"),
@@ -156,14 +143,12 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
               lng: longitude,
             },
           };
-
           setLocationForm({
             country: locationData.country,
             state: locationData.state,
             lga: locationData.lga,
             address: locationData.address,
           });
-
           setLocation(locationData);
         } catch (err) {
           console.error(err);
@@ -182,7 +167,6 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
   useEffect(() => {
     if (open) {
       const savedLocation = userGeoLocation.getLocationData();
-
       if (savedLocation) {
         setLocationForm({
           country: savedLocation.country || "Nigeria",
@@ -190,15 +174,12 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
           lga: savedLocation.lga || "",
           address: savedLocation.address || "",
         });
-
         if (
           savedLocation.coordinates.lat !== -1 &&
           savedLocation.coordinates.lng !== -1
         ) {
           setLocation(savedLocation);
         }
-
-        // Prefill cities based on state
         const citiesInState = City.getCitiesOfState(
           defaultCountryCode,
           savedLocation.state,
@@ -207,13 +188,12 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
       }
     }
   }, [open]);
-
   return (
     <Modal
       open={open}
       onCancel={onClose}
       footer={null}
-      width={700} // use Tailwind breakpoints via className or rely on default responsiveness
+      width={700}
       className="max-w-full sm:max-w-[700px] w-[95%]"
     >
       <div>
@@ -222,25 +202,17 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
         </h1>
       </div>
 
-      {/* Tab Switch */}
+      {}
       <div className="flex justify-center mb-6">
         <div className="inline-flex border border-gray-300 rounded-lg overflow-hidden text-sm font-medium">
           <button
-            className={`px-4 py-2 transition ${
-              activeTab === "manual"
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 transition ${activeTab === "manual" ? "bg-blue-500 text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}
             onClick={() => setActiveTab("manual")}
           >
             Manual Address
           </button>
           <button
-            className={`px-4 py-2 transition ${
-              activeTab === "auto"
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 transition ${activeTab === "auto" ? "bg-blue-500 text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}
             onClick={() => setActiveTab("auto")}
           >
             Use My Location
@@ -332,7 +304,7 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
               </div>
             )}
 
-            {/* LOCATION DETAILS */}
+            {}
             {location && (
               <div className="mt-6 space-y-2">
                 <p>
@@ -356,5 +328,4 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
     </Modal>
   );
 };
-
 export default LocationInput;

@@ -1,12 +1,10 @@
 import { Clock, Globe, MapPin, UserCheck } from "feather-icons-react";
 import { formatTimeWithAmPm } from "../../util/mainutils";
-
 export interface AppointmentTime {
   day: string;
   from: string;
   to: string;
 }
-
 export interface Availability {
   startTime: string;
   endTime: string;
@@ -16,7 +14,6 @@ export interface Availability {
   days: string[];
   appointmentTimes?: AppointmentTime[];
 }
-
 export default function AvailabilitySection({
   startTime,
   endTime,
@@ -24,20 +21,6 @@ export default function AvailabilitySection({
   location,
   days,
 }: Availability) {
-  /**
-   
-  const appointmentMenu = (
-    <Menu>
-      {availability.appointmentTimes.map((item, idx) => (
-        <Menu.Item key={idx} className="!w-max">
-          <span className="text-sm">
-            {item.day}: {item.from} – {item.to}
-          </span>
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
-   */
   return (
     <div className="space-y-4 text-gray-700">
       <div className="flex items-center space-x-3">
@@ -75,22 +58,6 @@ export default function AvailabilitySection({
           </div>
         </div>
       </div>
-      {/*
-  
-      <Dropdown
-        overlay={appointmentMenu}
-        trigger={["hover"]}
-        className="!w-max"
-      >
-        <div className="flex items-center space-x-3 cursor-pointer">
-          <Calendar className="w-5 h-5 text-purple-600" />
-          <span>
-            {availability.appointmentsAvailable}+ appointments available this
-            week
-          </span>
-        </div>
-      </Dropdown>
-  */}
     </div>
   );
 }

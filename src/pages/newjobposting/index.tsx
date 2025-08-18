@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Select } from "antd";
 import { MapPin } from "feather-icons-react";
-// import utilities
 import { useLoading } from "../../contexts/LoadingContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
@@ -11,32 +10,26 @@ import { parseHttpError } from "../../api-services/parseReqError";
 import { getAllCategory } from "../../api-services/categories.service";
 import { Category } from "../../api-services/categories.types";
 import { useNavigate } from "react-router-dom";
-
 const NewJobPosting = (): React.ReactNode => {
-  // utilities
   const { setLoading, setLoadingText } = useLoading();
   const auth = useAuth();
   const notify = useNotificationContext();
-
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
-
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
   const navigate = useNavigate();
-
   function findCategoryByName(name: string, categories: Category[]) {
     return categories.find((cat) => cat.name === name) || null;
   }
-
   const loadCategories = async () => {
     setCatLoading(true);
     setCatError("");
     try {
       const response = await getAllCategory();
-      setCategories(response.data.response); // adjust this if your response shape is different
+      setCategories(response.data.response);
     } catch (error: any) {
       let errorMsg = parseHttpError(error);
       setCatError(
@@ -47,7 +40,6 @@ const NewJobPosting = (): React.ReactNode => {
       setCatLoading(false);
     }
   };
-
   useEffect(() => {
     if (!catLoading) {
       loadCategories();
@@ -63,20 +55,19 @@ const NewJobPosting = (): React.ReactNode => {
           "error",
         );
       }
-
       setLoading(true);
       setLoadingText("Posting your job...");
       let cat = findCategoryByName(category, categories) as Category;
       const data = {
         description,
-        address: location, // You can update this if address is part of the form
-        categoryId: cat.id, // Replace with selected category if applicable
-        type: "Public", // Or "Private" if user can choose
+        address: location,
+        categoryId: cat.id,
+        type: "Public",
       };
-
       let res = await createServiceRequest(data, auth.token);
-      console.log({ res });
-
+      console.log({
+        res,
+      });
       notify.openNotification(
         "topRight",
         "Success",
@@ -84,9 +75,6 @@ const NewJobPosting = (): React.ReactNode => {
         "success",
       );
       navigate(`/client/manage-jobs/${res.data.response.id}`);
-
-      // Optionally reset form fields
-      // setDescription(""); setCategoryId(0); etc.
     } catch (error) {
       let errorMsg = parseHttpError(error);
       notify.openNotification(
@@ -100,25 +88,25 @@ const NewJobPosting = (): React.ReactNode => {
       setLoadingText("");
     }
   };
-
-  const mappedCat = [{ label: "Select A Category", value: "", id: 0 }].concat(
+  const mappedCat = [
+    {
+      label: "Select A Category",
+      value: "",
+      id: 0,
+    },
+  ].concat(
     categories.map((x: any) => {
-      return { label: x.name, value: x.name, id: x.id };
+      return {
+        label: x.name,
+        value: x.name,
+        id: x.id,
+      };
     }),
   );
-  /**
-   {
-  "description": "string",
-  "address": "string",
-  "position": "string",
-  "categoryId": 0,
-  "type": "Public"
-}
-   */
   return (
     <section className="min-h-screen pt-13 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Header */}
+        {}
         <div className="mt-15">
           <h1 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5">
             Describe Your Task
@@ -137,7 +125,7 @@ const NewJobPosting = (): React.ReactNode => {
             handleSubmit();
           }}
         >
-          {/* Description Field */}
+          {}
           <div className="mb-4">
             <label className="text-gray-700 block mb-1">Task Description</label>
             <textarea
@@ -150,7 +138,7 @@ const NewJobPosting = (): React.ReactNode => {
             />
           </div>
 
-          {/* Category Select */}
+          {}
           {catError ? (
             <div className="w-full mb-5">
               <label className="text-red-600 font-light text-[13px] block mb-2">
@@ -173,12 +161,14 @@ const NewJobPosting = (): React.ReactNode => {
                 aria-required
                 options={mappedCat}
                 placeholder="Select category"
-                style={{ height: "50px" }}
+                style={{
+                  height: "50px",
+                }}
               />
             </div>
           )}
 
-          {/* Location Input */}
+          {}
           <div className="mb-9 relative">
             <label className="text-gray-700 block mb-1">Location</label>
             <Input
@@ -195,7 +185,7 @@ const NewJobPosting = (): React.ReactNode => {
               </button>
             </div>
           </div>
-          {/* Location Input */}
+          {}
           <div className="mb-5 relative">
             <button
               type="submit"
@@ -209,5 +199,4 @@ const NewJobPosting = (): React.ReactNode => {
     </section>
   );
 };
-
 export default NewJobPosting;

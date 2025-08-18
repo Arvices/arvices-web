@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-
 import { useLocation } from "react-router-dom";
-
 import { ManageJobsTabs } from "./managejobstab";
 import JobDetails from "./jobdetails";
 import { getAllServiceRequests } from "../../api-services/servicerequests.service";
@@ -11,32 +9,27 @@ import { useNotificationContext } from "../../contexts/NotificationContext";
 import { ContentHOC } from "../../components/nocontent";
 import { getAllOffers } from "../../api-services/offer.service";
 import { Offer } from "../../types/main.types";
-
 const ManageJob = (): React.ReactNode => {
   const auth = useAuth();
-
   const { openNotification } = useNotificationContext();
   const [currentPage, setCurrentPage] = useState(1);
-
   const location = useLocation();
   const hash = location.hash
     .split("")
     .filter((x) => x != "#")
     .join("");
-
   const isClient = location.pathname.indexOf("client") !== -1;
-
   const [activeTab, setActiveTab] = useState(hash);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [jobPostings, setJobPostings] = useState<any[]>([]); // Replace `any` with your actual type
-  const [sentOffers, setSentOffers] = useState<Offer[]>([]); // This is the state we'll use for offers
-
+  const [jobPostings, setJobPostings] = useState<any[]>([]);
+  const [sentOffers, setSentOffers] = useState<Offer[]>([]);
   const loadServiceRequest = async () => {
     setLoading(true);
     setError(null);
-    console.log({ activeTab });
+    console.log({
+      activeTab,
+    });
     try {
       const response = await getAllServiceRequests({
         token: auth.token,
@@ -45,7 +38,6 @@ const ManageJob = (): React.ReactNode => {
         user: auth?.user?.id,
         status: activeTab === "All" ? "" : activeTab,
       });
-
       if (response?.data?.response?.length === 0) {
         openNotification("topRight", "No More Content To Show", "", "info");
         return;
@@ -62,11 +54,9 @@ const ManageJob = (): React.ReactNode => {
       setLoading(false);
     }
   };
-
   const loadOffers = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await getAllOffers(auth.token, {
         user: auth?.user?.id,
@@ -74,24 +64,20 @@ const ManageJob = (): React.ReactNode => {
         limit: 10,
         status: activeTab === "All" ? "" : activeTab,
       });
-
       if (response?.data?.response?.length === 0) {
         openNotification("topRight", "No More Content To Show", "", "info");
         return;
       }
-
-      // Corrected line: We use setSentOffers here, not setJobPostings
       setSentOffers(response?.data?.response || []);
     } catch (err: any) {
       console.error(err);
       setError(
-        err?.response?.data?.message || err?.message || "Failed to load offers", // Updated error message for clarity
+        err?.response?.data?.message || err?.message || "Failed to load offers",
       );
     } finally {
       setLoading(false);
     }
   };
-
   const load = async () => {
     if (isClient) {
       loadServiceRequest();
@@ -99,17 +85,16 @@ const ManageJob = (): React.ReactNode => {
       loadOffers();
     }
   };
-
   useEffect(() => {
     if (auth.token) {
       load();
     }
   }, [auth.token, currentPage, activeTab]);
-
+  
   return (
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto pb-15">
-        {/* Page Starts*/}
+        {}
         <div className="mt-10">
           <h2 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5">
             Manage Jobs
@@ -185,5 +170,4 @@ const ManageJob = (): React.ReactNode => {
     </section>
   );
 };
-
 export default ManageJob;

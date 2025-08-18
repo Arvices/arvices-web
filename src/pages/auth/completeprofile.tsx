@@ -1,23 +1,20 @@
-// CompleteProfile.tsx
 import React, { useState } from "react";
-
 const CompleteProfile: React.FC = () => {
   const [form, setForm] = useState({
     address: "",
     accountType: "",
   });
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Profile Completed:", form);
-    // Submit profile data
   };
-
   return (
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
@@ -72,7 +69,7 @@ const CompleteProfile: React.FC = () => {
 
             <button
               type="submit"
-              className="cursor pointer w-full bg-royalblue-main text-white p-3 rounded"
+              className="cursor pointer w-full bg-gray-900 text-white p-3 rounded"
             >
               Complete Profile
             </button>
@@ -82,5 +79,4 @@ const CompleteProfile: React.FC = () => {
     </section>
   );
 };
-
 export default CompleteProfile;

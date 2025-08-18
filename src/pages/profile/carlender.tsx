@@ -1,14 +1,4 @@
 import React, { useState } from "react";
-
-// --- HELPER FUNCTION FOR TIME SLOTS ---
-/**
- * Generates hourly time slots between a given start and end time.
- * The slots are rounded up from the start time and down to the end time.
- * E.g., from "18:44" to "20:43" will generate "7:00 PM", "8:00 PM".
- * @param {string} fromTimeStr - Start time in "HH:MM" 24-hour format.
- * @param {string} toTimeStr - End time in "HH:MM" 24-hour format.
- * @returns {string[]} An array of time slots in "H:MM AM/PM" format.
- */
 const generateHourlyTimeSlots = (
   fromTimeStr: string,
   toTimeStr: string,
@@ -16,57 +6,40 @@ const generateHourlyTimeSlots = (
   const slots: string[] = [];
   const [startHour, startMinute] = fromTimeStr.split(":").map(Number);
   const [endHour, endMinute] = toTimeStr.split(":").map(Number);
-
-  // Calculate the actual starting hour for the slots (round up if not on the hour)
   let currentHour = startMinute > 0 ? startHour + 1 : startHour;
-
-  // Ensure we don't start past the end hour
   if (
     currentHour > endHour ||
     (currentHour === endHour && startMinute > endMinute)
   ) {
-    return []; // No valid slots if start is after end
+    return [];
   }
-
   while (currentHour <= endHour) {
-    // If currentHour is the endHour, ensure currentMinute is not past endMinute
     if (currentHour === endHour && 0 > endMinute) {
-      break; // Stop if we've passed the actual end minute
+      break;
     }
-
     const period = currentHour >= 12 ? "PM" : "AM";
     const displayHour = currentHour % 12 === 0 ? 12 : currentHour % 12;
     slots.push(`${displayHour}:00 ${period}`);
-
     currentHour++;
   }
   return slots;
 };
-
-// Helper to compare times for filtering 'To Time'
 const isTimeLaterOrSame = (time1: string, time2: string): boolean => {
   const parseTime = (timeStr: string): number => {
     const [h, p] = timeStr.split(" ");
     let [hour, minute] = h.split(":").map(Number);
     if (p === "PM" && hour !== 12) hour += 12;
-    if (p === "AM" && hour === 12) hour = 0; // Midnight
+    if (p === "AM" && hour === 12) hour = 0;
     return hour * 60 + minute;
   };
   return parseTime(time1) <= parseTime(time2);
 };
-
-// --- DUMMY COMPONENTS FOR DEMONSTRATION ---
-// In a real application, you would import these from your UI library (e.g., shadcn/ui)
-// or define them as actual components with full calendar/button logic.
-
-// A placeholder Calendar component for visual demonstration
 interface CalendarProps {
   className?: string;
   selectedDate: Date | undefined;
   setSelectedDate: (date: Date | undefined) => void;
-  availableDays: string[]; // e.g., ['Monday', 'Tuesday']
+  availableDays: string[];
 }
-
 const Calendar = ({
   className,
   selectedDate,
@@ -76,17 +49,12 @@ const Calendar = ({
   const today = new Date();
   const [displayMonth, setDisplayMonth] = useState(today.getMonth());
   const [displayYear, setDisplayYear] = useState(today.getFullYear());
-
-  // Get days in the current display month
   const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
   };
-
-  // Get the day of the week for the first day of the month (0 for Sunday, 1 for Monday...)
   const getFirstDayOfMonth = (year: number, month: number) => {
     return new Date(year, month, 1).getDay();
   };
-
   const handleMonthChange = (offset: number) => {
     let newMonth = displayMonth + offset;
     let newYear = displayYear;
@@ -100,13 +68,13 @@ const Calendar = ({
     setDisplayMonth(newMonth);
     setDisplayYear(newYear);
   };
-
   const isDaySelectable = (day: number) => {
     const date = new Date(displayYear, displayMonth, day);
-    const dayName = date.toLocaleString("default", { weekday: "long" });
+    const dayName = date.toLocaleString("default", {
+      weekday: "long",
+    });
     return availableDays.includes(dayName);
   };
-
   return (
     <div className={`p-4 bg-white rounded-lg shadow-sm ${className}`}>
       <div className="flex justify-between items-center mb-4">
@@ -144,40 +112,37 @@ const Calendar = ({
         {Array.from({
           length: getFirstDayOfMonth(displayYear, displayMonth),
         }).map((_, i) => (
-          <span key={`empty-${i}`} className="p-1"></span> // Empty cells for leading days
+          <span key={`empty-${i}`} className="p-1"></span>
         ))}
-        {Array.from({ length: getDaysInMonth(displayYear, displayMonth) }).map(
-          (_, i) => {
-            const day = i + 1;
-            const isSelected =
-              selectedDate &&
-              selectedDate.getDate() === day &&
-              selectedDate.getMonth() === displayMonth &&
-              selectedDate.getFullYear() === displayYear;
-            const isSelectable = isDaySelectable(day);
-
-            return (
-              <span
-                key={day}
-                className={`p-2 rounded-full cursor-pointer transition-colors
-                ${isSelected ? "text-white  rounded-md bg-gradient-to-r from-purple-400 to-pink-600 text-white hover:from-purple-400 hover:to-pink-600 " : "text-gray-800 hover:bg-gray-100"}
+        {Array.from({
+          length: getDaysInMonth(displayYear, displayMonth),
+        }).map((_, i) => {
+          const day = i + 1;
+          const isSelected =
+            selectedDate &&
+            selectedDate.getDate() === day &&
+            selectedDate.getMonth() === displayMonth &&
+            selectedDate.getFullYear() === displayYear;
+          const isSelectable = isDaySelectable(day);
+          return (
+            <span
+              key={day}
+              className={`p-2 rounded-full cursor-pointer transition-colors
+                ${isSelected ? " rounded-md bg-gradient-to-r from-purple-400 to-pink-600 text-white hover:from-purple-400 hover:to-pink-600 " : "text-gray-800 hover:bg-gray-100"}
                 ${!isSelectable ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}
-                onClick={() =>
-                  isSelectable &&
-                  setSelectedDate(new Date(displayYear, displayMonth, day))
-                }
-              >
-                {day}
-              </span>
-            );
-          },
-        )}
+              onClick={() =>
+                isSelectable &&
+                setSelectedDate(new Date(displayYear, displayMonth, day))
+              }
+            >
+              {day}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
 };
-
-// A placeholder Button component for visual demonstration
 const Button = ({
   children,
   onClick,
@@ -196,12 +161,10 @@ const Button = ({
     {children}
   </button>
 );
-
-// --- MAIN COMPONENT ---
 interface CalendarAndTimeslotsProps {
-  availableFromTime: string; // e.g., "18:44"
-  availableToTime: string; // e.g., "20:43"
-  availableDays: string[]; // e.g., ['Tuesday', 'Monday', 'Wednesday']
+  availableFromTime: string;
+  availableToTime: string;
+  availableDays: string[];
   selectedDate: Date | undefined;
   setSelectedDate: (data: any) => void;
   selectedFromTime: string | null;
@@ -209,7 +172,6 @@ interface CalendarAndTimeslotsProps {
   selectedToTime: string | null;
   setSelectedToTime: (time: string | null) => void;
 }
-
 function CalendarAndTimeslots({
   availableFromTime,
   availableToTime,
@@ -225,19 +187,16 @@ function CalendarAndTimeslots({
     availableFromTime,
     availableToTime,
   );
-
-  // Filter 'To Time' slots based on 'From Time' selection
   const filteredToTimeSlots = selectedFromTime
     ? allAvailableSlots.filter((time) =>
         isTimeLaterOrSame(selectedFromTime, time),
       )
     : allAvailableSlots;
-
   return (
     <div className="space-y-8 p-6 bg-gray-50 rounded-lg">
       {" "}
-      {/* Added padding and a subtle background for the container */}
-      {/* Calendar Section */}
+      {}
+      {}
       <div>
         <h3 className="text-xl font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">
           Select Date
@@ -255,15 +214,15 @@ function CalendarAndTimeslots({
           Mobile services are available throughout Lagos.
         </p>
       </div>
-      {selectedDate && ( // Only show time selection if a date is selected
+      {selectedDate && (
         <div>
           <h3 className="text-xl font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">
             Select Time Duration
           </h3>
           <div className="grid grid-cols-1 gap-6">
             {" "}
-            {/* Two columns for From/To */}
-            {/* From Time Selection */}
+            {}
+            {}
             <div>
               <p className="font-semibold text-gray-700 mb-3">From Time</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -272,7 +231,6 @@ function CalendarAndTimeslots({
                     key={`from-${time}`}
                     onClick={() => {
                       setSelectedFromTime(time);
-                      // If 'to' time becomes invalid after 'from' time change, reset 'to'
                       if (
                         selectedToTime &&
                         !isTimeLaterOrSame(time, selectedToTime)
@@ -291,7 +249,7 @@ function CalendarAndTimeslots({
                 ))}
               </div>
             </div>
-            {/* To Time Selection */}
+            {}
             <div>
               <p className="font-semibold text-gray-700 mb-3">To Time</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -318,7 +276,7 @@ function CalendarAndTimeslots({
           </div>
         </div>
       )}
-      {/* Display selected date and time for confirmation (optional) */}
+      {}
       {(selectedDate || selectedFromTime || selectedToTime) && (
         <div className="mt-8 pt-6 border-t border-gray-200 text-center">
           <p className="text-lg font-semibold text-gray-800">
@@ -334,5 +292,4 @@ function CalendarAndTimeslots({
     </div>
   );
 }
-
 export default CalendarAndTimeslots;

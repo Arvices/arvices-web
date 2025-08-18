@@ -1,6 +1,5 @@
 import FeatherIcon from "feather-icons-react";
 import React, { useState } from "react";
-
 export interface PasswordInputType {
   className?: string;
   value: string;
@@ -10,7 +9,6 @@ export interface PasswordInputType {
   required?: boolean;
   type?: string;
 }
-
 export const PasswordInput: React.FC<PasswordInputType> = ({
   className = "",
   name,
@@ -20,11 +18,9 @@ export const PasswordInput: React.FC<PasswordInputType> = ({
   required,
 }) => {
   const [visible, setVisible] = useState(false);
-
   const toggleVisibility = () => {
     setVisible((prev) => !prev);
   };
-
   return (
     <div className={`relative `}>
       <input
@@ -51,7 +47,6 @@ export const PasswordInput: React.FC<PasswordInputType> = ({
     </div>
   );
 };
-
 export const Input: React.FC<PasswordInputType> = ({
   className = "",
   name,

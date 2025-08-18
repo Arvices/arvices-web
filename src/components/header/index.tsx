@@ -5,7 +5,6 @@ import Overlay from "../overlay";
 import { Link } from "react-router-dom";
 import "./style.css";
 import { useAuth } from "../../contexts/AuthContext";
-
 import {
   ArrowUpRight,
   Bell,
@@ -27,39 +26,29 @@ import {
 import { Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-
 let color = "#272727";
-
 const Header: React.FC = () => {
   const auth = useAuth();
-
   const notifications = useSelector(
     (state: RootState) => state.notification.notifications,
   );
-
   const conversations = useSelector(
     (state: RootState) => state.message.conversations,
   );
-
   const unreadCount = (() => {
     const count = notifications.filter((n) => !n.read).length;
     return count > 10 ? "10+" : count.toString();
   })();
-
   const msgUnreadCount = ((): number => {
     return conversations.reduce((total, conv) => {
       return total + (conv.unreadCount || 0);
     }, 0);
   })();
-
   const [mobileOpen, setMobileOpen] = useState(false);
-
   const toggleMobileOpen = () => {
     setMobileOpen((prev) => !prev);
   };
-
   {
-    /* Provider context menu */
   }
   const JobsMenu = (
     <Menu
@@ -73,7 +62,9 @@ const Header: React.FC = () => {
           ),
           disabled: true,
         },
-        { type: "divider" },
+        {
+          type: "divider",
+        },
         {
           key: "2",
           label: (
@@ -114,7 +105,9 @@ const Header: React.FC = () => {
             </Link>
           ),
         },
-        { type: "divider" },
+        {
+          type: "divider",
+        },
         {
           key: "6",
           label: (
@@ -127,9 +120,7 @@ const Header: React.FC = () => {
       ]}
     />
   );
-
   {
-    /* Client context menu */
   }
   const HireSomeoneMenu = (
     <Menu
@@ -143,7 +134,9 @@ const Header: React.FC = () => {
           ),
           disabled: true,
         },
-        { type: "divider" },
+        {
+          type: "divider",
+        },
         {
           key: "2",
           label: (
@@ -194,7 +187,9 @@ const Header: React.FC = () => {
             </span>
           ),
         },
-        { type: "divider" },
+        {
+          type: "divider",
+        },
         {
           key: "7",
           label: (
@@ -208,9 +203,7 @@ const Header: React.FC = () => {
       ]}
     />
   );
-
   {
-    /* Account Context Menu */
   }
   const AccountMenu = (
     <Menu
@@ -233,7 +226,9 @@ const Header: React.FC = () => {
             </div>
           ),
         },
-        { type: "divider" },
+        {
+          type: "divider",
+        },
         {
           key: "2",
           label: (
@@ -273,7 +268,9 @@ const Header: React.FC = () => {
             </Link>
           ),
         },
-        { type: "divider" },
+        {
+          type: "divider",
+        },
         {
           key: "7",
           label: (
@@ -293,7 +290,7 @@ const Header: React.FC = () => {
     <header className="border-b border-gray-200 w-full fixed top-0 z-[100] bg-white px-5 sm:px-8 lg:px-10 xl:px-25 ">
       <section className="max-w-[1280px] mx-auto">
         <div className="flex items-center h-14">
-          {/**Logo Container */}
+          {}
           <div className="w-max">
             <Link to={"/"}>
               <img
@@ -464,7 +461,7 @@ const Header: React.FC = () => {
             </div>
           )}
 
-          {/** Mobile menu */}
+          {}
           <div className="w-max md:hidden">
             <Hamburger
               toggled={mobileOpen}
@@ -499,7 +496,7 @@ const Header: React.FC = () => {
                   </ul>
                 )}
 
-                {/** Bookings & Orders for mobile */}
+                {}
                 {auth.isAuthenticated && (
                   <ul className="text-gray-700 space-y-3">
                     <li>
@@ -522,5 +519,4 @@ const Header: React.FC = () => {
     </header>
   );
 };
-
 export default Header;

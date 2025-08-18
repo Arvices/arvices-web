@@ -2,7 +2,6 @@ import React from "react";
 import { Job, JobCardView } from "../../../components/cards/appcards";
 import ProviderOfferCard from "./providerofferview";
 import { Offer } from "../../../types/main.types";
-
 const ProviderView: React.FC<{
   offer: Offer;
   onJobChange: (data: any) => void;
@@ -18,10 +17,12 @@ const ProviderView: React.FC<{
   onOfferCounterChange,
   load,
 }): React.ReactNode => {
-  console.log({ jobInPView: job });
+  console.log({
+    jobInPView: job,
+  });
   return (
     <section>
-      {/* Provider Page Starts */}
+      {}
       <div>
         <h1 className="text-2xl font-semibold mb-4 tracking-tight">
           Monitor Your Offer
@@ -31,7 +32,7 @@ const ProviderView: React.FC<{
           updated on your service request progress.
         </p>
       </div>
-      {/* Job Details View */}
+      {}
       <div className="mt-10">
         <p className="mb-2 text-gray-600 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
@@ -45,7 +46,7 @@ const ProviderView: React.FC<{
         />
       </div>
 
-      {/* Job Offer View */}
+      {}
       <div className="mt-10">
         <p className="mb-2 text-gray-600 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-gray-800 inline-block" />
@@ -62,5 +63,4 @@ const ProviderView: React.FC<{
     </section>
   );
 };
-
 export default ProviderView;

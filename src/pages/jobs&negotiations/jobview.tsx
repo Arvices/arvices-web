@@ -8,7 +8,6 @@ import { getAllOffers, getOfferById } from "../../api-services/offer.service";
 import { ContentHOC } from "../../components/nocontent";
 import { Job } from "../../components/cards/appcards";
 import { CounterOffer, Offer } from "../../types/main.types";
-
 const JobView = (): React.ReactNode => {
   const auth = useAuth();
   const { id, offerId } = useParams();
@@ -20,11 +19,12 @@ const JobView = (): React.ReactNode => {
   const loadJobOrOffer = async () => {
     setLoading(true);
     setError(null);
-
     try {
       if (auth.isClient) {
         const jobRes = await getServiceRequest(id as string, auth.token);
-        console.log({ fetchingallloffers: true });
+        console.log({
+          fetchingallloffers: true,
+        });
         const allOffers = await getAllOffers(auth.token, {
           servicerequest: Number(id),
           page: 1,
@@ -32,11 +32,15 @@ const JobView = (): React.ReactNode => {
         });
         setJob(jobRes?.data?.response);
         setJobOffers(allOffers?.data?.response);
-        console.log({ jobOffersRes: allOffers });
+        console.log({
+          jobOffersRes: allOffers,
+        });
       } else if (offerId) {
         const jobRes = await getServiceRequest(id as string, auth.token);
         setJob(jobRes?.data?.response);
-        console.log({ fetchingallloffers: true });
+        console.log({
+          fetchingallloffers: true,
+        });
         const response = await getOfferById(auth.token, Number(offerId));
         setOffer(response?.data?.response);
       }
@@ -49,39 +53,44 @@ const JobView = (): React.ReactNode => {
       setLoading(false);
     }
   };
-
   const onJobChange = (data: Job) => {
     setJob(data);
     console.log("Job updated:", data);
   };
-
   const onOfferChange = (data: Offer) => {
     setJobOffers((prev) => {
-      if (!prev) return prev; // If no offers yet, just return
-
+      if (!prev) return prev;
       return prev.map((offer) => (offer.id === data.id ? data : offer));
     });
-
-    console.log("On Offer Change", { data });
+    console.log("On Offer Change", {
+      data,
+    });
   };
-
   const onOfferCounterChange = (offerId: number, counter: CounterOffer[]) => {
-    console.log({ counter, offerId });
-
+    console.log({
+      counter,
+      offerId,
+    });
     if (auth.isProvider) {
-      // Update current offer if it's loaded
       setOffer((prev) => {
-        if (!prev) return prev; // Guard against null
-        return { ...prev, counterOffer: counter };
+        if (!prev) return prev;
+        return {
+          ...prev,
+          counterOffer: counter,
+        };
       });
     } else {
-      // Update job offers list
       setJobOffers((prev) => {
         if (!prev) return prev;
         const updatedOffers = prev.map((o) => {
           if (o.id === offerId) {
-            const updatedOffer = { ...o, counterOffer: counter };
-            console.log({ updatedOfferCounter: updatedOffer });
+            const updatedOffer = {
+              ...o,
+              counterOffer: counter,
+            };
+            console.log({
+              updatedOfferCounter: updatedOffer,
+            });
             return updatedOffer;
           }
           return o;
@@ -90,11 +99,9 @@ const JobView = (): React.ReactNode => {
       });
     }
   };
-
   useEffect(() => {
     loadJobOrOffer();
   }, [id, offerId]);
-
   return (
     <section className="min-h-screen pt-13">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto my-[70px]">
@@ -133,5 +140,4 @@ const JobView = (): React.ReactNode => {
     </section>
   );
 };
-
 export default JobView;

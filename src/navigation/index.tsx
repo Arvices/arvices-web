@@ -32,20 +32,13 @@ import BaseLayout from "../pages/base";
 import { ProfileEdit } from "../pages/profile/profile.edit";
 import ManageJob from "../pages/jobs&negotiations";
 import JobView from "../pages/jobs&negotiations/jobview";
-
-// Import pages
-
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-
   useEffect(() => {
-    // Scroll window to the top whenever the route changes
     window.scrollTo(0, 0);
   }, [pathname]);
-
   return null;
 };
-
 function Navigation(): React.JSX.Element {
   return (
     <Router>
@@ -54,19 +47,15 @@ function Navigation(): React.JSX.Element {
     </Router>
   );
 }
-
-// Move useLocation inside a separate component inside Router
-// How to implement page not found?
 function NavigationContent() {
   const location = useLocation();
   const isChat = location.pathname.includes("conversations");
-
   return (
     <div className="overflow-x-auto  text-royalblue-shade6 ">
       <Header />
       <Routes>
         <Route path="/" Component={Home} />
-        {/* Auth Pages */}
+        {}
         <Route path="/login" Component={Login} />
         <Route path="/signup" Component={Signup} />
         <Route path="/forgot-password" Component={ForgotPassword} />
@@ -74,7 +63,7 @@ function NavigationContent() {
         <Route path="/verify-email" Component={VerifyEmail} />
         <Route path="/complete-profile" Component={CompleteProfile} />
 
-        {/* App Functional Pages */}
+        {}
         <Route path="/job-posting" Component={AvailableJobPostings} />
         <Route path="/service-providers" Component={ArvicesProviders} />
         <Route path="/activities" Component={Activities} />
@@ -102,12 +91,11 @@ function NavigationContent() {
         <Route path="/provider/open-offers" Component={BaseLayout} />
         <Route path="/provider/open-offers" Component={BaseLayout} />
 
-        {/* 404 Route - must be last */}
+        {}
         <Route path="*" Component={PageNotFound} />
       </Routes>
       {!isChat && <Footer />}
     </div>
   );
 }
-
 export default Navigation;

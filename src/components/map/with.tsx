@@ -4,75 +4,71 @@ import { EnvironmentOutlined, ReloadOutlined } from "@ant-design/icons";
 import { State, City } from "country-state-city";
 import mapboxgl from "mapbox-gl";
 import MapView from "./map";
-
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZG9sYXAyMjIzIiwiYSI6ImNtZDdtdjVnbjBnb2IybHFzY3FzbDZxNWsifQ.7j9U6NZY86YV4oIxdLwb3Q";
-
 const { Option } = Select;
-
 interface Props {
   open: boolean;
   onClose: () => void;
   onApply: (locationData: LocationData) => void;
 }
-
 interface LocationData {
   country: string;
   state: string;
   lga: string;
   address: string;
-  coordinates: { lat: number; lng: number };
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 }
-
 const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
   const defaultCountryCode = "NG";
   const states = State.getStatesOfCountry(defaultCountryCode);
-
   const [locationForm, setLocationForm] = useState({
     country: "Nigeria",
     state: "",
     lga: "",
     address: "",
   });
-
   const [cities, setCities] = useState<any[]>([]);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"manual" | "auto">("manual");
-
-  console.log({ locationLoading: loading });
-
+  console.log({
+    locationLoading: loading,
+  });
   const handleChange = (field: string, value: string) => {
-    setLocationForm((prev) => ({ ...prev, [field]: value }));
+    setLocationForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
     if (field === "state") {
       const newCities = City.getCitiesOfState(defaultCountryCode, value);
       setCities(newCities);
-      setLocationForm((prev) => ({ ...prev, lga: "" }));
+      setLocationForm((prev) => ({
+        ...prev,
+        lga: "",
+      }));
     }
   };
-
   const fetchLocation = () => {
     setLoading(true);
     setError("");
-
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-
         try {
           const res = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`,
           );
           const data = await res.json();
           const place = data?.features?.[0];
-
           if (!place) throw new Error("Location not found.");
-
           const context = place.context || [];
           const getContext = (id: string) =>
             context.find((c: any) => c.id.includes(id))?.text || "";
-
           const locationData: LocationData = {
             country: getContext("country"),
             state: getContext("region"),
@@ -83,14 +79,12 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
               lng: longitude,
             },
           };
-
           setLocationForm({
             country: locationData.country,
             state: locationData.state,
             lga: locationData.lga,
             address: locationData.address,
           });
-
           setLocation(locationData);
           message.success("Location retrieved successfully.");
         } catch (err) {
@@ -107,7 +101,6 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
       },
     );
   };
-
   return (
     <Modal
       open={open}
@@ -120,25 +113,17 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
         Select Your Location
       </h1>
 
-      {/* Tab Switch */}
+      {}
       <div className="flex justify-center mb-6">
         <div className="inline-flex border border-gray-300 rounded-lg overflow-hidden text-sm font-medium">
           <button
-            className={`px-4 py-2 transition ${
-              activeTab === "manual"
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 transition ${activeTab === "manual" ? "bg-blue-500 text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}
             onClick={() => setActiveTab("manual")}
           >
             Manual Address
           </button>
           <button
-            className={`px-4 py-2 transition ${
-              activeTab === "auto"
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 transition ${activeTab === "auto" ? "bg-blue-500 text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}
             onClick={() => setActiveTab("auto")}
           >
             Use My Location
@@ -146,7 +131,7 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
         </div>
       </div>
 
-      {/* Tab Content */}
+      {}
       <div className="overflow-hidden">
         {activeTab === "manual" ? (
           <div className="space-y-4">
@@ -252,7 +237,10 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
           onClick={() =>
             onApply({
               ...locationForm,
-              coordinates: location?.coordinates || { lat: 0, lng: 0 }, // fallback
+              coordinates: location?.coordinates || {
+                lat: 0,
+                lng: 0,
+              },
             })
           }
           disabled={activeTab === "auto" && !location}
@@ -263,5 +251,4 @@ const LocationInput: React.FC<Props> = ({ open, onClose, onApply }) => {
     </Modal>
   );
 };
-
 export default LocationInput;

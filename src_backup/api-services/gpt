@@ -1,0 +1,17 @@
+Generate a service.ts file for a module. The file should:
+
+Import axios and baseUrl (assume baseUrl is defined in another file).
+
+Define an async function for each API request.
+
+Each function should:
+
+Use a config object with url, method, headers (include Authorization if token is provided), and data or params.
+
+Return the result of axios(config).
+
+At the end of the file, export all the functions like: export { functionOne, functionTwo, ... }.
+
+Example endpoint for this prompt:
+
+POST /showcase/createshowcase

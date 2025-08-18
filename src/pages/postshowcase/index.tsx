@@ -6,49 +6,39 @@ import { useLoading } from "../../contexts/LoadingContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { createShowcase } from "../../api-services/showcase.service";
-
 const PostShowcase = (): React.ReactNode => {
-  // utilities
   const { setLoading, setLoadingText } = useLoading();
   const auth = useAuth();
   const notify = useNotificationContext();
-
   const [experience, setExperience] = useState("");
   const [location, setLocation] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-
-  console.log({ files });
-
+  console.log({
+    files,
+  });
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFilesArray = Array.from(e.target.files); // convert FileList to File[]
+      const newFilesArray = Array.from(e.target.files);
       setFiles((prevFiles) => [...prevFiles, ...newFilesArray]);
     }
   };
-
   const removeFile = (index: number) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
-
   const handleSubmit = async () => {
     try {
       setLoading(true);
       setLoadingText("Uploading your showcase...");
-
-      // Create FormData and append payload values
       const formData = new FormData();
-
-      // Append each file under the same field name "attachment"
       files.forEach((file) => {
         formData.append("attachment", file);
       });
-
       formData.append("post", experience);
       formData.append("location", location);
-
       const response = await createShowcase(formData, auth.token);
-      console.log({ response });
-
+      console.log({
+        response,
+      });
       notify.openNotification(
         "topRight",
         "Success",
@@ -68,11 +58,10 @@ const PostShowcase = (): React.ReactNode => {
       setLoadingText("");
     }
   };
-
   return (
     <section className="min-h-screen pt-13 pb-15">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {/* Header */}
+        {}
         <div className="mt-15">
           <h2 className="text-2xl font-semibold tracking-tighter text-royalblue-shade5">
             Post a Showcase
@@ -90,7 +79,7 @@ const PostShowcase = (): React.ReactNode => {
             handleSubmit();
           }}
         >
-          {/* Experience Field */}
+          {}
           <div className="mb-4">
             <label className="text-gray-700 block mb-1">
               Share the experience
@@ -105,7 +94,7 @@ const PostShowcase = (): React.ReactNode => {
             />
           </div>
 
-          {/* Location Input */}
+          {}
           <div className="mb-9 relative">
             <label className="text-gray-700 block mb-1">
               Location (optional)
@@ -123,7 +112,7 @@ const PostShowcase = (): React.ReactNode => {
             </div>
           </div>
 
-          {/* Media Upload */}
+          {}
           <div className="mb-5">
             <label className="text-gray-700 block mb-1">
               Add Image / Video
@@ -143,7 +132,9 @@ const PostShowcase = (): React.ReactNode => {
                   required
                   multiple
                   className=""
-                  style={{ opacity: 0 }}
+                  style={{
+                    opacity: 0,
+                  }}
                   onChange={handleFileChange}
                 />
               </label>
@@ -184,7 +175,7 @@ const PostShowcase = (): React.ReactNode => {
             </div>
           </div>
 
-          {/* Post Button */}
+          {}
           <div className="mt-8">
             <button
               type="submit"
@@ -198,5 +189,4 @@ const PostShowcase = (): React.ReactNode => {
     </section>
   );
 };
-
 export default PostShowcase;

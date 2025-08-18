@@ -1,10 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-
 const DropdownMenu: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -14,7 +11,6 @@ const DropdownMenu: React.FC = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   return (
     <div className="relative inline-block text-left" ref={menuRef}>
       <button
@@ -40,7 +36,7 @@ const DropdownMenu: React.FC = () => {
 
       {open && (
         <div className="absolute z-20 mt-2 w-56 origin-top-left bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          {/* Arrow */}
+          {}
           <div className="absolute -top-2 left-6 w-3 h-3 bg-white rotate-45 shadow-md"></div>
 
           <div className="py-1">
@@ -68,5 +64,4 @@ const DropdownMenu: React.FC = () => {
     </div>
   );
 };
-
 export default DropdownMenu;

@@ -1,33 +1,28 @@
-// ResetPassword.tsx
 import React, { useState } from "react";
 import { PasswordInput } from "../../components/input";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { passwordReset, PasswordResetBody } from "../../api-services/auth";
 import { useLoading } from "../../contexts/LoadingContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
 const ResetPassword: React.FC = () => {
   const [passwords, setPasswords] = useState({
     password: "",
     confirm: "",
   });
-
   const notify = useNotificationContext();
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
-
   const [SearchParams] = useSearchParams();
   const token = SearchParams.get("token");
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswords((prev) => ({ ...prev, [name]: value }));
+    setPasswords((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-
   const validateForm = () => {
     let valid = true;
-
-    // Validate Password
     if (!passwords.password) {
       notify.openNotification(
         "topRight",
@@ -56,8 +51,6 @@ const ResetPassword: React.FC = () => {
       );
       valid = false;
     }
-
-    // Validate Password Confirmation
     if (passwords.password !== passwords.confirm) {
       notify.openNotification(
         "topRight",
@@ -69,7 +62,6 @@ const ResetPassword: React.FC = () => {
     }
     return valid;
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let valid = validateForm();
@@ -91,19 +83,17 @@ const ResetPassword: React.FC = () => {
       console.log("passwordreset response:- ", response);
       navigate("/login");
     } catch (err: any) {
-      //
       let message = err?.message || "unknown error";
       notify.openNotification("topRight", "Failed", message, "error");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
         <div className="max-w-[500px] mx-auto mt-10">
-          <h1 className="text-4xl font-medium text-center text-royalblue-shade3 mb-4">
+          <h1 className="text-4xl font-medium text-center text-gray-900 mb-4">
             Reset Password
           </h1>
 
@@ -131,7 +121,7 @@ const ResetPassword: React.FC = () => {
 
             <button
               type="submit"
-              className="cursor-pointer w-full bg-royalblue-main text-white p-3 rounded"
+              className="cursor-pointer w-full bg-gray-900 text-white p-3 rounded"
             >
               Reset Password
             </button>
@@ -141,5 +131,4 @@ const ResetPassword: React.FC = () => {
     </section>
   );
 };
-
 export default ResetPassword;

@@ -1,9 +1,7 @@
-// CategoryContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getAllCategory } from "../api-services/categories.service";
 import { parseHttpError } from "../api-services/parseReqError";
 import { Category } from "../api-services/categories.types";
-
 interface CategoryContextType {
   categories: Category[];
   catLoading: boolean;
@@ -12,25 +10,21 @@ interface CategoryContextType {
   findCategoryByName: (name: string) => Category | null;
   findCategoryById: (id: number) => Category | null;
 }
-
-// Default context
 const CategoryContext = createContext<CategoryContextType | undefined>(
   undefined,
 );
-
-export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const CategoryProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
-
   const loadCategories = async () => {
     setCatLoading(true);
     setCatError("");
     try {
       const response = await getAllCategory();
-      setCategories(response.data.response); // Adjust if needed
+      setCategories(response.data.response);
     } catch (error: any) {
       const errorMsg = parseHttpError(error);
       setCatError(
@@ -41,7 +35,6 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       setCatLoading(false);
     }
   };
-
   const findCategoryByName = (name: string) =>
     categories.find((cat) => cat.name === name) || null;
   const findCategoryById = (id: number) =>
@@ -49,7 +42,6 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     loadCategories();
   }, []);
-
   return (
     <CategoryContext.Provider
       value={{
@@ -65,8 +57,6 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
     </CategoryContext.Provider>
   );
 };
-
-// Custom hook for usage
 export const useCategory = () => {
   const context = useContext(CategoryContext);
   if (!context) {

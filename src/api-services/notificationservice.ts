@@ -1,14 +1,11 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { baseUrl } from "./baseUrl";
-// adjust import path to your config
-
 interface CreateNotificationPayload {
   header: string;
   message: string;
   userId: number;
   servicerequestId: number;
 }
-
 const createNotification = async (
   data: CreateNotificationPayload,
   token?: string,
@@ -17,47 +14,49 @@ const createNotification = async (
     url: `${baseUrl}/notification/createnotification`,
     method: "POST",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
     data,
   };
   return axios(config);
 };
-
 const getAllNotifications = async (token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/notification/getallnotifications`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
 const getNotificationById = async (id: string, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/notification/getnotification/${id}`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
 interface GetAllUserNotificationsParams {
   token?: string;
   search?: string;
   type?: string;
   read?: number;
-  startDate?: string; // ISO date-time string
-  endDate?: string; // ISO date-time string
-  orderBy?: string; // e.g. "ASC" or "DESC"
+  startDate?: string;
+  endDate?: string;
+  orderBy?: string;
   page: number;
   limit: number;
 }
-
 const getAllUserNotifications = async ({
   token,
   search,
@@ -73,45 +72,62 @@ const getAllUserNotifications = async ({
     url: `${baseUrl}/notification/getallusernotification`,
     method: "GET",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
     params: {
-      ...(search && { search }),
-      ...(type && { type }),
-      ...(read !== undefined && { read }),
-      ...(startDate && { startDate }),
-      ...(endDate && { endDate }),
-      ...(orderBy && { orderBy }),
+      ...(search && {
+        search,
+      }),
+      ...(type && {
+        type,
+      }),
+      ...(read !== undefined && {
+        read,
+      }),
+      ...(startDate && {
+        startDate,
+      }),
+      ...(endDate && {
+        endDate,
+      }),
+      ...(orderBy && {
+        orderBy,
+      }),
       page,
       limit,
     },
   };
-  console.log({ notifConfig: config });
+  console.log({
+    notifConfig: config,
+  });
   return axios(config);
 };
-
 const updateNotificationToRead = async (id: number, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/notification/updatenotificationtoread/${id}`,
     method: "PUT",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
 const deleteNotification = async (id: number, token?: string) => {
   const config: AxiosRequestConfig = {
     url: `${baseUrl}/notification/deletenotification/${id}`,
     method: "DELETE",
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token && {
+        Authorization: `Bearer ${token}`,
+      }),
     },
   };
   return axios(config);
 };
-
 export {
   createNotification,
   getAllNotifications,

@@ -1,6 +1,5 @@
 import React from "react";
 import { Search } from "feather-icons-react";
-
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMessageRealtime } from "../../contexts/Realtime_Messaging";
 import { useSelector } from "react-redux";
@@ -8,7 +7,6 @@ import { RootState } from "../../store/store";
 import moment from "moment";
 import { getInitials } from "../../util/getInitials";
 import { useAuth } from "../../contexts/AuthContext";
-
 const RenderConversations: React.FC = () => {
   let auth = useAuth();
   const [SearchParam] = useSearchParams();
@@ -18,19 +16,16 @@ const RenderConversations: React.FC = () => {
   const conversations = useSelector(
     (state: RootState) => state.message.conversations,
   );
-
   let isOnline = true;
-
   const goToConversation = (id: number) => {
     let url = `/messaging/conversations?with=${id}`;
     navigate(url);
   };
-
   return (
     <div
       className={`${chattingWith ? "hidden md:flex" : "flex"} h-[calc(100vh-60px)] overflow-y-auto border-l border-r border-gray-200 w-full md:w-1/3 flex-col  `}
     >
-      {/* Header */}
+      {}
       <div className="p-6 border-b border-purple-100 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Messages</h2>
@@ -132,24 +127,17 @@ const RenderConversations: React.FC = () => {
                 lastMessageByMe,
                 user: conversation?.lastmessage?.user.fullName,
               });
-
               return (
                 <div
                   key={Number(conversation.id)}
                   onClick={() => goToConversation(Number(conversation.id))}
-                  className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 hover:scale-105 ${
-                    chattingWith &&
-                    Number(chattingWith) === Number(conversation.id)
-                      ? "bg-gradient-to-r bg-royalblue-tint3 text-white shadow-lg"
-                      : "bg-white/80 hover:bg-white text-gray-900 shadow-sm"
-                  }`}
+                  className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 hover:scale-105 ${chattingWith && Number(chattingWith) === Number(conversation.id) ? "bg-gradient-to-r bg-royalblue-tint3 text-white shadow-lg" : "bg-white/80 hover:bg-white text-gray-900 shadow-sm"}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm bg-blue-200 flex items-center justify-center">
                         <span className="text-lg font-semibold text-white">
-                          {getInitials(conversation.fullName)}{" "}
-                          {/* Replace with actual initials */}
+                          {getInitials(conversation.fullName)} {}
                         </span>
                       </div>
                       {isOnline && (
@@ -196,5 +184,4 @@ const RenderConversations: React.FC = () => {
     </div>
   );
 };
-
 export default RenderConversations;

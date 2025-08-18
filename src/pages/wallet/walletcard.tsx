@@ -2,17 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Button, Input, Modal, Radio, message } from "antd";
 import diamond from "../../assets/images/diamond.svg";
 import { ArrowDownLeft, ArrowUpRight, ArrowRight } from "feather-icons-react";
-
 interface WalletCardProps {
   onWithdraw: () => void;
   onAddMoney: () => void;
 }
-
 const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
-  const [balance, setBalance] = useState<number>(0); // now fetched from API
+  const [balance, setBalance] = useState<number>(0);
   const [amount, setAmount] = useState<number>(5000);
   const [loading, setLoading] = useState(false);
-
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [recipientEmail, setRecipientEmail] = useState<string>("");
@@ -20,41 +17,35 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
     "balance",
   );
   const [transferLoading, setTransferLoading] = useState(false);
-
   const [recipientDetails, setRecipientDetails] = useState<any>(null);
   const [checkingRecipient, setCheckingRecipient] = useState(false);
-
-  // Get or request token
   const ensureToken = async (): Promise<string | null> => {
     let token = localStorage.getItem("access_token");
-
     if (token) return token;
-
     const savedEmail = localStorage.getItem("user_email");
     const savedPassword = localStorage.getItem("user_password");
-
     if (!savedEmail || !savedPassword) {
       message.error("No login details found. Please log in again.");
       return null;
     }
-
     try {
       const res = await fetch(
         "https://arvicesapi.denateonlineservice.com/user/login",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: savedEmail, password: savedPassword }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: savedEmail,
+            password: savedPassword,
+          }),
         },
       );
-
       if (!res.ok) throw new Error(`Login failed: ${res.status}`);
-
       const data = await res.json();
       const accessToken = data?.access_token;
-
       if (!accessToken) throw new Error("No token received from login");
-
       localStorage.setItem("access_token", accessToken);
       return accessToken;
     } catch (err) {
@@ -63,13 +54,10 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
       return null;
     }
   };
-
-  // Fetch wallet balance
   const fetchWalletBalance = async () => {
     try {
       const token = await ensureToken();
       if (!token) return;
-
       const res = await fetch(
         "https://arvicesapi.denateonlineservice.com/wallet/getmywallet",
         {
@@ -80,7 +68,6 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
           },
         },
       );
-
       const data = await res.json();
       if (res.ok && data?.status === 200) {
         setBalance(data.response?.balance ?? 0);
@@ -92,21 +79,16 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
       message.error("Error loading balance.");
     }
   };
-
   useEffect(() => {
     fetchWalletBalance();
   }, []);
-
-  // Check recipient email
   const checkRecipientEmail = async (email: string) => {
     if (!email) return;
     setCheckingRecipient(true);
     setRecipientDetails(null);
-
     try {
       const token = await ensureToken();
       if (!token) return;
-
       const res = await fetch(
         `https://arvicesapi.denateonlineservice.com/user/getaccountbyemail?email=${encodeURIComponent(email)}`,
         {
@@ -117,9 +99,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
           },
         },
       );
-
       const data = await res.json();
-
       if (res.ok && data?.status === 202) {
         setRecipientDetails(data.response);
         message.success(`Recipient found: ${data.response.fullName}`);
@@ -134,14 +114,11 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
       setCheckingRecipient(false);
     }
   };
-
-  // Add money (Paystack)
   const handleAddMoney = async () => {
     try {
       setLoading(true);
       const token = await ensureToken();
       if (!token) return;
-
       const res = await fetch(
         "https://arvicesapi.denateonlineservice.com/wallet/initialize-topup-transaction",
         {
@@ -150,12 +127,12 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ amount }),
+          body: JSON.stringify({
+            amount,
+          }),
         },
       );
-
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-
       const data = await res.json();
       const paystackUrl = data?.response?.data?.authorization_url;
       if (paystackUrl) {
@@ -170,25 +147,20 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
       setLoading(false);
     }
   };
-
-  // Transfer handler
   const handleTransfer = async () => {
     try {
       setTransferLoading(true);
       const token = await ensureToken();
       if (!token) return;
-
       if (!recipientEmail || transferAmount <= 0) {
         message.error("Please enter a valid recipient email and amount.");
         return;
       }
-
       if (transferSource === "balance") {
         if (!recipientDetails) {
           message.error("Recipient not found. Please verify email.");
           return;
         }
-
         const res = await fetch(
           "https://arvicesapi.denateonlineservice.com/wallet/transfer",
           {
@@ -203,12 +175,10 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
             }),
           },
         );
-
         if (!res.ok) throw new Error(`Transfer failed: ${res.status}`);
-
         message.success("Transfer successful!");
         setIsTransferModalOpen(false);
-        fetchWalletBalance(); // refresh balance after transfer
+        fetchWalletBalance();
       } else {
         const res = await fetch(
           "https://arvicesapi.denateonlineservice.com/wallet/initialize-topup-transaction",
@@ -218,12 +188,12 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ amount: transferAmount }),
+            body: JSON.stringify({
+              amount: transferAmount,
+            }),
           },
         );
-
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-
         const data = await res.json();
         const paystackUrl = data?.response?.data?.authorization_url;
         if (paystackUrl) {
@@ -239,10 +209,9 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
       setTransferLoading(false);
     }
   };
-
   return (
     <>
-      {/* Wallet Card */}
+      {}
       <div className="relative rounded-2xl p-6 py-10 shadow-md bg-gradient-to-br from-royalblue-shade5 via-gray-900 to-royalblue-shade3 text-white w-full max-w-md">
         <div className="w-full absolute bottom-4 right-10">
           <img
@@ -298,7 +267,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
         </div>
       </div>
 
-      {/* Transfer Modal */}
+      {}
       <Modal
         title="Transfer Funds"
         open={isTransferModalOpen}
@@ -350,5 +319,4 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
     </>
   );
 };
-
 export default WalletCard;

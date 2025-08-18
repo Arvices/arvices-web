@@ -1,6 +1,5 @@
 import axios from "axios";
-import { baseUrl } from "./baseUrl"; // make sure this path is correct for your project
-
+import { baseUrl } from "./baseUrl";
 const createCategory = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/category/createcategory`,
@@ -13,7 +12,6 @@ const createCategory = async (data: any, token: string) => {
   };
   return axios(config);
 };
-
 const updateCategory = async (id: string, data: any, token: string) => {
   const config = {
     url: `${baseUrl}/category/updatecategory/${id}`,
@@ -26,7 +24,6 @@ const updateCategory = async (id: string, data: any, token: string) => {
   };
   return axios(config);
 };
-
 const getCategoryById = async (id: string) => {
   const config = {
     url: `${baseUrl}/category/getcategory/${id}`,
@@ -34,7 +31,6 @@ const getCategoryById = async (id: string) => {
   };
   return axios(config);
 };
-
 const getAllCategory = async () => {
   const config = {
     url: `${baseUrl}/category/getallcategory`,
@@ -42,7 +38,6 @@ const getAllCategory = async () => {
   };
   return axios(config);
 };
-
 const deleteCategory = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/category/deletecategory/${id}`,
@@ -53,7 +48,6 @@ const deleteCategory = async (id: string, token: string) => {
   };
   return axios(config);
 };
-
 export {
   createCategory,
   updateCategory,
