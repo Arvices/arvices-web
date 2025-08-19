@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Spin, Empty, Button, Pagination } from "antd";
+import { Spin, Empty, Button, Pagination, message } from "antd";
 import { Heart, MessageCircle, Eye } from "feather-icons-react";
 import axios from "axios";
 
@@ -11,6 +11,7 @@ interface PortfolioItem {
   comments: number;
   description: string;
   views: string;
+  serviceId?: number; // 👈 add serviceId if backend provides it
 }
 
 interface ProductItem {
@@ -46,7 +47,57 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // Fetch Portfolio
+  // -------- Create Booking --------
+const handleCreateBooking = async (item: PortfolioItem) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      message.error("Not authenticated");
+      return;
+    }
+
+    // Build payload based on what BookingPage expects
+    const payload = {
+      clientName: "Auto Client",
+      clientEmail: "client@example.com",
+      clientPhone: "0000000000",
+      clientLocation: "N/A",
+      clientNotes: `Booking from portfolio: ${item.title}`,
+      bookingDate: new Date().toISOString().slice(0, 10),
+      bookingFromTime: "09:00",
+      bookingToTime: "10:00",
+      serviceId: [item.id], // portfolio item id -> serviceId link
+      price: 0,
+      status: "In Progress",
+    };
+
+    console.log("📤 Sending booking payload:", payload);
+
+    const res = await axios.post(
+      "https://arvicesapi.denateonlineservice.com/bookings/createbookings",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("✅ Booking response:", res.data);
+    message.success("Booking created successfully!");
+
+    // Optional: navigate to booking page immediately
+    // window.location.href = "/bookings";
+
+  } catch (err: any) {
+    console.error("❌ Booking failed:", err.response?.data || err);
+    message.error(err.response?.data?.message || "Failed to create booking");
+  }
+};
+
+
+  // -------- Fetch Portfolio --------
   const fetchPortfolio = async (pageNum: number) => {
     try {
       setLoading(true);
@@ -67,6 +118,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
         comments: item.comments ?? 0,
         description: item.description || "",
         views: item.views ? String(item.views) : "0",
+        serviceId: item.serviceId, // 👈 pull from backend if present
       }));
 
       setPortfolioItems(mapped);
@@ -201,9 +253,11 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
                       <h3 className="font-semibold tracking-tight text-base mb-2">
                         {item.title}
                       </h3>
-                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
+                      <div className="text-gray-800 text-sm mb-4">
+                        {item.description}
+                      </div>
 
-                      <div className="flex items-center space-x-4 text-sm text-gray-700">
+                      <div className="flex items-center space-x-4 text-sm text-gray-700 mb-4">
                         <div className="flex items-center space-x-1">
                           <Heart className="w-4 h-4" />
                           <span>{item.likes}</span>
@@ -217,6 +271,11 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
                           <span>{item.views}</span>
                         </div>
                       </div>
+
+                      {/* 👉 New Book button here */}
+                      <Button type="primary" onClick={() => handleCreateBooking(item)}>
+                        Book
+                      </Button>
                     </div>
                   </div>
                 ))}

@@ -1,247 +1,354 @@
-import { useEffect, useState } from "react";
-import { Button, Input, Modal, Spin, Empty, Popconfirm, message, Pagination } from "antd";
-import { Plus, Edit, Trash } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Spin, Empty, Button, Pagination, message } from "antd";
+import { Heart, MessageCircle, Eye } from "feather-icons-react";
 import axios from "axios";
-import { useAuth } from "../../contexts/AuthContext"; // adjust path if needed
 
 interface PortfolioItem {
   id: number;
   title: string;
   category: string;
+  likes: number;
+  comments: number;
+  description: string;
+  views: string;
+  // ✅ if your API returns this, we’ll use it for booking
+  serviceId?: number;
+}
+
+interface ProductItem {
+  id: number;
+  title: string;
+  price: number;
   description: string;
 }
 
-export default function PortfolioTab() {
-  const { token } = useAuth();
+interface ShowcaseItem {
+  id: number;
+  title: string;
+  description: string;
+  createdDate: string;
+  likes: number;
+  comments: number;
+  views: number;
+}
 
-  const [portfolios, setPortfolios] = useState<PortfolioItem[]>([]);
+const sections = ["Portfolio", "Products", "Showcase"];
+
+export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) {
+  const [activeSection, setActiveSection] = useState<(typeof sections)[number]>("Portfolio");
+
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+  const [productItems, setProductItems] = useState<ProductItem[]>([]);
+  const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>([]);
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [form, setForm] = useState({
-    title: "",
-    category: "",
-    description: "",
-  });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPortfolio, setEditingPortfolio] = useState<PortfolioItem | null>(null);
-
-  // pagination state
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // Fetch all portfolio items with pagination
-  const fetchPortfolio = async (pageNum = 1) => {
-    setLoading(true);
-    setError(null);
+  // Fetch Portfolio
+  const fetchPortfolio = async (pageNum: number) => {
     try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
       const res = await axios.get(
-        `https://arvicesapi.denateonlineservice.com/portfolio/getallportfolio?page=${pageNum}&limit=10`,
+        "https://arvicesapi.denateonlineservice.com/portfolio/getallportfolio",
         {
+          params: { orderBy: "DESC", page: pageNum, limit: 10 },
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // backend may return { response: [], total: number }
-      const items: PortfolioItem[] = res.data?.response || [];
-      const totalCount: number = res.data?.total ?? items.length;
+      const mapped: PortfolioItem[] = (res.data.response || []).map((item: any) => ({
+        id: item.id,
+        title: item.title || "",
+        category: item.category || "",
+        likes: item.likes ?? 0,
+        comments: item.comments ?? 0,
+        description: item.description || "",
+        views: item.views ? String(item.views) : "0",
+        // 👇 try both shapes in case your API nests service
+        serviceId: item.serviceId ?? item.service?.id ?? undefined,
+      }));
 
-      setPortfolios(items);
-      setTotal(totalCount);
-      setPage(pageNum);
+      setPortfolioItems(mapped);
+      setTotal(res.data.total || 0);
     } catch (err) {
-      console.error(err);
-      setError("Failed to load portfolio.");
+      console.error("❌ Failed to load portfolio", err);
+      message.error("Failed to load portfolio");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch Products
+  const fetchProducts = async (pageNum: number) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(
+        "https://arvicesapi.denateonlineservice.com/product/getallproduct",
+        {
+          params: { orderBy: "DESC", page: pageNum, limit: 10 },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const mapped: ProductItem[] = (res.data.response || []).map((item: any) => ({
+        id: item.id,
+        title: item.title || "",
+        price: Number(item.price) || 0,
+        description: item.description || "",
+      }));
+
+      setProductItems(mapped);
+      setTotal(res.data.total || 0);
+    } catch (err) {
+      console.error("❌ Failed to load products", err);
+      message.error("Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch Showcase
+  const fetchShowcase = async (pageNum: number) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(
+        "https://arvicesapi.denateonlineservice.com/showcase/getgeneralshowcasetimeline",
+        {
+          params: { orderBy: "DESC", page: pageNum, limit: 10 },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const mapped: ShowcaseItem[] = (res.data.response || []).map((item: any) => ({
+        id: item.id,
+        title: item.title || "",
+        description: item.description || "",
+        createdDate: item.createdDate,
+        likes: item.likes ?? 0,
+        comments: item.comments ?? 0,
+        views: item.views ?? 0,
+      }));
+
+      setShowcaseItems(mapped);
+      setTotal(res.data.total || 0);
+    } catch (err) {
+      console.error("❌ Failed to load showcase", err);
+      message.error("Failed to load showcase");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load on mount + when section/page changes
   useEffect(() => {
-    fetchPortfolio(1);
-  }, []);
+    if (activeSection === "Portfolio") fetchPortfolio(page);
+    if (activeSection === "Products") fetchProducts(page);
+    if (activeSection === "Showcase") fetchShowcase(page);
+  }, [activeSection, page]);
 
-  // Save new or update portfolio
-  const handleSave = async () => {
+  // ---------- CREATE BOOKING from Portfolio ----------
+  const handleCreateBooking = async (item: PortfolioItem) => {
     try {
-      setLoading(true);
-      if (editingPortfolio) {
-        await axios.put(
-          `https://arvicesapi.denateonlineservice.com/portfolio/updateportfolio/${editingPortfolio.id}`,
-          form,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        message.success("Portfolio updated successfully");
-      } else {
-        await axios.post(
-          "https://arvicesapi.denateonlineservice.com/portfolio/createportfolio",
-          form,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        message.success("Portfolio created successfully");
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        message.error("Please sign in to create a booking");
+        return;
       }
-      setIsModalOpen(false);
-      setForm({ title: "", category: "", description: "" });
-      setEditingPortfolio(null);
-      fetchPortfolio(page); // refresh current page
-    } catch (err) {
-      console.error(err);
-      message.error("Something went wrong while saving portfolio");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  // Delete portfolio
-  const handleDelete = async (id: number) => {
-    try {
+      if (!item.serviceId) {
+        message.error("This portfolio item isn't linked to any service.");
+        return;
+      }
+
       setLoading(true);
-      await axios.delete(
-        `https://arvicesapi.denateonlineservice.com/portfolio/deleteportfolio/${id}`,
+
+      await axios.post(
+        "https://arvicesapi.denateonlineservice.com/bookings/createbookings",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          totalCost: 0,
+          totalDuration: 1,
+          bookingDate: new Date().toISOString().slice(0, 10), // yyyy-mm-dd
+          bookingFromTime: "09:00",
+          bookingToTime: "10:00",
+          clientName: "Auto Client",
+          clientEmail: "client@example.com",
+          clientPhone: "00000000000",
+          clientLocation: "N/A",
+          clientNotes: `Booking from portfolio: ${item.title}`,
+          depositAmount: 0,
+          serviceId: [String(item.serviceId)], // ✅ MUST be a service id
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
-      message.success("Portfolio deleted successfully");
-      fetchPortfolio(page);
-    } catch (err) {
-      console.error(err);
-      message.error("Failed to delete portfolio");
+
+      message.success("Booking created. Check Bookings → In Progress.");
+    } catch (err: any) {
+      console.error("Booking failed:", err?.response?.data || err);
+      message.error(err?.response?.data?.message || "Failed to create booking");
     } finally {
       setLoading(false);
     }
   };
+
+  const listToRender =
+    activeSection === "Portfolio"
+      ? portfolioItems
+      : activeSection === "Products"
+      ? productItems
+      : showcaseItems;
 
   return (
-    <div>
-      <div className="flex justify-between mb-4">
-        <h2 className="text-lg font-semibold">Portfolio</h2>
-        <Button
-          type="primary"
-          icon={<Plus size={16} />}
-          onClick={() => {
-            setIsModalOpen(true);
-            setEditingPortfolio(null);
-            setForm({ title: "", category: "", description: "" });
-          }}
-        >
-          Add Portfolio
-        </Button>
-      </div>
+    <section className="py-16 px-6 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 text-center mb-8">
+          {activeSection}
+        </h2>
 
-      {loading ? (
-        <Spin />
-      ) : error ? (
-        <div className="text-red-500">{error}</div>
-      ) : portfolios.length === 0 ? (
-        <Empty description="No portfolio yet" />
-      ) : (
-        <>
-          <div className="flex flex-col gap-4">
-  {portfolios.map((item) => (
-    <div
-      key={item.id}
-      className="p-4 border rounded-lg shadow-sm bg-white hover:shadow-md transition"
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        {/* Left side: title, category, description */}
-        <div>
-          <h4 className="font-semibold text-lg text-gray-800">{item.title}</h4>
-          <p className="text-sm text-gray-500">{item.category}</p>
-          <p className="mt-1 text-gray-700">{item.description}</p>
-        </div>
-
-        {/* Right side: actions */}
-        <div className="mt-3 sm:mt-0 flex gap-2 justify-end">
-          <Button
-            size="small"
-            icon={<Edit size={14} />}
-            onClick={() => {
-              setEditingPortfolio(item);
-              setForm({
-                title: item.title,
-                category: item.category,
-                description: item.description,
-              });
-              setIsModalOpen(true);
-            }}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Delete this portfolio?"
-            onConfirm={() => handleDelete(item.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button size="small" danger icon={<Trash size={14} />}>
-              Delete
+        {/* Section Switcher */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
+          {sections.map((section) => (
+            <Button
+              key={section}
+              onClick={() => {
+                setActiveSection(section);
+                setPage(1);
+              }}
+              type={activeSection === section ? "primary" : "default"}
+            >
+              {section}
             </Button>
-          </Popconfirm>
+          ))}
         </div>
-      </div>
-    </div>
-  ))}
-</div>
 
-
-
-          {/* Pagination */}
-          <div className="mt-4 flex justify-center">
-            <Pagination
-              current={page}
-              pageSize={10}
-              total={total}
-              onChange={(p) => fetchPortfolio(p)}
-              showSizeChanger={false}
-            />
+        {loading ? (
+          <div className="flex justify-center">
+            <Spin size="large" />
           </div>
-        </>
-      )}
+        ) : listToRender.length === 0 ? (
+          <Empty description={`No ${activeSection.toLowerCase()} items found`} />
+        ) : (
+          <>
+            <div className="flex flex-col gap-6">
+              {/* Portfolio */}
+              {activeSection === "Portfolio" &&
+                portfolioItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group"
+                  >
+                    <div className="p-4">
+                      <p className="text-xs text-gray-500">{item.category}</p>
+                      <h3 className="font-semibold tracking-tight text-lg mb-1">
+                        {item.title}
+                      </h3>
+                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
 
-      {/* Modal */}
-      <Modal
-        title={editingPortfolio ? "Edit Portfolio" : "Add Portfolio"}
-        open={isModalOpen}
-        onCancel={() => {
-          setIsModalOpen(false);
-          setEditingPortfolio(null);
-          setForm({ title: "", category: "", description: "" });
-        }}
-        onOk={handleSave}
-        okText="Save"
-        confirmLoading={loading}
-      >
-        <Input
-          placeholder="Title"
-          className="mb-2"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-        />
-        <Input
-          placeholder="Category"
-          className="mb-2"
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        />
-        <Input.TextArea
-          placeholder="Description"
-          rows={4}
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-        />
-      </Modal>
-    </div>
+                      {/* Stats + Book */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-sm text-gray-700">
+                          <div className="flex items-center space-x-1">
+                            <Heart className="w-4 h-4" />
+                            <span>{item.likes}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MessageCircle className="w-4 h-4" />
+                            <span>{item.comments}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Eye className="w-4 h-4" />
+                            <span>{item.views}</span>
+                          </div>
+                        </div>
+
+                        {/* NEW: Book button */}
+                        <Button
+                          type="primary"
+                          onClick={() => handleCreateBooking(item)}
+                          disabled={!item.serviceId}
+                          title={!item.serviceId ? "No linked service" : ""}
+                        >
+                          Book
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+              {/* Products */}
+              {activeSection === "Products" &&
+                productItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group"
+                  >
+                    <div className="p-4">
+                      <h3 className="font-semibold tracking-tight text-base mb-1">
+                        {item.title}
+                      </h3>
+                      <div className="text-gray-800 text-sm mb-2">{item.description}</div>
+                      <p className="text-sm font-medium">₦{item.price}</p>
+                    </div>
+                  </div>
+                ))}
+
+              {/* Showcase */}
+              {activeSection === "Showcase" &&
+                showcaseItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group"
+                  >
+                    <div className="p-4">
+                      <h3 className="font-semibold tracking-tight text-base mb-2">
+                        {item.title}
+                      </h3>
+                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {new Date(item.createdDate).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-700">
+                        <div className="flex items-center space-x-1">
+                          <Heart className="w-4 h-4" />
+                          <span>{item.likes}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MessageCircle className="w-4 h-4" />
+                          <span>{item.comments}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Eye className="w-4 h-4" />
+                          <span>{item.views}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-8 flex justify-center">
+              <Pagination
+                current={page}
+                pageSize={10}
+                total={total}
+                onChange={(p) => setPage(p)}
+                showSizeChanger={false}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </section>
   );
 }
+
+export default PortfolioFilter;
