@@ -22,13 +22,18 @@ import {
   CatCard,
   CategoryDataItem,
   ProviderCard,
+  Showcase,
 } from "../../components/cards/appcards";
 import { getTopProfessionals } from "../../api-services/auth-re";
 import LocationInput from "../../components/map/LocationInput";
 import { useCategory } from "../../contexts/CategoryContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ContentHOC } from "../../components/nocontent";
 import { parseHttpError } from "../../api-services/parseReqError";
+import { getGeneralShowcaseTimeline } from "../../api-services/showcase.service";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+
 export const categoryData: CategoryDataItem[] = [
   {
     title: "Auto Mechanics",
@@ -86,10 +91,21 @@ export const categoryData: CategoryDataItem[] = [
     img: tailoring,
   },
 ];
+
 const Home: React.FC = () => {
+  const auth = useAuth();
+  const { openNotification } = useNotificationContext();
   const [topLoading, setTopLoading] = useState(true);
   const [topError, setTopError] = useState("");
   const [topProfessionals, setTopProfessionals] = useState<any[]>([]);
+  const [showcaseLoading, setShowcaseLoading] = useState(true);
+  const [showcaseError, setShowcaseError] = useState("");
+  const [showcases, setShowcases] = useState<Showcase[]>([]);
+  const showcaseToShow = showcases.filter(
+    (x: any) => x?.attachments?.length > 0,
+  );
+  console.log({ showcases, showcaseToShow });
+
   const navigate = useNavigate();
   const category = useCategory();
   const [locationInput, setLocationInput] = useState("");
@@ -107,9 +123,25 @@ const Home: React.FC = () => {
       setTopLoading(false);
     }
   };
+  const fetchShowcase = async () => {
+    try {
+      setShowcaseLoading(true);
+      setShowcaseError("");
+      const res = await getGeneralShowcaseTimeline();
+      setShowcases(res?.data?.response || []);
+    } catch (err) {
+      let message = parseHttpError(err);
+      setShowcaseError(message);
+    } finally {
+      setShowcaseLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchTopProfessionals();
+    fetchShowcase();
   }, []);
+
   const [showModal, setShowModal] = useState(false);
   const handleSearch = () => {
     const queryParams = new URLSearchParams();
@@ -123,6 +155,20 @@ const Home: React.FC = () => {
     const path = `/service-providers${queryString ? "?" + queryString : ""}`;
     navigate(path);
   };
+
+  const viewMoreUpdates = () => {
+    if (auth.isAuthenticated) {
+      navigate("/activities");
+    } else {
+      openNotification(
+        "topRight",
+        "To view more updates, you need to login. You wil be redirected to login now",
+        "",
+        "error",
+      );
+    }
+  };
+
   return (
     <section className="min-h-screen text-royalblue-shade5 pt-10">
       {}
@@ -185,8 +231,6 @@ const Home: React.FC = () => {
                   })}
                 </select>
               </div>
-
-              {}
               <div>
                 <input
                   name="location"
@@ -196,8 +240,6 @@ const Home: React.FC = () => {
                   className="border-gray-200 px-2 rounded h-12 w-full bg-gray-50 border focus:outline-none focus:ring-0 text-sm font-medium"
                 />
               </div>
-
-              {}
               <div>
                 <button
                   onClick={() => setShowModal((prev) => !prev)}
@@ -207,8 +249,6 @@ const Home: React.FC = () => {
                   <span className="inline">Use GPS Location</span>
                 </button>
               </div>
-
-              {}
               <div>
                 <button
                   onClick={handleSearch}
@@ -250,7 +290,6 @@ const Home: React.FC = () => {
           })}
         </div>
       </div>
-      {}
       <div
         id="home-professional-section"
         className="pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto border-b border-gray-100"
@@ -270,32 +309,32 @@ const Home: React.FC = () => {
               actionFn={getTopProfessionals}
               noContent={topProfessionals.length === 0}
               minHScreen={false}
-              UIComponent={topProfessionals
-                .concat(topProfessionals)
-                .map((provider, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="max-w-[400px] min-w-[300px] flex-1"
-                    >
-                      <ProviderCard provider={provider} />
-                    </div>
-                  );
-                })}
+              UIComponent={topProfessionals.map((provider, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="max-w-[400px] min-w-[300px] flex-1"
+                  >
+                    <ProviderCard provider={provider} />
+                  </div>
+                );
+              })}
             />
           </div>
         </div>
 
-        <div className="mt-5 md:hidden">
-          <button className="w-full p-3 border border-gray-300 rounded-[8px]">
-            View More
-          </button>
+        <div className="mt-5">
+          <Link to={`/service-providers`}>
+            <button className="cursor-pointer w-full p-3 border border-gray-300 rounded-[8px]">
+              View More
+            </button>
+          </Link>
         </div>
       </div>
       {}
       <div
         id="home-activities-section"
-        className="pt-20 sm:pt-30 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto"
+        className="pt-10 sm:pt-10 pb-14 px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto"
       >
         <div className="mb-10">
           <h1 className="font-medium text-3xl md:text-4xl lg:text-5xl leading-[150%] tracking-tight">
@@ -307,12 +346,32 @@ const Home: React.FC = () => {
         </div>
 
         <div>
-          <div className="max-w-[400px] w-full">
-            <ActivityCard />
+          <div className="flex flex-wrap gap-5">
+            <ContentHOC
+              loading={showcaseLoading}
+              error={!!showcaseError}
+              errMessage={showcaseError || ""}
+              actionFn={fetchShowcase}
+              noContent={showcaseToShow.length === 0}
+              minHScreen={false}
+              UIComponent={showcaseToShow.map((showcase, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="max-w-[400px] min-w-[300px] flex-1"
+                  >
+                    <ActivityCard showcase={showcase} />
+                  </div>
+                );
+              })}
+            />
           </div>
         </div>
-        <div className="mt-5 md:hidden">
-          <button className="w-full p-3 border border-gray-300 rounded-[8px]">
+        <div className="mt-5">
+          <button
+            onClick={viewMoreUpdates}
+            className="cursor-pointer w-full p-3 border border-gray-300 rounded-[8px]"
+          >
             View More
           </button>
         </div>

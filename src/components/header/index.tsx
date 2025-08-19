@@ -318,9 +318,6 @@ const Header: React.FC = () => {
                   </Link>{" "}
                 </li>
                 <li className="inline-block px-2">
-                  <Link to={"/activities"}>What's New</Link>{" "}
-                </li>
-                <li className="inline-block px-2">
                   <Link to={"/help-center"}>Help Center</Link>{" "}
                 </li>
               </ul>

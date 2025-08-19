@@ -2,7 +2,7 @@ import React from "react";
 import "./cards.css";
 import { Button, Rate } from "antd";
 import { Modal } from "antd";
-import placeholderUserImg from "../../assets/images/pro-sample-img.png";
+
 import FeatherIcon, {
   ArrowUpRight,
   Briefcase,
@@ -228,39 +228,135 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
     </div>
   );
 };
-export const ActivityCard: React.FC = () => {
+
+export interface ShowcaseAttachment {
+  id: number;
+  name: string;
+  url: string;
+  createdDate: string; // ISO timestamp
+}
+
+export interface Showcase {
+  id: number;
+  post: string;
+  location: string;
+  createdDate: string; // ISO timestamp
+  like: number; // whether current user liked (0 or 1)
+  likeCount: number;
+  commentCount: number;
+  savedCount: number;
+  viewCount: number;
+  user: UserAccount;
+  attachments: ShowcaseAttachment[];
+}
+
+interface ActivityCardProps {
+  showcase: Showcase;
+}
+interface UserAvatarProps {
+  userAvatar?: string;
+  fullName: string;
+  className?: string;
+}
+export const UserAvatar: React.FC<UserAvatarProps> = ({ userAvatar, fullName, className }) => {
+  // Base classes for the avatar container to ensure consistent sizing and shape
+  const baseClasses = "flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold";
+  
+  const combinedClasses = `${baseClasses} ${className || ''}`;
+
   return (
-    <div className="rounded-[10px] card-shadow p-0">
-      <div className="w-full aspect-[5/3]">
+    <>
+      {!userAvatar ? (
+        // Renders the initials avatar with a gray background
+        <div className={`${combinedClasses} bg-gray-500`}>
+          {getInitials(fullName)}
+        </div>
+      ) : (
+        // Renders the image avatar
         <img
-          src={placeholderUserImg}
-          className="rounded-t-[8px] w-full h-full object-cover"
+          src={userAvatar}
+          alt={`${fullName}'s avatar`}
+          className={`${combinedClasses} object-cover`}
         />
+      )}
+    </>
+  );
+};
+
+export const ActivityCard: React.FC<ActivityCardProps> = ({ showcase }) => {
+  const {openNotification} = useNotificationContext()
+  const navigate = useNavigate()
+  // Use moment to format the date
+  const formattedDate = moment(showcase.createdDate).format(
+    "ddd MMMM, YYYY. h:mma",
+  );
+
+  const redirectToLogin = () => {
+    openNotification("topRight", "You must be logged in to perform this action.","","info")
+    setTimeout(()=>{
+      navigate("/login")
+    },2000)
+  }
+
+  // Use a placeholder for user avatar if not available
+  const userAvatar =
+    showcase.user?.picture || undefined;
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Showcase Image */}
+      {/* User Info and Location */}
+      <div className="flex items-center gap-3 px-3 pt-3 mb-2">
+        <UserAvatar userAvatar={userAvatar} fullName={showcase.user.fullName}  />
+
+        <div>
+          <p className="font-medium text-gray-900 tracking-tight">{showcase.user.fullName}</p>
+          <p className="text-sm text-gray-500"><MapPin className="w-4 h-4 inline" /> {showcase.location}</p>
+        </div>
       </div>
-      <div className="w-full p-3">
-        <div className="flex px my-3">
-          <div className="w-max">
-            <FeatherIcon className="inline" icon="heart"></FeatherIcon>
+      {showcase.attachments[0]?.url && (
+        <div className="w-full aspect-[5/3] p-3">
+          <img
+            src={showcase.attachments[0].url}
+            className="rounded-xl border border-gray-200 w-full h-full object-cover"
+            alt={showcase.attachments[0].name || "Showcase image"}
+          />
+        </div>
+      )}
+
+      <div className="p-4 space-y-3">
+        {/* Post Content */}
+        <p className="text-sm text-gray-700 leading-relaxed">{showcase.post}</p>
+
+        {/* Metrics and Actions */}
+        <div className="flex items-center justify-between text-gray-600 border-t border-b border-gray-200 py-2">
+          {/* Likes */}
+          <div className="flex items-center gap-1.5 cursor-pointer" onClick={redirectToLogin}>
+            <FeatherIcon
+              icon="heart"
+              className={`w-5 h-5 cursor-pointer ${showcase.like === 1 ? "text-red-500 fill-current" : ""}`}
+            />
+            <span className="text-sm font-medium">{showcase.likeCount}</span>
           </div>
-          <div className="flex-1" />
-          <div className="w-max">
-            <FeatherIcon className="inline-block mr-3" icon="send" />{" "}
-            <FeatherIcon className="inline" icon="bookmark" />{" "}
+          {/* Comments */}
+          <div className="flex items-center gap-1.5  cursor-pointer" onClick={redirectToLogin}>
+            <FeatherIcon icon="message-square" className="w-5 h-5" />
+            <span className="text-sm font-medium">{showcase.commentCount}</span>
+          </div>
+          {/* Views */}
+          <div className="flex items-center gap-1.5  cursor-pointer" onClick={redirectToLogin}>
+            <FeatherIcon icon="eye" className="w-5 h-5" />
+            <span className="text-sm font-medium">{showcase.viewCount}</span>
           </div>
         </div>
-        <div className="my-3">
-          <p>
-            Wedding Makeup Jobs at Eko Hotel and Suites. #beckystudios
-            #brideglam
-          </p>
-        </div>
-        <div className="my-3">
-          <p className="text-gray-500">Posted Wed July, 2024. 3:14am</p>
-        </div>
+
+        {/* Timestamp */}
+        <p className="text-xs text-gray-400">Posted {formattedDate}</p>
       </div>
     </div>
   );
 };
+
 export const JobStatus = {
   Open: "Open",
   Negotiating: "Negotiating",

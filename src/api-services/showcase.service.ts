@@ -152,6 +152,7 @@ const deleteShowcaseComment = async (id: string, token: string) => {
   };
   return axios(config);
 };
+
 const likeShowcaseComment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/likeshowcasecomment/${id}`,
@@ -162,6 +163,7 @@ const likeShowcaseComment = async (id: string, token: string) => {
   };
   return axios(config);
 };
+
 const unlikeShowcaseComment = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/showcase/unlikeshowcasecomment/${id}`,
@@ -172,6 +174,7 @@ const unlikeShowcaseComment = async (id: string, token: string) => {
   };
   return axios(config);
 };
+
 const getShowcaseTimeline = async () => {
   const config = {
     url: `${baseUrl}/showcase/getshowcasetimeline`,
@@ -179,6 +182,31 @@ const getShowcaseTimeline = async () => {
   };
   return axios(config);
 };
+
+interface GetGeneralShowcaseTimelineParams {
+  search?: string;
+  orderBy?: "ASC" | "DESC";
+  page?: number;
+  limit?: number;
+}
+
+const getGeneralShowcaseTimeline = async (
+  params?: GetGeneralShowcaseTimelineParams,
+) => {
+  const config = {
+    url: `${baseUrl}/showcase/getgeneralshowcasetimeline`,
+    method: "GET",
+    params: {
+      search: params?.search,
+      orderBy: params?.orderBy ?? "DESC",
+      page: params?.page ?? 1,
+      limit: params?.limit ?? 10,
+    },
+  };
+
+  return axios(config);
+};
+
 export {
   createShowcase,
   updateShowcase,
@@ -199,4 +227,5 @@ export {
   likeShowcaseComment,
   unlikeShowcaseComment,
   getShowcaseTimeline,
+  getGeneralShowcaseTimeline,
 };
