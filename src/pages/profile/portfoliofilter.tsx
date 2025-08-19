@@ -12,7 +12,7 @@ import {
   TimePicker,
   InputNumber,
 } from "antd";
-import { Heart, MessageCircle, Eye } from "feather-icons-react";
+import { Heart, MessageCircle, Eye, Bookmark } from "feather-icons-react";
 import axios from "axios";
 
 interface PortfolioItem {
@@ -43,6 +43,8 @@ interface ShowcaseItem {
   comments: number;
   views: number;
   liked?: boolean;
+  saved?: boolean;
+  commentsList?: { id: number; text: string; createdDate: string }[];
 }
 
 const sections = ["Portfolio", "Products", "Showcase"];
@@ -56,6 +58,8 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
 
   const [loading, setLoading] = useState(false);
   const [liking, setLiking] = useState<number | null>(null);
+  const [saving, setSaving] = useState<number | null>(null);
+  const [commenting, setCommenting] = useState<number | null>(null);
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -100,7 +104,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
         serviceId: [selectedItem?.serviceId || selectedItem?.id || 0],
       };
 
-      const res = await axios.post(
+      await axios.post(
         "https://arvicesapi.denateonlineservice.com/bookings/createbookings",
         payload,
         {
@@ -139,7 +143,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
         productId: selectedProduct?.id,
       };
 
-      const res = await axios.post(
+      await axios.post(
         "https://arvicesapi.denateonlineservice.com/order/createorder",
         payload,
         {
@@ -159,39 +163,110 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
     }
   };
 
-  // -------- Toggle Like --------
+  // -------- Showcase: Like --------
   const handleToggleLike = async (item: ShowcaseItem) => {
     const token = localStorage.getItem("access_token");
-    if (!token) {
-      message.error("Not authenticated");
-      return;
-    }
+    if (!token) return message.error("Not authenticated");
 
     setLiking(item.id);
-
     try {
-      // Call the API (assuming it toggles like automatically)
-      const res = await axios.post(
-        `https://arvicesapi.denateonlineservice.com/showcase/likeshowcase/${item.id}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const endpoint = item.liked
+        ? `unlikeshowcase/${item.id}`
+        : `likeshowcase/${item.id}`;
 
-      // assume API responds with updated "liked" and "likes"
-      const { liked, likes } = res.data.response;
+      await axios.post(
+        `https://arvicesapi.denateonlineservice.com/showcase/${endpoint}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       setShowcaseItems((prev) =>
         prev.map((s) =>
-          s.id === item.id ? { ...s, liked, likes } : s
+          s.id === item.id
+            ? {
+                ...s,
+                liked: !s.liked,
+                likes: s.liked ? s.likes - 1 : s.likes + 1,
+              }
+            : s
         )
       );
     } catch (err: any) {
-      console.error("❌ Toggle failed:", err.response?.data || err);
-      message.error(err.response?.data?.message || "Failed to toggle like");
+      console.error("❌ Like toggle failed", err.response?.data || err);
     } finally {
       setLiking(null);
+    }
+  };
+
+  // -------- Showcase: Save --------
+  const handleToggleSave = async (item: ShowcaseItem) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return message.error("Not authenticated");
+
+    setSaving(item.id);
+    try {
+      const endpoint = item.saved
+        ? `unsaveshowcase/${item.id}`
+        : `saveshowcase/${item.id}`;
+
+      await axios.post(
+        `https://arvicesapi.denateonlineservice.com/showcase/${endpoint}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setShowcaseItems((prev) =>
+        prev.map((s) =>
+          s.id === item.id ? { ...s, saved: !s.saved } : s
+        )
+      );
+    } catch (err: any) {
+      console.error("❌ Save toggle failed", err.response?.data || err);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  // -------- Showcase: Comments --------
+  const fetchComments = async (itemId: number) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    try {
+      const res = await axios.get(
+        `https://arvicesapi.denateonlineservice.com/showcase/getshowcasecommentbyshowcase/${itemId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const comments = res.data.response || [];
+      setShowcaseItems((prev) =>
+        prev.map((s) =>
+          s.id === itemId ? { ...s, commentsList: comments } : s
+        )
+      );
+    } catch (err) {
+      console.error("❌ Failed to fetch comments", err);
+    }
+  };
+
+  const handleAddComment = async (itemId: number, text: string) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return message.error("Not authenticated");
+
+    setCommenting(itemId);
+    try {
+      await axios.post(
+        `https://arvicesapi.denateonlineservice.com/showcase/createshowcasecomment/${itemId}`,
+        { comment: text },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      message.success("Comment added");
+      fetchComments(itemId);
+    } catch (err: any) {
+      console.error("❌ Add comment failed", err.response?.data || err);
+    } finally {
+      setCommenting(null);
     }
   };
 
@@ -280,6 +355,8 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
         comments: item.comments ?? 0,
         views: item.views ?? 0,
         liked: item.liked ?? false,
+        saved: item.saved ?? false,
+        commentsList: [],
       }));
 
       setShowcaseItems(mapped);
@@ -392,14 +469,14 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
                       <h3 className="font-semibold tracking-tight text-base mb-2">
                         {item.title}
                       </h3>
-                      <div className="text-gray-800 text-sm mb-4">
-                        {item.description}
-                      </div>
+                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
                       <p className="text-xs text-gray-500 mb-2">
                         {new Date(item.createdDate).toLocaleDateString()}
                       </p>
-                      <div className="flex items-center space-x-4 text-sm text-gray-700">
-                        {/* ❤️ Like button */}
+
+                      {/* Actions */}
+                      <div className="flex items-center space-x-4 text-sm text-gray-700 mb-3">
+                        {/* Like */}
                         <button
                           className="flex items-center space-x-1 focus:outline-none disabled:opacity-50"
                           onClick={() => handleToggleLike(item)}
@@ -414,15 +491,52 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
                           <span>{item.likes}</span>
                         </button>
 
-                        <div className="flex items-center space-x-1">
+                        {/* Comments */}
+                        <button
+                          className="flex items-center space-x-1"
+                          onClick={() => fetchComments(item.id)}
+                        >
                           <MessageCircle className="w-4 h-4" />
                           <span>{item.comments}</span>
-                        </div>
+                        </button>
+
+                        {/* Save */}
+                        <button
+                          className="flex items-center space-x-1"
+                          onClick={() => handleToggleSave(item)}
+                          disabled={saving === item.id}
+                        >
+                          <Bookmark
+                            className={`w-4 h-4 cursor-pointer ${
+                              item.saved ? "text-blue-500" : ""
+                            }`}
+                            fill={item.saved ? "blue" : "none"}
+                          />
+                        </button>
+
+                        {/* Views */}
                         <div className="flex items-center space-x-1">
                           <Eye className="w-4 h-4" />
                           <span>{item.views}</span>
                         </div>
                       </div>
+
+                      {/* Comments List */}
+                      {item.commentsList && (
+                        <div className="pl-4 space-y-2">
+                          {item.commentsList.map((c) => (
+                            <p key={c.id} className="text-sm text-gray-600">
+                              {c.text}
+                            </p>
+                          ))}
+                          <Input.Search
+                            placeholder="Add a comment..."
+                            enterButton="Post"
+                            loading={commenting === item.id}
+                            onSearch={(val) => val && handleAddComment(item.id, val)}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

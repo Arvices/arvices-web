@@ -1,168 +1,77 @@
 import { FC } from "react";
-import {
-  ArrowUpLeft,
-  Download,
-  Upload,
-  CreditCard,
-  XCircle,
-  CheckCircle,
-  Clock,
-} from "lucide-react";
-import clsx from "clsx";
+import { ArrowUpRight, ArrowDownLeft, Plus, X } from "lucide-react";
 
 interface TransactionItemProps {
   transaction: {
     id: string | number;
-    type: string; // from API
+    type: string;
     reference?: string;
     paid?: boolean;
-    reflected?: boolean; // true if amount reflected in balance
     createdDate?: string;
-    from?: { fullName?: string; email?: string };
+    method?: string; // ✅ Added method
     to?: { fullName?: string; email?: string };
-    amount: string | number;
+    amount: number | string;
   };
 }
 
 const TransactionItem: FC<TransactionItemProps> = ({ transaction }) => {
-  const rawType = transaction.type?.toLowerCase();
-  let type: "topup" | "withdrawal" | "received" | "sent" = "topup";
-  let label = "";
-
-  if (rawType.includes("withdraw")) {
-    type = "withdrawal";
-    label = "Withdrawal";
-  } else if (rawType.includes("topup")) {
-    type = "topup";
-    label = "TopUp";
-  } else if (rawType.includes("credit") || rawType.includes("receive")) {
-    type = "received";
-    label = "Received";
-  } else if (rawType.includes("debit") || rawType.includes("send")) {
-    type = "sent";
-    label = "Sent";
-  } else {
-    label = "TopUp";
-  }
-
-  let partyName = "";
-  if (type === "received" && transaction.from?.fullName) {
-    partyName = ` from ${transaction.from.fullName}`;
-  } else if (type === "sent" && transaction.to?.fullName) {
-    partyName = ` to ${transaction.to.fullName}`;
-  }
-
-  // Determine success/failure/pending
-  const isSuccessful = transaction.paid || transaction.reflected;
-  const isFailed = !isSuccessful && transaction.paid === false;
-  const isPending = !isSuccessful && !isFailed;
-
-  let statusText = "Pending";
-  if (isSuccessful) statusText = "Successful";
-  if (isFailed) statusText = "Failed";
-
-  // Choose icon with direct color classes
   let icon;
-  if (isSuccessful) {
-    icon = <CheckCircle size={18} className="text-green-600" />;
-  } else if (isFailed) {
-    icon = <XCircle size={18} className="text-red-600" />;
-  } else if (isPending) {
-    icon = <Clock size={18} className="text-yellow-600" />;
+  let circleColor = "";
+
+  if (!transaction.paid) {
+    icon = <X size={16} color="#b91c1c" />; // red
+    circleColor = "bg-red-200";
+  } else if (transaction.type === "credit" || transaction.type === "received") {
+    icon = <ArrowDownLeft size={16} color="#15803d" />; // green
+    circleColor = "bg-green-200";
+  } else if (transaction.type === "debit" || transaction.type === "sent") {
+    icon = <ArrowUpRight size={16} color="#b91c1c" />; // red
+    circleColor = "bg-red-200";
+  } else if (transaction.type === "topup") {
+    icon = <Plus size={16} color="#1d4ed8" />; // blue
+    circleColor = "bg-blue-200";
   } else {
-    // fallback type-based icons with colors
-    switch (type) {
-      case "withdrawal":
-        icon = <ArrowUpLeft size={18} className="text-red-700" />;
-        break;
-      case "received":
-        icon = <Download size={18} className="text-blue-700" />;
-        break;
-      case "sent":
-        icon = <Upload size={18} className="text-yellow-800" />;
-        break;
-      default:
-        icon = <CreditCard size={18} className="text-blue-700" />;
-    }
-  }
-
-  // Icon wrapper background colors only
-  const iconWrapperClass = clsx(
-    "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
-    {
-      "bg-green-100": isSuccessful,
-      "bg-red-100": isFailed,
-      "bg-yellow-100": isPending,
-      "bg-gray-100": !isSuccessful && !isFailed && !isPending,
-    }
-  );
-
-  // Date handling with multiple fallbacks
-  let dateTimeStr = "";
-  const rawDate =
-    transaction.createdDate ||
-    (transaction as any).created_at ||
-    (transaction as any).transactionDate ||
-    (transaction as any).date;
-
-  if (rawDate) {
-    let parsedDate = new Date(rawDate);
-
-    // Handle DD/MM/YYYY
-    if (isNaN(parsedDate.getTime()) && typeof rawDate === "string") {
-      const match = rawDate.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-      if (match) {
-        parsedDate = new Date(`${match[2]}/${match[1]}/${match[3]}`);
-      }
-    }
-
-    if (!isNaN(parsedDate.getTime())) {
-      dateTimeStr = new Intl.DateTimeFormat("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      }).format(parsedDate);
-    }
+    icon = <ArrowUpRight size={16} color="#374151" />; // gray
+    circleColor = "bg-gray-200";
   }
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-gray-100">
+    <div className="p-3 rounded-md flex items-center justify-between">
+      {/* Left side: icon + details */}
       <div className="flex items-center gap-3">
-        <div className={iconWrapperClass}>{icon}</div>
-        <div className="text-sm">
-          <p className="font-medium text-gray-800">
-            {label}
-            {partyName}
+        <div
+          className={`w-8 h-8 flex items-center justify-center rounded-full ${circleColor}`}
+        >
+          {icon}
+        </div>
+        <div>
+          <p className="font-semibold capitalize">{transaction.type}</p>
+          <p className="text-sm text-gray-500">
+            Ref: {transaction.reference}
           </p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {transaction.reference && (
-              <>
-                {transaction.reference} <span className="mx-1">•</span>
-              </>
-            )}
-            {dateTimeStr}
+          <p className="text-sm">
+            {transaction.paid ? "Paid" : "Not Paid"} —{" "}
+            {transaction.createdDate
+              ? new Date(transaction.createdDate).toLocaleString()
+              : ""}
           </p>
-          <p
-            className={clsx("text-xs mt-0.5", {
-              "text-green-600": isSuccessful,
-              "text-red-600": isFailed,
-              "text-yellow-600": isPending,
-            })}
-          >
-            {statusText}
-          </p>
+          {transaction.to && (
+            <p className="text-sm text-gray-600">
+              To: {transaction.to.fullName} ({transaction.to.email})
+            </p>
+          )}
+          {transaction.method && (
+            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+              {transaction.method}
+            </span>
+          )}
         </div>
       </div>
-      <p className="font-semibold text-[15px] text-gray-900">
-        ₦
-        {Number(transaction.amount).toLocaleString(undefined, {
-          minimumFractionDigits: 0,
-        })}
-      </p>
+
+      {/* Right side: amount */}
+      <span className="font-bold">
+        ₦{Number(transaction.amount).toLocaleString()}
+      </span>
     </div>
   );
 };
