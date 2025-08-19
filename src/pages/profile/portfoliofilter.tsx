@@ -1,5 +1,17 @@
 import { useState, useEffect } from "react";
-import { Spin, Empty, Button, Pagination, message } from "antd";
+import {
+  Spin,
+  Empty,
+  Button,
+  Pagination,
+  message,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  TimePicker,
+  InputNumber,
+} from "antd";
 import { Heart, MessageCircle, Eye } from "feather-icons-react";
 import axios from "axios";
 
@@ -11,7 +23,7 @@ interface PortfolioItem {
   comments: number;
   description: string;
   views: string;
-  serviceId?: number; // 👈 add serviceId if backend provides it
+  serviceId?: number;
 }
 
 interface ProductItem {
@@ -30,6 +42,7 @@ interface ShowcaseItem {
   likes: number;
   comments: number;
   views: number;
+  liked?: boolean;
 }
 
 const sections = ["Portfolio", "Products", "Showcase"];
@@ -42,60 +55,145 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
   const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [liking, setLiking] = useState<number | null>(null);
 
   // Pagination state
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // Booking modal state
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [form] = Form.useForm();
+
+  // Order modal state
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
+  const [orderForm] = Form.useForm();
+
   // -------- Create Booking --------
-const handleCreateBooking = async (item: PortfolioItem) => {
-  try {
+  const handleOpenBooking = (item: PortfolioItem) => {
+    setSelectedItem(item);
+    setShowBookingModal(true);
+  };
+
+  const handleSubmitBooking = async (values: any) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        message.error("Not authenticated");
+        return;
+      }
+
+      const payload = {
+        totalCost: values.totalCost,
+        totalDuration: values.totalDuration,
+        bookingDate: values.bookingDate.format("YYYY-MM-DD"),
+        bookingFromTime: values.bookingFromTime.format("HH:mm"),
+        bookingToTime: values.bookingToTime.format("HH:mm"),
+        clientName: values.clientName,
+        clientEmail: values.clientEmail,
+        clientPhone: values.clientPhone,
+        clientLocation: values.clientLocation,
+        clientNotes: values.clientNotes,
+        depositAmount: values.depositAmount,
+        serviceId: [selectedItem?.serviceId || selectedItem?.id || 0],
+      };
+
+      const res = await axios.post(
+        "https://arvicesapi.denateonlineservice.com/bookings/createbookings",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      message.success("Booking created successfully!");
+      setShowBookingModal(false);
+      form.resetFields();
+    } catch (err: any) {
+      console.error("❌ Booking failed:", err.response?.data || err);
+      message.error(err.response?.data?.message || "Failed to create booking");
+    }
+  };
+
+  // -------- Create Order --------
+  const handleOpenOrder = (item: ProductItem) => {
+    setSelectedProduct(item);
+    setShowOrderModal(true);
+  };
+
+  const handleSubmitOrder = async (values: any) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        message.error("Not authenticated");
+        return;
+      }
+
+      const payload = {
+        quantity: values.quantity,
+        productId: selectedProduct?.id,
+      };
+
+      const res = await axios.post(
+        "https://arvicesapi.denateonlineservice.com/order/createorder",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      message.success("Order created successfully!");
+      setShowOrderModal(false);
+      orderForm.resetFields();
+    } catch (err: any) {
+      console.error("❌ Order failed:", err.response?.data || err);
+      message.error(err.response?.data?.message || "Failed to create order");
+    }
+  };
+
+  // -------- Toggle Like --------
+  const handleToggleLike = async (item: ShowcaseItem) => {
     const token = localStorage.getItem("access_token");
     if (!token) {
       message.error("Not authenticated");
       return;
     }
 
-    // Build payload based on what BookingPage expects
-    const payload = {
-      clientName: "Auto Client",
-      clientEmail: "client@example.com",
-      clientPhone: "0000000000",
-      clientLocation: "N/A",
-      clientNotes: `Booking from portfolio: ${item.title}`,
-      bookingDate: new Date().toISOString().slice(0, 10),
-      bookingFromTime: "09:00",
-      bookingToTime: "10:00",
-      serviceId: [item.id], // portfolio item id -> serviceId link
-      price: 0,
-      status: "In Progress",
-    };
+    setLiking(item.id);
 
-    console.log("📤 Sending booking payload:", payload);
+    try {
+      // Call the API (assuming it toggles like automatically)
+      const res = await axios.post(
+        `https://arvicesapi.denateonlineservice.com/showcase/likeshowcase/${item.id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    const res = await axios.post(
-      "https://arvicesapi.denateonlineservice.com/bookings/createbookings",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      // assume API responds with updated "liked" and "likes"
+      const { liked, likes } = res.data.response;
 
-    console.log("✅ Booking response:", res.data);
-    message.success("Booking created successfully!");
-
-    // Optional: navigate to booking page immediately
-    // window.location.href = "/bookings";
-
-  } catch (err: any) {
-    console.error("❌ Booking failed:", err.response?.data || err);
-    message.error(err.response?.data?.message || "Failed to create booking");
-  }
-};
-
+      setShowcaseItems((prev) =>
+        prev.map((s) =>
+          s.id === item.id ? { ...s, liked, likes } : s
+        )
+      );
+    } catch (err: any) {
+      console.error("❌ Toggle failed:", err.response?.data || err);
+      message.error(err.response?.data?.message || "Failed to toggle like");
+    } finally {
+      setLiking(null);
+    }
+  };
 
   // -------- Fetch Portfolio --------
   const fetchPortfolio = async (pageNum: number) => {
@@ -118,7 +216,7 @@ const handleCreateBooking = async (item: PortfolioItem) => {
         comments: item.comments ?? 0,
         description: item.description || "",
         views: item.views ? String(item.views) : "0",
-        serviceId: item.serviceId, // 👈 pull from backend if present
+        serviceId: item.serviceId,
       }));
 
       setPortfolioItems(mapped);
@@ -181,6 +279,7 @@ const handleCreateBooking = async (item: PortfolioItem) => {
         likes: item.likes ?? 0,
         comments: item.comments ?? 0,
         views: item.views ?? 0,
+        liked: item.liked ?? false,
       }));
 
       setShowcaseItems(mapped);
@@ -199,7 +298,6 @@ const handleCreateBooking = async (item: PortfolioItem) => {
     if (activeSection === "Showcase") fetchShowcase(page);
   }, [activeSection, page]);
 
-  // Which list to render
   const listToRender =
     activeSection === "Portfolio"
       ? portfolioItems
@@ -256,24 +354,7 @@ const handleCreateBooking = async (item: PortfolioItem) => {
                       <div className="text-gray-800 text-sm mb-4">
                         {item.description}
                       </div>
-
-                      <div className="flex items-center space-x-4 text-sm text-gray-700 mb-4">
-                        <div className="flex items-center space-x-1">
-                          <Heart className="w-4 h-4" />
-                          <span>{item.likes}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MessageCircle className="w-4 h-4" />
-                          <span>{item.comments}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Eye className="w-4 h-4" />
-                          <span>{item.views}</span>
-                        </div>
-                      </div>
-
-                      {/* 👉 New Book button here */}
-                      <Button type="primary" onClick={() => handleCreateBooking(item)}>
+                      <Button type="primary" onClick={() => handleOpenBooking(item)}>
                         Book
                       </Button>
                     </div>
@@ -291,12 +372,11 @@ const handleCreateBooking = async (item: PortfolioItem) => {
                       <h3 className="font-semibold tracking-tight text-base mb-2">
                         {item.title}
                       </h3>
-                      <div className="text-gray-800 text-sm mb-2">
-                        {item.description}
-                      </div>
-                      <p className="text-sm text-gray-800 font-medium">
-                        ₦{item.price}
-                      </p>
+                      <div className="text-gray-800 text-sm mb-2">{item.description}</div>
+                      <p className="text-sm text-gray-800 font-medium">₦{item.price}</p>
+                      <Button type="primary" onClick={() => handleOpenOrder(item)}>
+                        Order
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -312,15 +392,28 @@ const handleCreateBooking = async (item: PortfolioItem) => {
                       <h3 className="font-semibold tracking-tight text-base mb-2">
                         {item.title}
                       </h3>
-                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
+                      <div className="text-gray-800 text-sm mb-4">
+                        {item.description}
+                      </div>
                       <p className="text-xs text-gray-500 mb-2">
                         {new Date(item.createdDate).toLocaleDateString()}
                       </p>
                       <div className="flex items-center space-x-4 text-sm text-gray-700">
-                        <div className="flex items-center space-x-1">
-                          <Heart className="w-4 h-4" />
+                        {/* ❤️ Like button */}
+                        <button
+                          className="flex items-center space-x-1 focus:outline-none disabled:opacity-50"
+                          onClick={() => handleToggleLike(item)}
+                          disabled={liking === item.id}
+                        >
+                          <Heart
+                            className={`w-4 h-4 cursor-pointer ${
+                              item.liked ? "text-red-500" : ""
+                            }`}
+                            fill={item.liked ? "red" : "none"}
+                          />
                           <span>{item.likes}</span>
-                        </div>
+                        </button>
+
                         <div className="flex items-center space-x-1">
                           <MessageCircle className="w-4 h-4" />
                           <span>{item.comments}</span>
@@ -347,6 +440,90 @@ const handleCreateBooking = async (item: PortfolioItem) => {
             </div>
           </>
         )}
+
+        {/* Booking Modal */}
+        <Modal
+          title={`Book Service${selectedItem ? `: ${selectedItem.title}` : ""}`}
+          open={showBookingModal}
+          onCancel={() => setShowBookingModal(false)}
+          footer={null}
+        >
+          <Form form={form} layout="vertical" onFinish={handleSubmitBooking}>
+            <Form.Item name="clientName" label="Name" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="clientEmail"
+              label="Email"
+              rules={[{ required: true, type: "email" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item name="clientPhone" label="Phone" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="clientLocation" label="Location" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="clientNotes" label="Notes">
+              <Input.TextArea />
+            </Form.Item>
+            <Form.Item name="bookingDate" label="Booking Date" rules={[{ required: true }]}>
+              <DatePicker className="w-full" />
+            </Form.Item>
+            <Form.Item
+              name="bookingFromTime"
+              label="From Time"
+              rules={[{ required: true }]}
+            >
+              <TimePicker className="w-full" format="HH:mm" />
+            </Form.Item>
+            <Form.Item name="bookingToTime" label="To Time" rules={[{ required: true }]}>
+              <TimePicker className="w-full" format="HH:mm" />
+            </Form.Item>
+            <Form.Item name="totalCost" label="Total Cost" rules={[{ required: true }]}>
+              <InputNumber className="w-full" min={0} />
+            </Form.Item>
+            <Form.Item
+              name="depositAmount"
+              label="Deposit Amount"
+              rules={[{ required: true }]}
+            >
+              <InputNumber className="w-full" min={0} />
+            </Form.Item>
+            <Form.Item
+              name="totalDuration"
+              label="Duration (hours)"
+              rules={[{ required: true }]}
+            >
+              <InputNumber className="w-full" min={1} />
+            </Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Confirm Booking
+            </Button>
+          </Form>
+        </Modal>
+
+        {/* Order Modal */}
+        <Modal
+          title={`Order Product${selectedProduct ? `: ${selectedProduct.title}` : ""}`}
+          open={showOrderModal}
+          onCancel={() => setShowOrderModal(false)}
+          footer={null}
+        >
+          <Form form={orderForm} layout="vertical" onFinish={handleSubmitOrder}>
+            <Form.Item
+              name="quantity"
+              label="Quantity"
+              rules={[{ required: true, message: "Please enter quantity" }]}
+            >
+              <InputNumber className="w-full" min={1} />
+            </Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Confirm Order
+            </Button>
+          </Form>
+        </Modal>
       </div>
     </section>
   );
