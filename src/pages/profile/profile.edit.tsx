@@ -28,6 +28,7 @@ import { formatTime } from "../util/timeUtil";
 import { Settings } from "lucide-react";
 import PasswordChange from "./passwordchange";
 import { ServiceDetailCard } from "./userservicecomponents";
+import { ManageProducts } from "./manageproduct";
 type ChangeLikeEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   | {
@@ -55,6 +56,11 @@ export function ProfileEdit() {
     {
       label: "Services",
       value: "services",
+      icon: <DollarOutlined />,
+    },
+    {
+      label: "Products",
+      value: "products",
       icon: <DollarOutlined />,
     },
     {
@@ -1010,11 +1016,17 @@ export function ProfileEdit() {
               {activeTab === "settings" && (
                 <PasswordChange userId={editData?.id || 0} />
               )}
+
+              {activeTab === "products" && (
+                <div>
+                  <ManageProducts />
+                </div>
+              )}
               {}
             </div>
           </div>
           <div className="my-8 border-t border-gray-300" />
-          {activeTab !== "services" && activeTab !== "settings" && (
+          {activeTab !== "services" && activeTab !== "settings" && activeTab !== "products" && (
             <div className="">
               <button
                 onClick={handleSave}
