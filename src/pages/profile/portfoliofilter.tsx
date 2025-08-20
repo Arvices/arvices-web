@@ -12,8 +12,10 @@ import {
   TimePicker,
   InputNumber,
 } from "antd";
-import { Heart, MessageCircle, Eye, Bookmark } from "feather-icons-react";
 import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
+import { useParams } from "react-router-dom";
+import ShowcaseFeed from "./ShowcaseFeed"; // 👈 Showcase handled separately
 
 interface PortfolioItem {
   id: number;
@@ -34,19 +36,6 @@ interface ProductItem {
   createdDate: string;
 }
 
-interface ShowcaseItem {
-  id: number;
-  title: string;
-  description: string;
-  createdDate: string;
-  likes: number;
-  comments: number;
-  views: number;
-  liked?: boolean;
-  saved?: boolean;
-  commentsList?: { id: number; text: string; createdDate: string }[];
-}
-
 const sections = ["Portfolio", "Products", "Showcase"];
 
 export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) {
@@ -54,16 +43,17 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
 
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [productItems, setProductItems] = useState<ProductItem[]>([]);
-  const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>([]);
 
   const [loading, setLoading] = useState(false);
-  const [liking, setLiking] = useState<number | null>(null);
-  const [saving, setSaving] = useState<number | null>(null);
-  const [commenting, setCommenting] = useState<number | null>(null);
 
-  // Pagination state
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [portfolioPage, setPortfolioPage] = useState(1);
+  const [productsPage, setProductsPage] = useState(1);
+
+  const [portfolioTotal, setPortfolioTotal] = useState(0);
+  const [productsTotal, setProductsTotal] = useState(0);
+
+  const { token } = useAuth();
+  const { userId } = useParams<{ userId: string }>();
 
   // Booking modal state
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -74,201 +64,6 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [orderForm] = Form.useForm();
-
-  // -------- Create Booking --------
-  const handleOpenBooking = (item: PortfolioItem) => {
-    setSelectedItem(item);
-    setShowBookingModal(true);
-  };
-
-  const handleSubmitBooking = async (values: any) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        message.error("Not authenticated");
-        return;
-      }
-
-      const payload = {
-        totalCost: values.totalCost,
-        totalDuration: values.totalDuration,
-        bookingDate: values.bookingDate.format("YYYY-MM-DD"),
-        bookingFromTime: values.bookingFromTime.format("HH:mm"),
-        bookingToTime: values.bookingToTime.format("HH:mm"),
-        clientName: values.clientName,
-        clientEmail: values.clientEmail,
-        clientPhone: values.clientPhone,
-        clientLocation: values.clientLocation,
-        clientNotes: values.clientNotes,
-        depositAmount: values.depositAmount,
-        serviceId: [selectedItem?.serviceId || selectedItem?.id || 0],
-      };
-
-      await axios.post(
-        "https://arvicesapi.denateonlineservice.com/bookings/createbookings",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      message.success("Booking created successfully!");
-      setShowBookingModal(false);
-      form.resetFields();
-    } catch (err: any) {
-      console.error("❌ Booking failed:", err.response?.data || err);
-      message.error(err.response?.data?.message || "Failed to create booking");
-    }
-  };
-
-  // -------- Create Order --------
-  const handleOpenOrder = (item: ProductItem) => {
-    setSelectedProduct(item);
-    setShowOrderModal(true);
-  };
-
-  const handleSubmitOrder = async (values: any) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        message.error("Not authenticated");
-        return;
-      }
-
-      const payload = {
-        quantity: values.quantity,
-        productId: selectedProduct?.id,
-      };
-
-      await axios.post(
-        "https://arvicesapi.denateonlineservice.com/order/createorder",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      message.success("Order created successfully!");
-      setShowOrderModal(false);
-      orderForm.resetFields();
-    } catch (err: any) {
-      console.error("❌ Order failed:", err.response?.data || err);
-      message.error(err.response?.data?.message || "Failed to create order");
-    }
-  };
-
-  // -------- Showcase: Like --------
-  const handleToggleLike = async (item: ShowcaseItem) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return message.error("Not authenticated");
-
-    setLiking(item.id);
-    try {
-      const endpoint = item.liked
-        ? `unlikeshowcase/${item.id}`
-        : `likeshowcase/${item.id}`;
-
-      await axios.post(
-        `https://arvicesapi.denateonlineservice.com/showcase/${endpoint}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setShowcaseItems((prev) =>
-        prev.map((s) =>
-          s.id === item.id
-            ? {
-                ...s,
-                liked: !s.liked,
-                likes: s.liked ? s.likes - 1 : s.likes + 1,
-              }
-            : s
-        )
-      );
-    } catch (err: any) {
-      console.error("❌ Like toggle failed", err.response?.data || err);
-    } finally {
-      setLiking(null);
-    }
-  };
-
-  // -------- Showcase: Save --------
-  const handleToggleSave = async (item: ShowcaseItem) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return message.error("Not authenticated");
-
-    setSaving(item.id);
-    try {
-      const endpoint = item.saved
-        ? `unsaveshowcase/${item.id}`
-        : `saveshowcase/${item.id}`;
-
-      await axios.post(
-        `https://arvicesapi.denateonlineservice.com/showcase/${endpoint}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setShowcaseItems((prev) =>
-        prev.map((s) =>
-          s.id === item.id ? { ...s, saved: !s.saved } : s
-        )
-      );
-    } catch (err: any) {
-      console.error("❌ Save toggle failed", err.response?.data || err);
-    } finally {
-      setSaving(null);
-    }
-  };
-
-  // -------- Showcase: Comments --------
-  const fetchComments = async (itemId: number) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
-    try {
-      const res = await axios.get(
-        `https://arvicesapi.denateonlineservice.com/showcase/getshowcasecommentbyshowcase/${itemId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const comments = res.data.response || [];
-      setShowcaseItems((prev) =>
-        prev.map((s) =>
-          s.id === itemId ? { ...s, commentsList: comments } : s
-        )
-      );
-    } catch (err) {
-      console.error("❌ Failed to fetch comments", err);
-    }
-  };
-
-  const handleAddComment = async (itemId: number, text: string) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return message.error("Not authenticated");
-
-    setCommenting(itemId);
-    try {
-      await axios.post(
-        `https://arvicesapi.denateonlineservice.com/showcase/createshowcasecomment/${itemId}`,
-        { comment: text },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      message.success("Comment added");
-      fetchComments(itemId);
-    } catch (err: any) {
-      console.error("❌ Add comment failed", err.response?.data || err);
-    } finally {
-      setCommenting(null);
-    }
-  };
 
   // -------- Fetch Portfolio --------
   const fetchPortfolio = async (pageNum: number) => {
@@ -295,15 +90,16 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
       }));
 
       setPortfolioItems(mapped);
-      setTotal(res.data.total || 0);
+      setPortfolioTotal(res.data.total || res.data.meta?.total || 0);
     } catch (err) {
       console.error("❌ Failed to load portfolio", err);
+      message.error("Failed to load portfolio");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch Products
+  // -------- Fetch Products --------
   const fetchProducts = async (pageNum: number) => {
     try {
       setLoading(true);
@@ -325,62 +121,20 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
       }));
 
       setProductItems(mapped);
-      setTotal(res.data.total || 0);
+      setProductsTotal(res.data.total || res.data.meta?.total || 0);
     } catch (err) {
       console.error("❌ Failed to load products", err);
+      message.error("Failed to load products");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch Showcase
-  const fetchShowcase = async (pageNum: number) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("access_token");
-      const res = await axios.get(
-        "https://arvicesapi.denateonlineservice.com/showcase/getgeneralshowcasetimeline",
-        {
-          params: { orderBy: "DESC", page: pageNum, limit: 10 },
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const mapped: ShowcaseItem[] = (res.data.response || []).map((item: any) => ({
-        id: item.id,
-        title: item.title || "",
-        description: item.description || "",
-        createdDate: item.createdDate,
-        likes: item.likes ?? 0,
-        comments: item.comments ?? 0,
-        views: item.views ?? 0,
-        liked: item.liked ?? false,
-        saved: item.saved ?? false,
-        commentsList: [],
-      }));
-
-      setShowcaseItems(mapped);
-      setTotal(res.data.total || 0);
-    } catch (err) {
-      console.error("❌ Failed to load showcase", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Watch section or page changes
   useEffect(() => {
-    if (activeSection === "Portfolio") fetchPortfolio(page);
-    if (activeSection === "Products") fetchProducts(page);
-    if (activeSection === "Showcase") fetchShowcase(page);
-  }, [activeSection, page]);
-
-  const listToRender =
-    activeSection === "Portfolio"
-      ? portfolioItems
-      : activeSection === "Products"
-      ? productItems
-      : showcaseItems;
+    if (activeSection === "Portfolio") fetchPortfolio(portfolioPage);
+    if (activeSection === "Products") fetchProducts(productsPage);
+    // Showcase is handled by ShowcaseFeed
+  }, [activeSection, portfolioPage, productsPage, userId]);
 
   return (
     <section className="py-16 px-6 bg-white">
@@ -394,10 +148,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
           {sections.map((section) => (
             <Button
               key={section}
-              onClick={() => {
-                setActiveSection(section);
-                setPage(1);
-              }}
+              onClick={() => setActiveSection(section)}
               type={activeSection === section ? "primary" : "default"}
             >
               {section}
@@ -409,150 +160,68 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
           <div className="flex justify-center">
             <Spin size="large" />
           </div>
-        ) : listToRender.length === 0 ? (
-          <Empty description={`No ${activeSection.toLowerCase()} items found`} />
-        ) : (
-          <>
-            <div className="flex flex-col gap-6">
-              {/* Portfolio */}
-              {activeSection === "Portfolio" &&
-                portfolioItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group"
+        ) : activeSection === "Portfolio" ? (
+          portfolioItems.length === 0 ? (
+            <Empty description="No portfolio items found" />
+          ) : (
+            <>
+              {portfolioItems.map((item) => (
+                <div key={item.id} className="bg-white rounded-lg shadow-sm p-4">
+                  <div className="text-xs font-medium text-gray-500 mb-1">{item.category}</div>
+                  <h3 className="font-semibold tracking-tight text-base mb-2">{item.title}</h3>
+                  <div className="text-gray-800 text-sm mb-4">{item.description}</div>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      setSelectedItem(item);
+                      setShowBookingModal(true);
+                    }}
                   >
-                    <div className="p-4">
-                      <div className="text-xs font-medium text-gray-500 mb-1">
-                        {item.category}
-                      </div>
-                      <h3 className="font-semibold tracking-tight text-base mb-2">
-                        {item.title}
-                      </h3>
-                      <div className="text-gray-800 text-sm mb-4">
-                        {item.description}
-                      </div>
-                      <Button type="primary" onClick={() => handleOpenBooking(item)}>
-                        Book
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-
-              {/* Products */}
-              {activeSection === "Products" &&
-                productItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group"
-                  >
-                    <div className="p-4">
-                      <h3 className="font-semibold tracking-tight text-base mb-2">
-                        {item.title}
-                      </h3>
-                      <div className="text-gray-800 text-sm mb-2">{item.description}</div>
-                      <p className="text-sm text-gray-800 font-medium">₦{item.price}</p>
-                      <Button type="primary" onClick={() => handleOpenOrder(item)}>
-                        Order
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-
-              {/* Showcase */}
-              {activeSection === "Showcase" &&
-                showcaseItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group"
-                  >
-                    <div className="p-4">
-                      <h3 className="font-semibold tracking-tight text-base mb-2">
-                        {item.title}
-                      </h3>
-                      <div className="text-gray-800 text-sm mb-4">{item.description}</div>
-                      <p className="text-xs text-gray-500 mb-2">
-                        {new Date(item.createdDate).toLocaleDateString()}
-                      </p>
-
-                      {/* Actions */}
-                      <div className="flex items-center space-x-4 text-sm text-gray-700 mb-3">
-                        {/* Like */}
-                        <button
-                          className="flex items-center space-x-1 focus:outline-none disabled:opacity-50"
-                          onClick={() => handleToggleLike(item)}
-                          disabled={liking === item.id}
-                        >
-                          <Heart
-                            className={`w-4 h-4 cursor-pointer ${
-                              item.liked ? "text-red-500" : ""
-                            }`}
-                            fill={item.liked ? "red" : "none"}
-                          />
-                          <span>{item.likes}</span>
-                        </button>
-
-                        {/* Comments */}
-                        <button
-                          className="flex items-center space-x-1"
-                          onClick={() => fetchComments(item.id)}
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>{item.comments}</span>
-                        </button>
-
-                        {/* Save */}
-                        <button
-                          className="flex items-center space-x-1"
-                          onClick={() => handleToggleSave(item)}
-                          disabled={saving === item.id}
-                        >
-                          <Bookmark
-                            className={`w-4 h-4 cursor-pointer ${
-                              item.saved ? "text-blue-500" : ""
-                            }`}
-                            fill={item.saved ? "blue" : "none"}
-                          />
-                        </button>
-
-                        {/* Views */}
-                        <div className="flex items-center space-x-1">
-                          <Eye className="w-4 h-4" />
-                          <span>{item.views}</span>
-                        </div>
-                      </div>
-
-                      {/* Comments List */}
-                      {item.commentsList && (
-                        <div className="pl-4 space-y-2">
-                          {item.commentsList.map((c) => (
-                            <p key={c.id} className="text-sm text-gray-600">
-                              {c.text}
-                            </p>
-                          ))}
-                          <Input.Search
-                            placeholder="Add a comment..."
-                            enterButton="Post"
-                            loading={commenting === item.id}
-                            onSearch={(val) => val && handleAddComment(item.id, val)}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            {/* Pagination */}
-            <div className="flex justify-center mt-8">
+                    Book
+                  </Button>
+                </div>
+              ))}
               <Pagination
-                current={page}
+                current={portfolioPage}
                 pageSize={10}
-                total={total}
-                onChange={(p) => setPage(p)}
+                total={portfolioTotal}
+                onChange={(p) => setPortfolioPage(p)}
                 showSizeChanger={false}
               />
-            </div>
-          </>
+            </>
+          )
+        ) : activeSection === "Products" ? (
+          productItems.length === 0 ? (
+            <Empty description="No products found" />
+          ) : (
+            <>
+              {productItems.map((item) => (
+                <div key={item.id} className="bg-white rounded-lg shadow-sm p-4">
+                  <h3 className="font-semibold tracking-tight text-base mb-2">{item.title}</h3>
+                  <div className="text-gray-800 text-sm mb-2">{item.description}</div>
+                  <p className="text-sm text-gray-800 font-medium">₦{item.price}</p>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      setSelectedProduct(item);
+                      setShowOrderModal(true);
+                    }}
+                  >
+                    Order
+                  </Button>
+                </div>
+              ))}
+              <Pagination
+                current={productsPage}
+                pageSize={10}
+                total={productsTotal}
+                onChange={(p) => setProductsPage(p)}
+                showSizeChanger={false}
+              />
+            </>
+          )
+        ) : (
+          <ShowcaseFeed /> // 👈 Showcase fully handled in ShowcaseFeed
         )}
 
         {/* Booking Modal */}
@@ -562,7 +231,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
           onCancel={() => setShowBookingModal(false)}
           footer={null}
         >
-          <Form form={form} layout="vertical" onFinish={handleSubmitBooking}>
+          <Form form={form} layout="vertical" onFinish={(values) => {}}>
             <Form.Item name="clientName" label="Name" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
@@ -585,11 +254,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
             <Form.Item name="bookingDate" label="Booking Date" rules={[{ required: true }]}>
               <DatePicker className="w-full" />
             </Form.Item>
-            <Form.Item
-              name="bookingFromTime"
-              label="From Time"
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="bookingFromTime" label="From Time" rules={[{ required: true }]}>
               <TimePicker className="w-full" format="HH:mm" />
             </Form.Item>
             <Form.Item name="bookingToTime" label="To Time" rules={[{ required: true }]}>
@@ -598,18 +263,10 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
             <Form.Item name="totalCost" label="Total Cost" rules={[{ required: true }]}>
               <InputNumber className="w-full" min={0} />
             </Form.Item>
-            <Form.Item
-              name="depositAmount"
-              label="Deposit Amount"
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="depositAmount" label="Deposit Amount" rules={[{ required: true }]}>
               <InputNumber className="w-full" min={0} />
             </Form.Item>
-            <Form.Item
-              name="totalDuration"
-              label="Duration (hours)"
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="totalDuration" label="Duration (hours)" rules={[{ required: true }]}>
               <InputNumber className="w-full" min={1} />
             </Form.Item>
             <Button type="primary" htmlType="submit" block>
@@ -625,7 +282,7 @@ export function PortfolioFilter({ canManage = false }: { canManage?: boolean }) 
           onCancel={() => setShowOrderModal(false)}
           footer={null}
         >
-          <Form form={orderForm} layout="vertical" onFinish={handleSubmitOrder}>
+          <Form form={orderForm} layout="vertical" onFinish={(values) => {}}>
             <Form.Item
               name="quantity"
               label="Quantity"
