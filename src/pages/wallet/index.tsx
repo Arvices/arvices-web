@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import WalletCard from "./walletcard";
+<<<<<<< Updated upstream
 import TransactionItem from "./TransactionItem";
 type Transaction = {
   id: string | number;
@@ -8,8 +9,12 @@ type Transaction = {
   type: "deposit" | "withdrawal" | "sent" | "received";
   date: string;
 };
+=======
+import TransactionItem from "./TransactionItem"; // ✅ single-transaction component
+
+>>>>>>> Stashed changes
 const Wallet = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const ensureToken = async (): Promise<string | null> => {
@@ -65,6 +70,7 @@ const Wallet = () => {
         throw new Error(`Error ${res.status}: Unauthorized or invalid request`);
       const data = await res.json();
       const apiTxs = data?.response || [];
+<<<<<<< Updated upstream
       const mapped: Transaction[] = apiTxs.map((tx: any) => ({
         id: tx.reference || tx.id,
         title:
@@ -83,6 +89,10 @@ const Wallet = () => {
         date: new Date(tx.createdDate).toLocaleString(),
       }));
       setTransactions(mapped);
+=======
+
+      setTransactions(apiTxs); // ✅ no remapping
+>>>>>>> Stashed changes
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -93,14 +103,13 @@ const Wallet = () => {
     fetchTransactions();
   }, []);
   return (
-    <section className="min-h-screen pt-13 ">
+    <section className="min-h-screen pt-13">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto pb-15">
         <div className="pt-10">
           <div>
             <h3 className="text-2xl font-semibold tracking-tight">My Wallet</h3>
             <p className="text-sm text-gray-500 mt-1">
-              Easily manage your funds — add money, view balance, or withdraw
-              anytime.
+              Easily manage your funds — add money, view balance, or withdraw anytime.
             </p>
           </div>
 
@@ -118,8 +127,7 @@ const Wallet = () => {
               Transaction History
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              A detailed record of all your wallet activities — stay informed
-              and in control.
+              A detailed record of all your wallet activities — stay informed and in control.
             </p>
           </div>
 
@@ -130,8 +138,8 @@ const Wallet = () => {
               <p>No transactions found.</p>
             )}
             {!loading &&
-              transactions.map((txn) => (
-                <TransactionItem key={txn.id} transaction={txn} />
+              transactions.map((tx) => (
+                <TransactionItem key={tx.id} transaction={tx} />
               ))}
           </div>
         </div>
