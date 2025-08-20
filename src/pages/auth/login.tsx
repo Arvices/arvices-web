@@ -111,12 +111,14 @@ const Login: React.FC = () => {
         response.response.user,
         response.response.user.type,
       );
+
       notify.openNotification(
         "topRight",
         "Success",
         "Login Successful.",
         "success",
       );
+
       response.response.user.type == "Client"
         ? navigate("/service-providers")
         : navigate("/job-posting");

@@ -7,8 +7,6 @@ interface NegotiationPanelProps {
   isClient: boolean;
   onCounter: (price: number, description: string) => void;
   onCancel: (offerId: number) => void;
-  onUpdate: (offerId: number, newPrice: string) => void;
-  onAccept: (offerId: number) => void;
 }
 const NegotiationPanel: React.FC<NegotiationPanelProps> = ({
   offer,

@@ -32,6 +32,11 @@ import BaseLayout from "../pages/base";
 import { ProfileEdit } from "../pages/profile/profile.edit";
 import ManageJob from "../pages/jobs&negotiations";
 import JobView from "../pages/jobs&negotiations/jobview";
+import { useAuth } from "../contexts/AuthContext";
+import { getAccountById } from "../api-services/auth-re";
+import { useDispatch } from "react-redux";
+import { updateProfile } from "../store/userSlice";
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -50,6 +55,34 @@ function Navigation(): React.JSX.Element {
 function NavigationContent() {
   const location = useLocation();
   const isChat = location.pathname.includes("conversations");
+  const isShowcase = location.pathname.includes("activities");
+
+  const auth = useAuth();
+  const dispatch = useDispatch();
+
+  const fetchUser = async () => {
+    try {
+      const response = await getAccountById(
+        String(auth?.user?.id),
+        auth?.token,
+      );
+
+      console.log("User response:", response);
+
+      if (response?.data?.response) {
+        dispatch(updateProfile(response.data.response));
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (auth?.isAuthenticated && auth?.user?.id) {
+      fetchUser();
+    }
+  }, [auth?.isAuthenticated, auth?.user?.id]);
+
   return (
     <div className="overflow-x-auto  text-royalblue-shade6 ">
       <Header />
@@ -94,7 +127,7 @@ function NavigationContent() {
         {}
         <Route path="*" Component={PageNotFound} />
       </Routes>
-      {!isChat && <Footer />}
+      {!isChat || (!isShowcase && <Footer />)}
     </div>
   );
 }

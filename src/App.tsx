@@ -17,6 +17,7 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.remove("dark");
   }, []);
+
   return (
     <>
       <ErrorBoundary>

@@ -22,9 +22,7 @@ const JobView = (): React.ReactNode => {
     try {
       if (auth.isClient) {
         const jobRes = await getServiceRequest(id as string, auth.token);
-        console.log({
-          fetchingallloffers: true,
-        });
+
         const allOffers = await getAllOffers(auth.token, {
           servicerequest: Number(id),
           page: 1,
@@ -32,15 +30,10 @@ const JobView = (): React.ReactNode => {
         });
         setJob(jobRes?.data?.response);
         setJobOffers(allOffers?.data?.response);
-        console.log({
-          jobOffersRes: allOffers,
-        });
       } else if (offerId) {
         const jobRes = await getServiceRequest(id as string, auth.token);
         setJob(jobRes?.data?.response);
-        console.log({
-          fetchingallloffers: true,
-        });
+
         const response = await getOfferById(auth.token, Number(offerId));
         setOffer(response?.data?.response);
       }
@@ -55,22 +48,19 @@ const JobView = (): React.ReactNode => {
   };
   const onJobChange = (data: Job) => {
     setJob(data);
-    console.log("Job updated:", data);
   };
   const onOfferChange = (data: Offer) => {
     setJobOffers((prev) => {
+      console.log({ prev });
       if (!prev) return prev;
       return prev.map((offer) => (offer.id === data.id ? data : offer));
     });
+    setOffer(data);
     console.log("On Offer Change", {
       data,
     });
   };
   const onOfferCounterChange = (offerId: number, counter: CounterOffer[]) => {
-    console.log({
-      counter,
-      offerId,
-    });
     if (auth.isProvider) {
       setOffer((prev) => {
         if (!prev) return prev;
@@ -88,9 +78,7 @@ const JobView = (): React.ReactNode => {
               ...o,
               counterOffer: counter,
             };
-            console.log({
-              updatedOfferCounter: updatedOffer,
-            });
+
             return updatedOffer;
           }
           return o;

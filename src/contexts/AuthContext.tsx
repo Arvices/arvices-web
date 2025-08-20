@@ -103,12 +103,15 @@ export const AuthProvider: React.FC<{
     window.localStorage.setItem("user_email", email);
     window.localStorage.setItem("user_saved", JSON.stringify(user));
   };
+
   const saveProfile = (profile: any) => {
     window.localStorage.setItem("user_profile", JSON.stringify(profile));
   };
+
   const clearProfile = () => {
     window.localStorage.setItem("user_profile", "");
   };
+
   const logout = () => {
     setToken("");
     window.localStorage.setItem("access_token", "");

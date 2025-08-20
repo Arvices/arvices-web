@@ -8,6 +8,7 @@ const addAccount = async (data: any) => {
   };
   return axios(config);
 };
+
 const updateAccountById = async (data: FormData, id: number, token: string) => {
   const config = {
     url: `${baseUrl}/user/updateaccountbyid?id=${id}`,
@@ -19,6 +20,7 @@ const updateAccountById = async (data: FormData, id: number, token: string) => {
   };
   return axios(config);
 };
+
 const updateAccountByEmail = async (data: any, token: string) => {
   const config = {
     url: `${baseUrl}/user/updateaccountbyemail`,
@@ -30,6 +32,7 @@ const updateAccountByEmail = async (data: any, token: string) => {
   };
   return axios(config);
 };
+
 const getAccountById = async (id: string, token: string) => {
   const config = {
     url: `${baseUrl}/user/getaccountbyid`,
@@ -345,6 +348,32 @@ const getAllUserFollowers = async (token: string) => {
   };
   return axios(config);
 };
+
+const addToFavourites = async (userId: string, token: string): Promise<any> => {
+  const config = {
+    url: `${baseUrl}/user/addtofavourites/${userId}`,
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  return axios(config);
+};
+
+const removeFromFavourites = async (
+  userId: string,
+  token: string,
+): Promise<any> => {
+  const config = {
+    url: `${baseUrl}/user/removefromfavourites/${userId}`,
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  return axios(config);
+};
+
 export {
   addAccount,
   updateAccountById,
@@ -378,4 +407,6 @@ export {
   getAllUserFollowing,
   getAllUserFollowers,
   getProfessionals,
+  addToFavourites,
+  removeFromFavourites,
 };
