@@ -253,16 +253,23 @@ export interface Showcase {
 interface ActivityCardProps {
   showcase: Showcase;
 }
+
 interface UserAvatarProps {
   userAvatar?: string;
   fullName: string;
   className?: string;
 }
-export const UserAvatar: React.FC<UserAvatarProps> = ({ userAvatar, fullName, className }) => {
+
+export const UserAvatar: React.FC<UserAvatarProps> = ({
+  userAvatar,
+  fullName,
+  className,
+}) => {
   // Base classes for the avatar container to ensure consistent sizing and shape
-  const baseClasses = "flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold";
-  
-  const combinedClasses = `${baseClasses} ${className || ''}`;
+  const baseClasses =
+    "flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold";
+
+  const combinedClasses = `${baseClasses} ${className || ""}`;
 
   return (
     <>
@@ -284,34 +291,42 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ userAvatar, fullName, cl
 };
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ showcase }) => {
-  const {openNotification} = useNotificationContext()
-  const navigate = useNavigate()
+  const { openNotification } = useNotificationContext();
+  const navigate = useNavigate();
   // Use moment to format the date
   const formattedDate = moment(showcase.createdDate).format(
     "ddd MMMM, YYYY. h:mma",
   );
 
   const redirectToLogin = () => {
-    openNotification("topRight", "You must be logged in to perform this action.","","info")
-    setTimeout(()=>{
-      navigate("/login")
-    },2000)
-  }
+    openNotification(
+      "topRight",
+      "You must be logged in to perform this action.",
+      "",
+      "info",
+    );
+    setTimeout(() => {
+      navigate("/login");
+    }, 2000);
+  };
 
   // Use a placeholder for user avatar if not available
-  const userAvatar =
-    showcase.user?.picture || undefined;
+  const userAvatar = showcase.user?.picture || undefined;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Showcase Image */}
       {/* User Info and Location */}
       <div className="flex items-center gap-3 px-3 pt-3 mb-2">
-        <UserAvatar userAvatar={userAvatar} fullName={showcase.user.fullName}  />
+        <UserAvatar userAvatar={userAvatar} fullName={showcase.user.fullName} />
 
         <div>
-          <p className="font-medium text-gray-900 tracking-tight">{showcase.user.fullName}</p>
-          <p className="text-sm text-gray-500"><MapPin className="w-4 h-4 inline" /> {showcase.location}</p>
+          <p className="font-medium text-gray-900 tracking-tight">
+            {showcase.user.fullName}
+          </p>
+          <p className="text-sm text-gray-500">
+            <MapPin className="w-4 h-4 inline" /> {showcase.location}
+          </p>
         </div>
       </div>
       {showcase.attachments[0]?.url && (
@@ -331,7 +346,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ showcase }) => {
         {/* Metrics and Actions */}
         <div className="flex items-center justify-between text-gray-600 border-t border-b border-gray-200 py-2">
           {/* Likes */}
-          <div className="flex items-center gap-1.5 cursor-pointer" onClick={redirectToLogin}>
+          <div
+            className="flex items-center gap-1.5 cursor-pointer"
+            onClick={redirectToLogin}
+          >
             <FeatherIcon
               icon="heart"
               className={`w-5 h-5 cursor-pointer ${showcase.like === 1 ? "text-red-500 fill-current" : ""}`}
@@ -339,12 +357,18 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ showcase }) => {
             <span className="text-sm font-medium">{showcase.likeCount}</span>
           </div>
           {/* Comments */}
-          <div className="flex items-center gap-1.5  cursor-pointer" onClick={redirectToLogin}>
+          <div
+            className="flex items-center gap-1.5  cursor-pointer"
+            onClick={redirectToLogin}
+          >
             <FeatherIcon icon="message-square" className="w-5 h-5" />
             <span className="text-sm font-medium">{showcase.commentCount}</span>
           </div>
           {/* Views */}
-          <div className="flex items-center gap-1.5  cursor-pointer" onClick={redirectToLogin}>
+          <div
+            className="flex items-center gap-1.5  cursor-pointer"
+            onClick={redirectToLogin}
+          >
             <FeatherIcon icon="eye" className="w-5 h-5" />
             <span className="text-sm font-medium">{showcase.viewCount}</span>
           </div>

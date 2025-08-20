@@ -8,3 +8,7 @@
 .card-shadow {
   box-shadow: 0px 0px 10px #7c70ff3c;
 }
+
+.card-shadow-2 {
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}

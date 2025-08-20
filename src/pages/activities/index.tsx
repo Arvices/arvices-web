@@ -8,14 +8,11 @@ import {
   Calendar,
   Tool,
   Clock,
-  MapPin,
   ArrowUpRight,
-  Plus,
-  ChevronDown,
 } from "feather-icons-react";
 import { Heart, MessageCircle, Bookmark } from "feather-icons-react";
-import { Select, Modal, Input } from "antd";
-const { Option } = Select;
+import {  Modal} from "antd";
+
 const API_BASE = "https://arvicesapi.denateonlineservice.com";
 function getToken(): string | null {
   const candidates = [
@@ -32,6 +29,7 @@ function getToken(): string | null {
   }
   return null;
 }
+
 function getMyIdSafe(): number | null {
   const t = getToken();
   if (!t) return null;
@@ -46,6 +44,7 @@ function getMyIdSafe(): number | null {
     return null;
   }
 }
+
 function formatFollowerCount(count: number): string {
   if (count >= 1_000_000)
     return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -53,6 +52,7 @@ function formatFollowerCount(count: number): string {
     return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
   return String(count);
 }
+
 function stringToColor(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -85,22 +85,6 @@ function renderAvatarClickable(
     </div>
   );
 }
-export type ShowcaseComment = {
-  id: number;
-  post: string;
-  like: number;
-  liked: number[];
-  commentAttachments: {
-    url?: string;
-  }[];
-  createdDate: string;
-  user: {
-    id: number;
-    fullName?: string | null;
-    username?: string | null;
-    picture?: string | null;
-  };
-};
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getToken();
   const headers: HeadersInit = {
@@ -242,6 +226,7 @@ async function getAccountById(userId: number) {
     response: any;
   }>(`/user/getaccountbyid?id=${userId}`);
 }
+
 const updates = [
   {
     updateType: "Live Updates",
@@ -279,6 +264,7 @@ const updates = [
     description: "Find grooming and pet sitting services",
   },
 ] as const;
+
 export const updateIconMap: Record<
   string,
   {
@@ -315,15 +301,24 @@ export const updateIconMap: Record<
     colorClass: "text-teal-600",
   },
 };
+
+export type ShowcaseComment = {
+  id: number;
+  post: string;
+  like: number;
+  liked: number[];
+  commentAttachments: {
+    url?: string;
+  }[];
+  createdDate: string;
+  user: {
+    id: number;
+    fullName?: string | null;
+    username?: string | null;
+    picture?: string | null;
+  };
+};
 const Activities = (): React.ReactNode => {
-  const categories = [
-    "Cleaning",
-    "Plumbing",
-    "Makeup",
-    "Pet Care",
-    "Car Repair",
-  ];
-  const [selectedCategory, setSelectedCategory] = useState<string>();
   const [showcases, setShowcases] = useState<any[]>([]);
   const [savedMap, setSavedMap] = useState<Record<number, boolean>>({});
   const [commentsMap, setCommentsMap] = useState<
@@ -364,6 +359,8 @@ const Activities = (): React.ReactNode => {
   >({});
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [loadingProvider, setLoadingProvider] = useState(false);
+
+  console.log({showCreateModal,creatingShowcase})
   useEffect(() => {
     (async () => {
       try {
@@ -552,6 +549,8 @@ const Activities = (): React.ReactNode => {
       setCreatingShowcase(false);
     }
   }
+  console.log({handleCreateShowcase})
+  
   async function handleViewProvider(userId: number) {
     try {
       setLoadingProvider(true);
@@ -626,327 +625,254 @@ const Activities = (): React.ReactNode => {
     }
   }
   return (
-    <section className="min-h-screen pt-13 bg-[#FBFBFB]">
-      <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        <div className="md:flex gap-x-3 mt-5">
-          {}
-          <div className="card-shadow basis-1/5 py-5 px-3 rounded">
-            <p className="font-medium ">Live Updates</p>
-            {updates.map((u, i) => (
-              <div key={i} className="mt-3 p-2 border rounded border-gray-100">
-                <div className="flex items-center">
-                  <div className="text-pink-600">
-                    {u.updateType &&
-                      (
-                        {
-                          "Live Updates": (
-                            <TrendingUp className="inline w-3 h-3 text-pink-600" />
-                          ),
-                          "New Provider": (
-                            <UserPlus className="inline w-3 h-3 text-blue-600" />
-                          ),
-                          Promotion: (
-                            <Percent className="inline w-3 h-3 text-green-600" />
-                          ),
-                          Milestone: (
-                            <Star className="inline w-3 h-3 text-yellow-500" />
-                          ),
-                          Achievement: (
-                            <Award className="inline w-3 h-3 text-indigo-600" />
-                          ),
-                          "Booking Alert": (
-                            <Calendar className="inline w-3 h-3 text-red-500" />
-                          ),
-                          "New Feature": (
-                            <Tool className="inline w-3 h-3 text-teal-600" />
-                          ),
-                        } as any
-                      )[u.updateType]}{" "}
-                    {u.updateType}
+    <section className="pt-13 bg-[#FBFBFB]">
+      <div className="px-5 sm:px-8 md:px-15 lg:px-15 max-w-[1400px] mx-auto">
+        <div className="flex justify-between w-full relative">
+          {/* Sidebar 1 */}
+          <div className="sidebar-1 fixed left-0 pt- border border-gray-200 h-screen overflow-y-auto w-64 lg:block hidden">
+            {updates.map((u, index) => {
+              const updateInfo = u.updateType
+                ? updateIconMap[u.updateType]
+                : null;
+
+              return (
+                <div
+                  key={index}
+                  className="p-3 my-3 border border-gray-100 rounded-lg"
+                >
+                  {/* Title and Description */}
+                  <div className="">
+                    <div
+                      className={`flex items-center font-medium tracking-tight text-[15px] ${updateInfo?.colorClass}`}
+                    >
+                      <span className="pr-1 relative bottom-0.5">
+                        {" "}
+                        {updateInfo?.icon}
+                      </span>
+                      <span>{u.updateType}</span>
+                    </div>
+                    <p className="text-[13px] font-medium  text-gray-800">
+                      {u.title}
+                    </p>
+                    <p className="text-xs text-gray-500">{u.description}</p>
                   </div>
-                  <div className="flex-1" />
-                  <small className="text-[12px] text-gray-500">
-                    <Clock className="inline w-2 h-2 text-gray-400" /> 2h ago
-                  </small>
                 </div>
-                <p className="text-[13px]">{u.title}</p>
-                <p className="text-[12px] text-gray-500">{u.description}</p>
-              </div>
-            ))}
+              );
+            })}
+            <div className="py-8" />
           </div>
 
-          {}
-          <div className="basis-3/5">
-            {}
-            <div className="card-shadow rounded p-4 flex items-center justify-between">
-              <div className="flex gap-x-3">
-                <div className="bg-amber-50 rounded border border-amber-300 p-2">
-                  <p className="font-medium text-gray-700">All Updates</p>
-                </div>
-                <p className="font-medium text-gray-500">Following</p>
-              </div>
-              <div className="flex gap-x-3">
-                <Select
-                  value={selectedCategory}
-                  onChange={setSelectedCategory}
-                  placeholder="Category Filter"
-                  suffixIcon={<ChevronDown className="text-gray-500 w-4 h-4" />}
-                  allowClear
-                >
-                  {categories.map((cat) => (
-                    <Option key={cat} value={cat}>
-                      {cat}
-                    </Option>
-                  ))}
-                </Select>
-                <button className="text-gray-600 text-[14px]">
-                  <MapPin className="inline w-4 h-4" /> Location Filter
-                </button>
-              </div>
-            </div>
+          {/* Feed Content */}
+          <div className="feed w-full md:w-[calc(100%-13rem)] lg:w-[calc(100%-26rem)] lg:mx-auto">
+            <div className="feed-content w-full space-y-5">
+              {/* Feed Header*/}
 
-            {}
-            <div className="mt-2 space-y-4">
-              {showcases.map((sc) => (
-                <div
-                  key={sc.id}
-                  className="card-shadow rounded p-4"
-                  data-showcase-card-id={sc.id}
-                >
-                  {}
-                  <div className="flex items-center gap-3">
-                    {sc.user?.picture ? (
-                      <img
-                        className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80"
-                        src={sc.user.picture}
-                        alt={sc.user?.fullName || sc.user?.username || "Author"}
-                        onClick={() =>
-                          sc.user?.id && handleViewProvider(sc.user.id)
-                        }
-                      />
-                    ) : (
-                      renderAvatarClickable(
-                        sc.user,
-                        "w-10 h-10",
-                        handleViewProvider,
-                      )
-                    )}
-                    <div>
-                      <p className="font-medium">
-                        {sc.user?.fullName || "Unknown"}
-                      </p>
-                      <small className="text-gray-500">
-                        {sc.user?.type || ""}
-                      </small>
-                    </div>
-                    <div className="flex-1" />
-                    <small className="text-gray-500">
-                      <Clock className="inline w-3 h-3 text-gray-400 mr-1" />
-                      {new Date(sc.createdDate).toLocaleString()}
-                    </small>
+              <div className="border border-gray-200 mt-4 rounded-[8px] p-4 flex items-center justify-between">
+                <div className="flex gap-x-3 items-center w-max mx-auto">
+                  <div className="bg-amber-50 rounded border border-amber-300 p-2">
+                    <p className="font-medium text-gray-700">All Updates</p>
                   </div>
-
-                  {}
-                  {sc.attachments?.length > 0 && sc.attachments[0]?.url && (
-                    <div className="mt-5 relative rounded-2xl aspect-[5/3] overflow-hidden">
-                      <img
-                        src={sc.attachments[0].url}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        alt="Showcase"
-                      />
-                    </div>
-                  )}
-
-                  {}
-                  <div className="mt-5">{sc.post}</div>
-
-                  {}
-                  <div className="flex items-center gap-4 text-sm text-gray-700">
-                    <button
-                      onClick={() => toggleLikeShowcase(sc.id)}
-                      className={`flex items-center gap-1 ${showcaseLikedMap[sc.id] ? "text-red-500" : ""}`}
-                    >
-                      <Heart
-                        size={16}
-                        fill={showcaseLikedMap[sc.id] ? "red" : "none"}
-                      />
-                      <span>{showcaseLikeCount[sc.id] || 0}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setVisibleCommentsMap((prev) => {
-                          const isSameCardOpen = prev[sc.id] === true;
-                          const newMap: Record<number, boolean> = {};
-                          Object.keys(prev).forEach(
-                            (k) => (newMap[Number(k)] = false),
-                          );
-                          newMap[sc.id] = !isSameCardOpen;
-                          if (!isSameCardOpen) {
-                            setTimeout(() => {
-                              const el = document.querySelector(
-                                `[data-showcase-card-id="${sc.id}"]`,
-                              );
-                              if (el)
-                                el.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "start",
-                                });
-                              if (commentRefs.current[sc.id])
-                                commentRefs.current[sc.id]?.focus();
-                            }, 50);
-                          }
-                          return newMap;
-                        });
-                        setVisibleCountMap({
-                          [sc.id]: 5,
-                        });
-                      }}
-                      className="flex items-center gap-1"
-                    >
-                      <MessageCircle size={16} />
-                      <span>{commentsMap[sc.id]?.length || 0}</span>
-                    </button>
-                    <div className="flex-1" />
-                    <button
-                      onClick={() => toggleSave(sc.id)}
-                      className="flex items-center gap-1 hover:text-emerald-600"
-                    >
-                      <Bookmark size={16} />
-                      <span>{savedMap[sc.id] ? "Unsave" : "Save"}</span>
-                    </button>
-                  </div>
-
-                  {}
-                  {visibleCommentsMap[sc.id] && (
-                    <>
-                      <div className="border-t my-3" />
-                      {(commentsMap[sc.id] || [])
-                        .slice(0, visibleCountMap[sc.id] || 5)
-                        .map((c) => (
-                          <div key={c.id} className="p-2 mb-2">
-                            <div className="flex items-center gap-2">
-                              {c.user?.picture ? (
-                                <img
-                                  src={c.user.picture}
-                                  className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80"
-                                  alt={
-                                    c.user?.fullName ||
-                                    c.user?.username ||
-                                    "User"
-                                  }
-                                  onClick={() =>
-                                    c.user?.id && handleViewProvider(c.user.id)
-                                  }
-                                />
-                              ) : (
-                                renderAvatarClickable(
-                                  c.user,
-                                  "w-8 h-8",
-                                  handleViewProvider,
-                                )
-                              )}
-                              <div className="flex-1">
-                                <p className="text-sm font-medium">
-                                  {c.user?.fullName || c.user?.username}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {new Date(c.createdDate).toLocaleString()}
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => toggleLikeComment(sc.id, c)}
-                                className="text-xs px-2 py-1 rounded-full"
-                              >
-                                <Heart size={12} className="inline mr-1" />{" "}
-                                {c.like || 0}
-                              </button>
-                            </div>
-                            <div className="mt-2 text-sm">{c.post}</div>
-                          </div>
-                        ))}
-                      {(commentsMap[sc.id]?.length || 0) >
-                        (visibleCountMap[sc.id] || 5) && (
-                        <button
-                          onClick={() => handleViewMore(sc.id)}
-                          className="text-blue-500 text-sm mt-1"
-                        >
-                          View more
-                        </button>
-                      )}
-                      <div className="mt-2 flex items-center gap-2">
-                        <input
-                          ref={(el) => {
-                            commentRefs.current[sc.id] = el;
-                          }}
-                          type="text"
-                          placeholder="Add a comment…"
-                          value={commentTextMap[sc.id] || ""}
-                          onChange={(e) =>
-                            setCommentTextMap((prev) => ({
-                              ...prev,
-                              [sc.id]: e.target.value,
-                            }))
-                          }
-                          className="flex-1 rounded-full px-4 py-1 border-none outline-none focus:outline-none focus:ring-0"
-                        />
-                        <button
-                          onClick={() => handleCreateComment(sc.id)}
-                          disabled={creatingCommentMap[sc.id]}
-                          className="bg-royalblue-main text-white rounded-full p-2"
-                        >
-                          <ArrowUpRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <p className="font-medium text-gray-500">Following</p>
                 </div>
-              ))}
-            </div>
+              </div>
+{showcases.map((sc) => (
+  <div
+    key={sc.id}
+    className="bg-white rounded-xl shadow-sm p-5 border border-gray-200"
+    data-showcase-card-id={sc.id}
+  >
+    {/* User Header */}
+    <div className="flex items-center gap-3 mb-4">
+      {sc.user?.picture ? (
+        <img
+          className="w-11 h-11 rounded-full object-cover cursor-pointer transition-transform duration-200 hover:scale-105"
+          src={sc.user.picture}
+          alt={sc.user?.fullName || sc.user?.username || "Author"}
+          onClick={() => sc.user?.id && handleViewProvider(sc.user.id)}
+        />
+      ) : (
+        renderAvatarClickable(
+          sc.user,
+          "w-11 h-11",
+          handleViewProvider,
+        )
+      )}
+      <div className="flex-1">
+        <p className="font-semibold text-gray-800">
+          {sc.user?.fullName || "Unknown"}
+        </p>
+        <p className="text-xs text-gray-500 mt-0.5">
+          {sc.user?.type || ""}
+        </p>
+      </div>
+      <small className="text-gray-400 text-xs">
+        <Clock className="inline w-3 h-3 text-gray-400 mr-1" />
+        {new Date(sc.createdDate).toLocaleString()}
+      </small>
+    </div>
 
-            {}
-            <div className="flex justify-end mt-4">
+    {/* Post Content */}
+    {sc.attachments?.length > 0 && sc.attachments[0]?.url && (
+      <div className="mb-4 rounded-lg overflow-hidden">
+        <img
+          src={sc.attachments[0].url}
+          className="w-full h-auto object-cover"
+          alt="Showcase"
+        />
+      </div>
+    )}
+    <p className="text-gray-700 leading-relaxed mb-4">{sc.post}</p>
+
+    {/* Actions */}
+    <div className="flex items-center gap-6 text-sm text-gray-500 border-t border-gray-100 pt-4">
+      <button
+        onClick={() => toggleLikeShowcase(sc.id)}
+        className={`flex items-center gap-1.5 transition-colors duration-200 ${showcaseLikedMap[sc.id] ? "text-red-500" : "hover:text-red-500"}`}
+      >
+        <Heart
+          size={18}
+          className="transition-transform duration-200 group-hover:scale-110"
+          fill={showcaseLikedMap[sc.id] ? "rgb(239 68 68)" : "none"}
+        />
+        <span className="font-medium">{showcaseLikeCount[sc.id] || 0}</span>
+      </button>
+      <button
+        onClick={() => {
+          setVisibleCommentsMap((prev) => {
+            const isSameCardOpen = prev[sc.id] === true;
+            const newMap = Object.fromEntries(
+              Object.keys(prev).map(k => [Number(k), false])
+            );
+            newMap[sc.id] = !isSameCardOpen;
+            if (!isSameCardOpen) {
+              setTimeout(() => {
+                const el = document.querySelector(
+                  `[data-showcase-card-id="${sc.id}"]`
+                );
+                if (el)
+                  el.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                if (commentRefs.current[sc.id])
+                  commentRefs.current[sc.id]?.focus();
+              }, 50);
+            }
+            return newMap;
+          });
+          setVisibleCountMap({
+            [sc.id]: 5,
+          });
+        }}
+        className="flex items-center gap-1.5 hover:text-gray-700 transition-colors duration-200"
+      >
+        <MessageCircle size={18} />
+        <span className="font-medium">{commentsMap[sc.id]?.length || 0}</span>
+      </button>
+      <div className="flex-1" />
+      <button
+        onClick={() => toggleSave(sc.id)}
+        className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors duration-200"
+      >
+        <Bookmark
+          size={18}
+          fill={savedMap[sc.id] ? "#34D399" : "none"}
+        />
+        <span className="font-medium">{savedMap[sc.id] ? "Unsave" : "Save"}</span>
+      </button>
+    </div>
+
+    {/* Comments Section */}
+    {visibleCommentsMap[sc.id] && (
+      <div className="mt-5 pt-3 border-t border-gray-100">
+        {(commentsMap[sc.id] || [])
+          .slice(0, visibleCountMap[sc.id] || 5)
+          .map((c) => (
+            <div key={c.id} className="flex gap-3 mb-4 last:mb-0">
+              {c.user?.picture ? (
+                <img
+                  src={c.user.picture}
+                  className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                  alt={c.user?.fullName || c.user?.username || "User"}
+                  onClick={() => c.user?.id && handleViewProvider(c.user.id)}
+                />
+              ) : (
+                renderAvatarClickable(
+                  c.user,
+                  "w-8 h-8",
+                  handleViewProvider,
+                )
+              )}
+              <div className="flex-1">
+                <div className="bg-gray-50 rounded-lg px-4 py-2">
+                  <p className="text-sm font-semibold text-gray-800">
+                    {c.user?.fullName || c.user?.username}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5 mb-1">
+                    {new Date(c.createdDate).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-700 leading-snug">
+                    {c.post}
+                  </p>
+                </div>
+              </div>
               <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-royalblue-main text-white"
+                onClick={() => toggleLikeComment(sc.id, c)}
+                className="self-start text-xs text-gray-500 flex items-center gap-1 mt-2.5 transition-colors duration-200 hover:text-red-500"
               >
-                <Plus className="w-5 h-5" />
+                <Heart size={14} className="inline" />
+                <span>{c.like || 0}</span>
               </button>
             </div>
-
-            {}
-            <Modal
-              title="Create New Showcase"
-              open={showCreateModal}
-              onCancel={() => setShowCreateModal(false)}
-              onOk={handleCreateShowcase}
-              confirmLoading={creatingShowcase}
+          ))}
+        {(commentsMap[sc.id]?.length || 0) >
+          (visibleCountMap[sc.id] || 5) && (
+            <button
+              onClick={() => handleViewMore(sc.id)}
+              className="text-royalblue-main text-sm font-medium mt-2 hover:underline"
             >
-              <Input.TextArea
-                value={newPostText}
-                onChange={(e) => setNewPostText(e.target.value)}
-                placeholder="What's your showcase about?"
-                rows={3}
-              />
-              <Input
-                className="mt-2"
-                value={newPostLocation}
-                onChange={(e) => setNewPostLocation(e.target.value)}
-                placeholder="Location"
-              />
-              <input
-                type="file"
-                multiple
-                className="mt-2"
-                onChange={(e) =>
-                  setNewFiles(e.target.files ? Array.from(e.target.files) : [])
-                }
-              />
-            </Modal>
+              View more
+            </button>
+          )}
+
+        {/* Comment Input */}
+        <div className="mt-4 flex items-center gap-2">
+          <input
+            ref={(el) => {
+              commentRefs.current[sc.id] = el;
+            }}
+            type="text"
+            placeholder="Add a comment…"
+            value={commentTextMap[sc.id] || ""}
+            onChange={(e) =>
+              setCommentTextMap((prev) => ({
+                ...prev,
+                [sc.id]: e.target.value,
+              }))
+            }
+            className="flex-1 rounded-[8px] px-4 py-2 text-sm bg-gray-100 border border-transparent focus:bg-white focus:border-royalblue-main focus:ring-0 transition-all"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCreateComment(sc.id);
+            }}
+          />
+          <button
+            onClick={() => handleCreateComment(sc.id)}
+            disabled={creatingCommentMap[sc.id] || !commentTextMap[sc.id]?.trim()}
+            className="bg-royalblue-main text-white rounded-[8px] p-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            <ArrowUpRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+))}
+<div className="py-10" />
+            </div>
           </div>
 
-          {}
-          <div className="basis-1/5 py-5 px-3 rounded card-shadow">
-            <p className="font-medium mb-3">🔥 Top Providers</p>
+          {/* Sidebar 2 */}
+          <div className="sidebar-2 fixed right-0 pt-6 pr-4 overflow-y-auto h-screen w-64 md:block hidden">
             {topProviders.map((p) => {
               const isMe = myId != null && p.id === myId;
               const isFollowing = !!followingMap[p.id];
@@ -959,7 +885,10 @@ const Activities = (): React.ReactNode => {
                       ? p.followersCount
                       : 0;
               return (
-                <div key={p.id} className="mb-3 p-2 border rounded-lg bg-white">
+                <div
+                  key={p.id}
+                  className="mb-3 p-2 card-shadow-2 rounded-lg bg-white"
+                >
                   <div className="flex items-center gap-2">
                     {p.picture ? (
                       <img
@@ -1010,7 +939,6 @@ const Activities = (): React.ReactNode => {
         </div>
       </div>
 
-      {}
       <Modal
         title="Provider Details"
         open={!!selectedProvider}

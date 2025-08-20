@@ -32,6 +32,8 @@ import BaseLayout from "../pages/base";
 import { ProfileEdit } from "../pages/profile/profile.edit";
 import ManageJob from "../pages/jobs&negotiations";
 import JobView from "../pages/jobs&negotiations/jobview";
+
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -50,6 +52,7 @@ function Navigation(): React.JSX.Element {
 function NavigationContent() {
   const location = useLocation();
   const isChat = location.pathname.includes("conversations");
+  const isShowcase = location.pathname.includes("activities");
   return (
     <div className="overflow-x-auto  text-royalblue-shade6 ">
       <Header />
@@ -94,7 +97,7 @@ function NavigationContent() {
         {}
         <Route path="*" Component={PageNotFound} />
       </Routes>
-      {!isChat && <Footer />}
+      {!isChat || (!isShowcase && <Footer />)}
     </div>
   );
 }
