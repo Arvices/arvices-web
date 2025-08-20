@@ -20,6 +20,7 @@ import {
 } from "@ant-design/icons";
 import api from "../../util/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { FolderGit } from "lucide-react";
 
 const { TextArea } = Input;
 
@@ -393,3 +394,4 @@ export default function ShowcaseFeed() {
     </div>
   );
 }
+FolderGit
