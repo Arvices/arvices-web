@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Spin,
   Empty,
-  Pagination,
   Button,
   message,
   Input,
@@ -11,8 +9,15 @@ import {
   Modal,
   Form,
   Upload,
+  Skeleton,
 } from "antd";
-import { HeartOutlined, HeartFilled, BookOutlined, BookFilled, UploadOutlined } from "@ant-design/icons";
+import {
+  HeartOutlined,
+  HeartFilled,
+  BookOutlined,
+  BookFilled,
+  UploadOutlined,
+} from "@ant-design/icons";
 import api from "../../util/api";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -50,7 +55,7 @@ export default function ShowcaseFeed() {
   const currentUserId = user?.id;
 
   // -------- Fetch Showcase --------
-  const fetchShowcase = async (pageNum: number) => {
+  const fetchShowcase = async (pageNum: number, append = false) => {
     try {
       setLoading(true);
 
@@ -82,7 +87,7 @@ export default function ShowcaseFeed() {
         },
       }));
 
-      setShowcaseItems(mapped);
+      setShowcaseItems((prev) => (append ? [...prev, ...mapped] : mapped));
       setTotal(res.data.total || 0);
     } catch (err) {
       console.error("❌ Failed to load showcase", err);
@@ -113,15 +118,15 @@ export default function ShowcaseFeed() {
       message.success("Showcase created!");
       setShowModal(false);
       form.resetFields();
-      fetchShowcase(page);
+      setPage(1);
+      fetchShowcase(1, false);
     } catch (err: any) {
       console.error("❌ Showcase create failed", err.response?.data || err);
       message.error(err.response?.data?.message || "Failed to create showcase");
     }
   };
 
-  // -------- Like / Save / Comment / Delete -------- (same as before) ...
-
+  // -------- Like / Save / Comment / Delete --------
   const handleToggleLike = async (item: ShowcaseItem) => {
     if (!token) return message.error("Not authenticated");
     const alreadyLiked = item.liked?.some((l) => l.user?.id === currentUserId);
@@ -225,15 +230,17 @@ export default function ShowcaseFeed() {
         headers: { Authorization: `Bearer ${token}` },
       });
       message.success("Showcase deleted");
-      fetchShowcase(page);
+      setPage(1);
+      fetchShowcase(1, false);
     } catch {
       message.error("Failed to delete showcase");
     }
   };
 
   useEffect(() => {
-    fetchShowcase(page);
-  }, [page, userId]);
+    setPage(1);
+    fetchShowcase(1, false);
+  }, [userId]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -277,15 +284,20 @@ export default function ShowcaseFeed() {
       </Modal>
 
       {/* Feed */}
-      {loading ? (
-        <div className="flex justify-center">
-          <Spin size="large" />
+      {loading && page === 1 ? (
+        <div className="flex flex-col gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} active avatar paragraph={{ rows: 3 }} />
+          ))}
         </div>
       ) : showcaseItems.length === 0 ? (
         <Empty description="No showcase items found" />
       ) : (
         showcaseItems.map((item) => (
-          <div key={item.id} className="bg-white rounded-lg shadow-sm p-4">
+          <div
+            key={item.id}
+            className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition"
+          >
             {/* Header */}
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
@@ -300,10 +312,16 @@ export default function ShowcaseFeed() {
             </div>
 
             {/* Post */}
-            <p>{item.post}</p>
+            <p className="text-sm text-gray-800 line-clamp-3">{item.post}</p>
             {item.location && <div className="text-xs text-gray-500">📍 {item.location}</div>}
             {item.attachments?.map((a) => (
-              <img key={a.id} src={a.url} alt="" className="w-full rounded-md mt-2" />
+              <img
+                key={a.id}
+                src={a.url}
+                alt=""
+                loading="lazy"
+                className="w-full max-h-64 object-contain rounded-md mt-2 bg-gray-100"
+              />
             ))}
 
             {/* Actions */}
@@ -316,11 +334,15 @@ export default function ShowcaseFeed() {
                 )}
               </span>
               <span onClick={() => handleToggleSave(item)} className="cursor-pointer">
-                {item.saved?.some((s) => s.user?.id === currentUserId) ? <BookFilled /> : <BookOutlined />}
+                {item.saved?.some((s) => s.user?.id === currentUserId) ? (
+                  <BookFilled />
+                ) : (
+                  <BookOutlined />
+                )}
               </span>
             </div>
 
-            {/* Likes & Comments */}
+            {/* Stats */}
             <div className="text-sm text-gray-700 mt-1">
               <p>{item.like} likes</p>
               <p>{item.comments?.length} comments</p>
@@ -360,16 +382,14 @@ export default function ShowcaseFeed() {
         ))
       )}
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-6">
-        <Pagination
-          current={page}
-          pageSize={10}
-          total={total}
-          onChange={(p) => setPage(p)}
-          showSizeChanger={false}
-        />
-      </div>
+      {/* View More */}
+      {!loading && showcaseItems.length < total && (
+        <div className="flex justify-center mt-6">
+          <Button type="primary" onClick={() => { setPage((p) => p + 1); fetchShowcase(page + 1, true); }}>
+            View More
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
