@@ -17,9 +17,6 @@ const ProviderView: React.FC<{
   onOfferCounterChange,
   load,
 }): React.ReactNode => {
-  console.log({
-    jobInPView: job,
-  });
   return (
     <section>
       {}

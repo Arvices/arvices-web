@@ -15,11 +15,13 @@ import { useLoading } from "../../../contexts/LoadingContext";
 import { useNavigate } from "react-router-dom";
 import {
   createCounterOffer,
+  deleteOffer,
   getAllCounterOffers,
   updateOffer,
 } from "../../../api-services/offer.service";
 import { getLatestCounterOffer } from "../../../util/jobutils";
 import { updateServiceRequest } from "../../../api-services/servicerequests.service";
+import { parseHttpError } from "../../../api-services/parseReqError";
 interface Props {
   offer: Offer;
   onJobChange: (data: any) => void;
@@ -49,7 +51,6 @@ const ProviderOfferCard: React.FC<Props> = ({
         offer: offer.id,
       });
       let counterOffers = response?.data?.response;
-      console.log("Counter offers:", counterOffers);
       onOfferCounterChange(offer.id, counterOffers);
     } catch (error) {
       console.error("Failed to fetch counter offers:", error);
@@ -62,7 +63,6 @@ const ProviderOfferCard: React.FC<Props> = ({
     }
   };
   const handleUpdateJob = async (data: any) => {
-    console.log("Edited offer submitted:", data);
     setLoading(true);
     setLoadingText("Updating service request...");
     try {
@@ -86,7 +86,6 @@ const ProviderOfferCard: React.FC<Props> = ({
     }
   };
   const handleUpdateOffer = async (data: any) => {
-    console.log("Update offer submitted:", data);
     setLoading(true);
     setLoadingText("Updating service request...");
     try {
@@ -168,18 +167,78 @@ const ProviderOfferCard: React.FC<Props> = ({
   const toggleCancelModal = () => setShowCancelModal((prev) => !prev);
   const toggleEditView = () => setShowEditView((prev) => !prev);
   const [showCounterForm, setShowCounterForm] = useState(false);
-  const handleCancelOffer = () => {
-    console.log("Offer cancelled");
+
+  const handleCancelOffer = async () => {
     setShowCancelModal(false);
+    setLoading(true);
+    setLoadingText("Cancelling offer...");
+
+    try {
+      await deleteOffer(auth.token, offer.id);
+
+      openNotification(
+        "topRight",
+        "Success",
+        "Offer cancelled successfully.",
+        "success",
+      );
+
+      navigate("/provider/manage-jobs");
+    } catch (error) {
+      console.error("Failed to cancel offer:", error);
+
+      const errorMessage = parseHttpError(error);
+      openNotification(
+        "topRight",
+        "Error",
+        errorMessage || "Unable to cancel offer.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
   };
-  const handleEditSubmit = (data: any) => {
-    console.log("Edited offer submitted:", data);
-    toggleEditView();
+
+  const handleEditSubmit = async (data: any) => {
+    setLoading(true);
+    setLoadingText("Updating offer...");
+
+    try {
+      const response = await updateOffer(auth.token, offer.id, {
+        price: String(data.price),
+        description: data.description,
+      });
+
+      onOfferChange(response.data.response);
+
+      openNotification(
+        "topRight",
+        "Success",
+        "Offer updated successfully.",
+        "success",
+      );
+
+      toggleEditView();
+    } catch (error) {
+      console.error("Failed to update offer:", error);
+
+      const errorMessage = parseHttpError(error);
+      openNotification(
+        "topRight",
+        "Error",
+        errorMessage || "Unable to update offer.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
   };
   const handleEditCancel = () => {
-    console.log("Edit cancelled");
     toggleEditView();
   };
+
   const handleCreateCounterOffer = async (
     price: number,
     description: string,
@@ -193,9 +252,7 @@ const ProviderOfferCard: React.FC<Props> = ({
     };
     try {
       let response = await createCounterOffer(auth.token, data);
-      console.log({
-        counterOfferResponse: response,
-      });
+
       onOfferChange(response.data.response);
       setShowCounterForm(false);
       getCounterOffers();
@@ -211,7 +268,7 @@ const ProviderOfferCard: React.FC<Props> = ({
       setLoadingText("");
     }
   };
-  const dummy = () => console.log("dummy called");
+
   if (showEditView) {
     return (
       <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
@@ -256,12 +313,10 @@ const ProviderOfferCard: React.FC<Props> = ({
             job={job}
             offer={offer}
             isClient={auth.isClient}
-            onAccept={dummy}
             onCancel={() => {
               setShowCounterForm(false);
             }}
             onCounter={handleCreateCounterOffer}
-            onUpdate={dummy}
           />
         </div>
       )}

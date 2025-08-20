@@ -7,7 +7,7 @@ interface UserState {
   email: string | null;
   name: string | null;
   avatar: string | null;
-  favourites: UserAccount[]
+  favourites: UserAccount[];
 }
 const initialState: UserState = {
   isAuthenticated: false,
@@ -15,7 +15,7 @@ const initialState: UserState = {
   email: null,
   name: null,
   avatar: null,
-  favourites: []
+  favourites: [],
 };
 const userSlice = createSlice({
   name: "user",
@@ -44,7 +44,7 @@ const userSlice = createSlice({
       state.email = null;
       state.name = null;
       state.avatar = null;
-      state.favourites = []
+      state.favourites = [];
     },
     updateProfile: (
       state,
@@ -56,7 +56,8 @@ const userSlice = createSlice({
     ) => {
       if (action.payload.name) state.name = action.payload.name;
       if (action.payload.avatar) state.avatar = action.payload.avatar;
-      if (action.payload.favourites) state.favourites = action.payload.favourites;
+      if (action.payload.favourites)
+        state.favourites = action.payload.favourites;
     },
   },
 });
