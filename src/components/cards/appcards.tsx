@@ -47,6 +47,7 @@ import {
 import { GenericTag } from "../../pages/jobs&negotiations/statustag";
 import { initializeServiceRequestTransaction } from "../../api-services/wallet.services";
 import RateUserModal from "./rateusermodal";
+import { formatRating } from "../../util/mainutils";
 export function findAcceptedObject(arr: Offer[]) {
   return arr.find((item) => item.accepted === true) || null;
 }
@@ -187,7 +188,7 @@ export const ProviderCard: React.FC<ProviderCardInterface> = ({ provider }) => {
               disabled
               value={provider?.rating || 0}
             />{" "}
-            {provider?.rating} Overall Rating
+            {formatRating(provider?.rating || 0)} Overall Rating
           </div>
           <p>{provider.satisfiedClients || 0} Satisfied Clients</p>
         </div>

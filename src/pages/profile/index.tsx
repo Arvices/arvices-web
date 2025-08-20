@@ -3,8 +3,8 @@ import { Carousel, Badge, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
 import { Heart, MapPin, Star } from "feather-icons-react";
 import { BookingCalendar } from "./bookingcarlendar";
-import { Link, useLocation, useParams } from "react-router-dom";
-import { getAccountById, getUserReviews } from "../../api-services/auth-re";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { addToFavourites, getAccountById, getUserReviews, removeFromFavourites } from "../../api-services/auth-re";
 import { useAuth } from "../../contexts/AuthContext";
 import { ContentHOC } from "../../components/nocontent";
 import { UserAccount } from "../../api-services/auth";
@@ -12,10 +12,14 @@ import { parseHttpError } from "../../api-services/parseReqError";
 import AvailabilitySection from "./Availability";
 import { getInitials } from "../../util/getInitials";
 import { formatRating } from "../../util/mainutils";
-import { CheckCheckIcon, MessageCircle } from "lucide-react";
+import { CheckCheckIcon, HeartOff, MessageCircle } from "lucide-react";
 import moment from "moment";
 import { getAllProfileService } from "../../api-services/profileservice.service";
 import { ServiceOfferingPayload } from "./profile.types";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { updateProfile } from "../../store/userSlice";
 export interface Review {
   createdDate: string;
   id: number;
@@ -26,6 +30,8 @@ export interface Review {
 }
 const Profile = (): React.ReactNode => {
   const auth = useAuth();
+  const navigate = useNavigate();
+  const {openNotification} = useNotificationContext()
   const { pathname } = useLocation();
   const params = useParams();
   const id = params.id || auth?.user?.id;
@@ -35,9 +41,85 @@ const Profile = (): React.ReactNode => {
   const [userProfile, setUserProfile] = useState<UserAccount | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileErr, setProfileErr] = useState<string | null>(null);
+  
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState<boolean>(false);
   const [reviewsError, setReviewsError] = useState<string>("");
+  const dispatch = useDispatch()
+  const userFavourites = useSelector((state:RootState)=> state.user.favourites)
+  const isFavourite = userFavourites.find((user)=> user.id === Number(id))
+  console.log({userFavourites, isFavourite})
+  const chatWithUser = () => {
+    navigate(`/messaging/conversations?with=${id}`)
+  }
+
+const [saveToFavouriteLoading, setSaveToFavouriteLoading] = useState(false);
+const saveToFavourite = async () => {
+  setSaveToFavouriteLoading(true);
+  try {
+    const response = await addToFavourites(String(id), auth.token);
+    console.log("Saved to favourite:", response);
+
+    const newState = response.data.response.favourites;
+    dispatch(updateProfile({ favourites: newState }));
+
+    openNotification(
+      "topRight",
+      "Success",
+      "Added user to favourites successfully.",
+      "success"
+    );
+  } catch (error) {
+    const errorMessage = parseHttpError(error);
+    openNotification(
+      "topRight",
+      "Unable to process request.",
+      errorMessage,
+      "info"
+    );
+  } finally {
+    setSaveToFavouriteLoading(false);
+  }
+};
+
+const removeUserFromFavourites = async () => {
+  setSaveToFavouriteLoading(true);
+  try {
+    const response = await removeFromFavourites(String(id), auth.token);
+    console.log("Removed from favourite:", response);
+
+    const newState = userFavourites.filter(
+      (user) => user.id !== Number(id)
+    );
+    dispatch(updateProfile({ favourites: newState }));
+
+    openNotification(
+      "topRight",
+      "Success",
+      "Removed user from favourites successfully.",
+      "success"
+    );
+  } catch (error) {
+    const errorMessage = parseHttpError(error);
+    openNotification(
+      "topRight",
+      "Unable to process request.",
+      errorMessage,
+      "info"
+    );
+  } finally {
+    setSaveToFavouriteLoading(false);
+  }
+};
+
+const toggleSaveToFavourite = async () => {
+  console.log("Toggle is favourite: ",{isFavourite})
+  if (isFavourite) {
+    await removeUserFromFavourites();
+  } else {
+    await saveToFavourite();
+  }
+};
   const loadUserReviews = async () => {
     console.log({
       reviewsLoading,
@@ -182,7 +264,7 @@ const Profile = (): React.ReactNode => {
               {}
               <span className="ml-2 text-gray-600">
                 {userProfile?.rating?.toFixed?.(1) || "0.0"} Rating from (
-                {userProfile?.numberOfRating} reviews)
+                {userProfile?.numberOfRating} Previous Ratings)
               </span>
             </div>
 
@@ -190,11 +272,21 @@ const Profile = (): React.ReactNode => {
             {!isMyProfile && (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                 <BookingCalendar profile={userProfile} services={services} />
-                <Button className="shadow-sm !h-12">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Save to Favorites
-                </Button>
-                <button className="flex items-center justify-center space-x-2 px-6 py-3 border border-transparent text-sm font-medium rounded-full text-blue-800 bg-white hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+<Button
+  onClick={toggleSaveToFavourite}
+  loading={saveToFavouriteLoading}
+  className="shadow-sm !h-12"
+>
+  {/* Conditionally render the icon based on whether it's a favourite */}
+  {isFavourite ? (
+    <HeartOff className="w-4 h-4 mr-2" />
+  ) : (
+    <Heart className="w-4 h-4 mr-2" />
+  )}
+  {/* Conditionally render the text */}
+  {isFavourite ? 'Remove from Favorites' : 'Save to Favorites'}
+</Button>
+                <button onClick={chatWithUser} className="flex items-center justify-center space-x-2 px-6 py-3 border border-transparent text-sm font-medium rounded-full text-blue-800 bg-white hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                   <MessageCircle className="w-4 h-4" />
                   <span>Chat With User</span>
                 </button>
@@ -205,7 +297,7 @@ const Profile = (): React.ReactNode => {
             <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-8 items-center justify-center">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {userProfile?.satisfiedClients}
+                  {userProfile?.satisfiedClients || 0}
                 </div>
                 <div className="text-sm text-gray-600">Happy Clients</div>
               </div>

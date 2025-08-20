@@ -29,6 +29,7 @@ export interface UserAccount {
   availableFromTime: string | null;
   availableToTime: string | null;
   address: string;
+  favourites: UserAccount[];
   followers: number[];
   password: string;
   type: AccountTypeVal;
