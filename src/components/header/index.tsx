@@ -269,6 +269,18 @@ const Header: React.FC = () => {
             </Link>
           ),
         },
+        {
+          key: "6",
+          label : (            
+          <Link
+            to="/bookings"
+            className="flex items-center gap-2"
+          >
+            <Clipboard size={16} /> Bookings & Orders
+            <span className="rounded px-1 bg-gray-100 inline-block ml-auto"></span>
+          </Link>
+          )
+        },
 
         { type: "divider" },
         {
