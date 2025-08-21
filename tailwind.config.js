@@ -5,9 +5,10 @@ export default {
   theme: {
     extend: {},
   },
-    safelist: [
+  safelist: [
     {
-      pattern: /(bg|text|border)-(blue|green|pink|amber|red|purple)-(50|100|200|300|400|500|600|700|800|900|950)/,
+      pattern:
+        /(bg|text|border)-(blue|green|pink|amber|red|purple)-(50|100|200|300|400|500|600|700|800|900|950)/,
     },
   ],
   plugins: [],

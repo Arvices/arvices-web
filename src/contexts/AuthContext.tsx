@@ -1,6 +1,10 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { UserAccount } from "../api-services/auth";
+import { useDispatch } from "react-redux";
+import { clearConversations, clearMessages } from "../store/messageSlice";
+import { clearUser } from "../store/userSlice";
+import { clearNotifications } from "../store/notificationSlice";
 export type AccountTypeVal = "Client" | "Service Provider" | "";
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -70,6 +74,7 @@ const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
 export const AuthProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  const dispatch = useDispatch()
   const accessToken = localStorage.getItem("access_token");
   const email_saved = localStorage.getItem("user_email");
   const user_saved = localStorage.getItem("user");
@@ -108,7 +113,7 @@ export const AuthProvider: React.FC<{
     window.localStorage.setItem("user_profile", JSON.stringify(profile));
   };
 
-  const clearProfile = () => {
+  const discardProfile = () => {
     window.localStorage.setItem("user_profile", "");
   };
 
@@ -118,7 +123,11 @@ export const AuthProvider: React.FC<{
     window.localStorage.setItem("token_expires_at", "");
     window.localStorage.setItem("user_email", "");
     window.localStorage.setItem("user_saved", "");
-    clearProfile();
+    discardProfile();
+    dispatch(clearConversations())
+    dispatch(clearUser())
+    dispatch(clearNotifications())
+    dispatch(clearMessages(null))
   };
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");

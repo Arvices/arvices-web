@@ -21,7 +21,11 @@ const createOrder = async (payload: OrderPayload, token?: string) => {
   return axios(config);
 };
 
-const updateOrder = async (id: number, payload: OrderPayload, token?: string) => {
+const updateOrder = async (
+  id: number,
+  payload: OrderPayload,
+  token?: string,
+) => {
   const config = {
     url: `${baseUrl}/order/updateorder/${id}`,
     method: "PUT" as const,
@@ -59,7 +63,7 @@ const getAllOrders = async (
     page?: number;
     limit?: number;
   },
-  token?: string
+  token?: string,
 ) => {
   const config = {
     url: `${baseUrl}/order/getallorder`,
@@ -85,10 +89,4 @@ const deleteOrder = async (id: number, token?: string) => {
   return axios(config);
 };
 
-export {
-  createOrder,
-  updateOrder,
-  getOrderById,
-  getAllOrders,
-  deleteOrder,
-};
+export { createOrder, updateOrder, getOrderById, getAllOrders, deleteOrder };

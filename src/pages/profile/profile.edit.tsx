@@ -37,7 +37,7 @@ type ChangeLikeEvent =
         value: any;
       };
     };
-    
+
 export function ProfileEdit() {
   const auth = useAuth();
   const id = auth?.user?.id;
@@ -1027,17 +1027,19 @@ export function ProfileEdit() {
             </div>
           </div>
           <div className="my-8 border-t border-gray-300" />
-          {activeTab !== "services" && activeTab !== "settings" && activeTab !== "products" && (
-            <div className="">
-              <button
-                onClick={handleSave}
-                className="!bg-black cursor-pointer !text-white !h-10 px-4 py-2 rounded-md block text-sm w-full max-w-[400px] mx-auto"
-              >
-                <Save className="inline w-4 h-4 mr-2" />
-                Save Changes
-              </button>
-            </div>
-          )}
+          {activeTab !== "services" &&
+            activeTab !== "settings" &&
+            activeTab !== "products" && (
+              <div className="">
+                <button
+                  onClick={handleSave}
+                  className="!bg-black cursor-pointer !text-white !h-10 px-4 py-2 rounded-md block text-sm w-full max-w-[400px] mx-auto"
+                >
+                  <Save className="inline w-4 h-4 mr-2" />
+                  Save Changes
+                </button>
+              </div>
+            )}
 
           <div className="mt-10" />
         </div>

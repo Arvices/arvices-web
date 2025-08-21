@@ -72,10 +72,18 @@ const messageSlice = createSlice({
         };
       }
     },
-    clearMessages: (state, action: PayloadAction<number>) => {
-      const conversationId = action.payload;
-      delete state.messages[conversationId];
+
+    clearMessages: (state, action: PayloadAction<number | null>) => {
+      const conversationId = action.payload
+      if(conversationId !== null){
+
+      delete state.messages[conversationId]
+      }
+      else {
+        state.messages = {}
+      }
     },
+
     setConversations: (state, action: PayloadAction<Conversation[]>) => {
       console.log({
         inSetConversations: action,
