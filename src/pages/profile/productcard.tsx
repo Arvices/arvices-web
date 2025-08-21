@@ -70,7 +70,7 @@ const ProductCardProfile: React.FC<ProductCardProp> = ({ product, index }) => {
           className={`bg-gray-50 border border-gray-100 h-50 rounded-[10px] overflow-hidden`}
         >
           <img
-            src={product?.images[0].path}
+            src={product?.images[0]?.path || undefined}
             alt={product?.title}
             className="w-full h-full object-cover"
           />
