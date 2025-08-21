@@ -74,7 +74,7 @@ const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
 export const AuthProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const accessToken = localStorage.getItem("access_token");
   const email_saved = localStorage.getItem("user_email");
   const user_saved = localStorage.getItem("user");
@@ -124,10 +124,10 @@ export const AuthProvider: React.FC<{
     window.localStorage.setItem("user_email", "");
     window.localStorage.setItem("user_saved", "");
     discardProfile();
-    dispatch(clearConversations())
-    dispatch(clearUser())
-    dispatch(clearNotifications())
-    dispatch(clearMessages(null))
+    dispatch(clearConversations());
+    dispatch(clearUser());
+    dispatch(clearNotifications());
+    dispatch(clearMessages(null));
   };
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");

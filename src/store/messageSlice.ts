@@ -74,13 +74,11 @@ const messageSlice = createSlice({
     },
 
     clearMessages: (state, action: PayloadAction<number | null>) => {
-      const conversationId = action.payload
-      if(conversationId !== null){
-
-      delete state.messages[conversationId]
-      }
-      else {
-        state.messages = {}
+      const conversationId = action.payload;
+      if (conversationId !== null) {
+        delete state.messages[conversationId];
+      } else {
+        state.messages = {};
       }
     },
 
