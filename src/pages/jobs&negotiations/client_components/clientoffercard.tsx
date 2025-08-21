@@ -136,7 +136,6 @@ const OfferCardClient: React.FC<Props> = ({
   const goToMessageProvider = async () => {
     navigate(`/messaging/conversations?with=${offer.user.id}`);
   };
-  const dummy = () => console.log("dummy called");
   let showBtns = true;
   if (latestOffer && latestOffer.type !== "Service Provider") {
     showBtns = false;
@@ -211,12 +210,10 @@ const OfferCardClient: React.FC<Props> = ({
           job={job}
           offer={offer}
           isClient={auth.isClient}
-          onAccept={dummy}
           onCancel={() => {
             setShowCounterForm(false);
           }}
           onCounter={handleCreateCounterOffer}
-          onUpdate={dummy}
         />
       )}
 

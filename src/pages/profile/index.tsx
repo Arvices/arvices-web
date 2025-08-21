@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Carousel, Badge, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
-import { Heart, MapPin, Star } from "feather-icons-react";
+import { ArrowDownRight, Heart, MapPin, Star } from "feather-icons-react";
 import { BookingCalendar } from "./bookingcarlendar";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -25,6 +25,9 @@ import { useNotificationContext } from "../../contexts/NotificationContext";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { updateProfile } from "../../store/userSlice";
+import { getAllProducts } from "../../api-services/product.service";
+import ProductCardProfile from "./productcard";
+import { ProductPayload } from "./manageproduct";
 export interface Review {
   createdDate: string;
   id: number;
@@ -33,6 +36,7 @@ export interface Review {
   user: UserAccount;
   userWhoWasReviewed: UserAccount;
 }
+
 const Profile = (): React.ReactNode => {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -153,10 +157,12 @@ const Profile = (): React.ReactNode => {
   const [services, setServices] = useState<ServiceOfferingPayload[]>([]);
   const [servicesLoading, setServicesLoading] = useState<boolean>(false);
   const [servicesError, setServicesError] = useState<string>("");
-  console.log({
-    servicesLoading,
-    servicesError,
-  });
+
+    const [products, setProducts] = useState<ProductPayload[]>([]);
+    const [productLoading, setProductLoading] = useState(false);
+    const [productErr, setProductErr] = useState<string | null>(null);
+    [servicesLoading,servicesError,productLoading,productErr]
+
   const loadUserServices = async () => {
     setServicesLoading(true);
     setServicesError("");
@@ -189,11 +195,29 @@ const Profile = (): React.ReactNode => {
       setProfileLoading(false);
     }
   };
+
+
+    const fetchProducts = async () => {
+      setProductLoading(true);
+      setProductErr(null);
+      try {
+        const res = await getAllProducts({ userId: Number(id)}, auth.token);
+        console.log("Fetched Products: -",{res})
+        setProducts(res?.data?.response || []);
+      } catch (error: any) {
+        console.error(error);
+        setProductErr("Could not fetch products.");
+      } finally {
+        setProductLoading(false);
+      }
+    };
+
   useEffect(() => {
     if (id && auth?.token) {
       loadProfile();
       loadUserReviews();
       loadUserServices();
+      fetchProducts()
     }
   }, [id, auth?.token]);
   let UIComponent = (
@@ -325,13 +349,6 @@ const Profile = (): React.ReactNode => {
           </div>
         </section>
       </div>
-      <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
-        {}
-
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-          {}
-
-          {}
           <section className="py-16 px-6 bg-white">
             <div className="max-w-4xl mx-auto">
               <div className="grid md:grid-cols-2 gap-12">
@@ -368,8 +385,27 @@ const Profile = (): React.ReactNode => {
               </div>
             </div>
           </section>
+   
 
-          {}
+          <section className="my-10 py-16 px-20 border-t border-b border-blue-200">
+            <h2 className="mb-10 text-2xl font-semibold tracking-tight">
+              <span className="text-royalblue-main">Buy</span> From {userProfile?.fullName}{" "}
+              <span className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 inline-block text-center">
+                <ArrowDownRight className="inline w-4 h-4" />
+              </span>
+            </h2>
+
+            <div className="flex flex-wrap gap-6">
+              {products.map((product, index) => (
+                <div
+                  key={index}
+                  className="flex-1 min-w-[300px] max-w-[450px]"
+                >
+                  <ProductCardProfile index={index} product={product} />
+                </div>
+              ))}
+            </div>
+          </section>
 
           <section className="py-16 px-6 bg-gradient-to-br from-gray-50 to-white">
             <div className="max-w-4xl mx-auto">
@@ -485,11 +521,12 @@ const Profile = (): React.ReactNode => {
               )}
             </div>
           </section>
-        </div>
-      </div>
+
     </section>
   );
   return (
+    <div>
+
     <ContentHOC
       loading={profileLoading}
       loadingText={"Loading User Profile. Please Wait"}
@@ -499,6 +536,8 @@ const Profile = (): React.ReactNode => {
       actionFn={loadProfile}
       UIComponent={UIComponent}
     />
+    
+    </div>
   );
 };
 export default Profile;
