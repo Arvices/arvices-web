@@ -158,10 +158,10 @@ const Profile = (): React.ReactNode => {
   const [servicesLoading, setServicesLoading] = useState<boolean>(false);
   const [servicesError, setServicesError] = useState<string>("");
 
-    const [products, setProducts] = useState<ProductPayload[]>([]);
-    const [productLoading, setProductLoading] = useState(false);
-    const [productErr, setProductErr] = useState<string | null>(null);
-    [servicesLoading,servicesError,productLoading,productErr]
+  const [products, setProducts] = useState<ProductPayload[]>([]);
+  const [productLoading, setProductLoading] = useState(false);
+  const [productErr, setProductErr] = useState<string | null>(null);
+  [servicesLoading, servicesError, productLoading, productErr];
 
   const loadUserServices = async () => {
     setServicesLoading(true);
@@ -196,28 +196,27 @@ const Profile = (): React.ReactNode => {
     }
   };
 
-
-    const fetchProducts = async () => {
-      setProductLoading(true);
-      setProductErr(null);
-      try {
-        const res = await getAllProducts({ userId: Number(id)}, auth.token);
-        console.log("Fetched Products: -",{res})
-        setProducts(res?.data?.response || []);
-      } catch (error: any) {
-        console.error(error);
-        setProductErr("Could not fetch products.");
-      } finally {
-        setProductLoading(false);
-      }
-    };
+  const fetchProducts = async () => {
+    setProductLoading(true);
+    setProductErr(null);
+    try {
+      const res = await getAllProducts({ userId: Number(id) }, auth.token);
+      console.log("Fetched Products: -", { res });
+      setProducts(res?.data?.response || []);
+    } catch (error: any) {
+      console.error(error);
+      setProductErr("Could not fetch products.");
+    } finally {
+      setProductLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (id && auth?.token) {
       loadProfile();
       loadUserReviews();
       loadUserServices();
-      fetchProducts()
+      fetchProducts();
     }
   }, [id, auth?.token]);
   let UIComponent = (
@@ -349,47 +348,55 @@ const Profile = (): React.ReactNode => {
           </div>
         </section>
       </div>
-          <section className="py-16 px-6 bg-white">
-            <div className="max-w-4xl mx-auto">
-              <div className="grid md:grid-cols-2 gap-12">
-                {}
-                <div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-                    Specialties
-                  </h3>
-                  <div className="flex flex-wrap !gap-2">
-                    {userProfile?.specialties &&
-                      userProfile.specialties.map((skill) => (
-                        <Badge
-                          key={skill}
-                          className="bg-white/80 text-gray-700 border !px-2 !py-2 rounded-2xl text-sm border-purple-400"
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-                    Service Info
-                  </h3>
-                  <AvailabilitySection
-                    startTime={userProfile?.availableFromTime || ""}
-                    location={userProfile?.address || ""}
-                    appointmentsAvailable={3}
-                    endTime={userProfile?.availableToTime || ""}
-                    days={userProfile?.availableDays || []}
-                  />
-                </div>
+      <section className="py-16 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12">
+            {}
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+                Specialties
+              </h3>
+              <div className="flex flex-wrap !gap-2">
+                {userProfile?.specialties &&
+                  userProfile.specialties.map((skill) => (
+                    <Badge
+                      key={skill}
+                      className="bg-white/80 text-gray-700 border !px-2 !py-2 rounded-2xl text-sm border-purple-400"
+                    >
+                      {skill}
+                    </Badge>
+                  ))}
               </div>
             </div>
-          </section>
-   
 
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+                Service Info
+              </h3>
+              <AvailabilitySection
+                startTime={userProfile?.availableFromTime || ""}
+                location={userProfile?.address || ""}
+                appointmentsAvailable={3}
+                endTime={userProfile?.availableToTime || ""}
+                days={userProfile?.availableDays || []}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <ContentHOC
+        loading={productLoading}
+        loadingText={"Loading User Profile. Please Wait"}
+        error={!!productErr}
+        errMessage={productErr as string}
+        noContent={false}
+        actionFn={fetchProducts}
+        UIComponent={
           <section className="my-10 py-16 px-20 border-t border-b border-blue-200">
             <h2 className="mb-10 text-2xl font-semibold tracking-tight">
-              <span className="text-royalblue-main">Buy</span> From {userProfile?.fullName}{" "}
+              <span className="text-royalblue-main">Buy</span> From{" "}
+              {userProfile?.fullName}{" "}
               <span className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 inline-block text-center">
                 <ArrowDownRight className="inline w-4 h-4" />
               </span>
@@ -397,146 +404,137 @@ const Profile = (): React.ReactNode => {
 
             <div className="flex flex-wrap gap-6">
               {products.map((product, index) => (
-                <div
-                  key={index}
-                  className="flex-1 min-w-[300px] max-w-[450px]"
-                >
+                <div key={index} className="flex-1 min-w-[300px] max-w-[450px]">
                   <ProductCardProfile index={index} product={product} />
                 </div>
               ))}
             </div>
           </section>
+        }
+      />
 
-          <section className="py-16 px-6 bg-gradient-to-br from-gray-50 to-white">
-            <div className="max-w-4xl mx-auto">
-              <h3 className="text-2xl font-semibold text-gray-900 text-center mb-12">
-                Recent Reviews
-              </h3>
-              {reviews.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center p-4 h-full w-full">
-                  <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6 text-slate-400 dark:text-slate-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2H3l-1-1v-4a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012 2z"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
-                      No reviews available
-                    </h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">
-                      This user hasn't received any reviews yet.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="relative">
-                  {}
-                  <Carousel
-                    ref={carouselRef}
-                    dots={false}
-                    autoplay={reviews.length > 1}
-                    slidesToShow={reviews.length === 1 ? 1 : 2}
-                    responsive={
-                      reviews.length > 1
-                        ? [
-                            {
-                              breakpoint: 768,
-                              settings: {
-                                slidesToShow: 1,
-                              },
-                            },
-                          ]
-                        : []
-                    }
+      <section className="py-16 px-6 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-2xl font-semibold text-gray-900 text-center mb-12">
+            Recent Reviews
+          </h3>
+          {reviews.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center p-4 h-full w-full">
+              <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 shadow-sm flex flex-col items-center justify-center text-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-slate-400 dark:text-slate-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
                   >
-                    {reviews.map((review, idx) => (
-                      <div key={idx} className="px-2">
-                        <Card className="px-6 pt-6 card-shadow bg-white h-full">
-                          <div className="flex justify-between items-center mb-7">
-                            <div className="flex items-center space-x-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <StarFilled
-                                  key={star}
-                                  className="!text-yellow-400 w-4 h-4"
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-600">
-                              <CheckCheckIcon
-                                className="inline-block"
-                                size={16}
-                              />
-                            </span>
-                          </div>
-                          <p className="text-gray-800 mb-6">
-                            "{review.review}"
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <span className="font-medium text-gray-900 inline-block ml-2">
-                                {review.user.fullName}{" "}
-                                <span className="text-gray-500 text-[12px] font-normal">
-                                  Client
-                                </span>
-                              </span>
-                            </div>
-                            <span className="text-sm text-gray-500">
-                              {moment(review.createdDate).format("lll")}
-                            </span>
-                          </div>
-                        </Card>
-                      </div>
-                    ))}
-                  </Carousel>
-
-                  {}
-                  <div className="absolute -left-8 md:-left-14 top-1/2 -translate-y-1/2 z-10">
-                    <button
-                      onClick={() => carouselRef.current?.prev()}
-                      className="border border-gray-300 bg-white rounded-full w-9 h-9 md:w-15 md:h-15 shadow hover:bg-gray-100"
-                    >
-                      <LeftOutlined />
-                    </button>
-                  </div>
-                  <div className="absolute -right-8 md:-right-14 top-1/2 -translate-y-1/2 z-10">
-                    <button
-                      onClick={() => carouselRef.current?.next()}
-                      className="border border-gray-300 bg-white rounded-full  w-9 h-9 md:w-15 md:h-15  shadow hover:bg-gray-100"
-                    >
-                      <RightOutlined />
-                    </button>
-                  </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2H3l-1-1v-4a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012 2z"
+                    />
+                  </svg>
                 </div>
-              )}
+                <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
+                  No reviews available
+                </h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  This user hasn't received any reviews yet.
+                </p>
+              </div>
             </div>
-          </section>
+          ) : (
+            <div className="relative">
+              {}
+              <Carousel
+                ref={carouselRef}
+                dots={false}
+                autoplay={reviews.length > 1}
+                slidesToShow={reviews.length === 1 ? 1 : 2}
+                responsive={
+                  reviews.length > 1
+                    ? [
+                        {
+                          breakpoint: 768,
+                          settings: {
+                            slidesToShow: 1,
+                          },
+                        },
+                      ]
+                    : []
+                }
+              >
+                {reviews.map((review, idx) => (
+                  <div key={idx} className="px-2">
+                    <Card className="px-6 pt-6 card-shadow bg-white h-full">
+                      <div className="flex justify-between items-center mb-7">
+                        <div className="flex items-center space-x-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <StarFilled
+                              key={star}
+                              className="!text-yellow-400 w-4 h-4"
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-600">
+                          <CheckCheckIcon className="inline-block" size={16} />
+                        </span>
+                      </div>
+                      <p className="text-gray-800 mb-6">"{review.review}"</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <span className="font-medium text-gray-900 inline-block ml-2">
+                            {review.user.fullName}{" "}
+                            <span className="text-gray-500 text-[12px] font-normal">
+                              Client
+                            </span>
+                          </span>
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {moment(review.createdDate).format("lll")}
+                        </span>
+                      </div>
+                    </Card>
+                  </div>
+                ))}
+              </Carousel>
 
+              {}
+              <div className="absolute -left-8 md:-left-14 top-1/2 -translate-y-1/2 z-10">
+                <button
+                  onClick={() => carouselRef.current?.prev()}
+                  className="border border-gray-300 bg-white rounded-full w-9 h-9 md:w-15 md:h-15 shadow hover:bg-gray-100"
+                >
+                  <LeftOutlined />
+                </button>
+              </div>
+              <div className="absolute -right-8 md:-right-14 top-1/2 -translate-y-1/2 z-10">
+                <button
+                  onClick={() => carouselRef.current?.next()}
+                  className="border border-gray-300 bg-white rounded-full  w-9 h-9 md:w-15 md:h-15  shadow hover:bg-gray-100"
+                >
+                  <RightOutlined />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
     </section>
   );
   return (
     <div>
-
-    <ContentHOC
-      loading={profileLoading}
-      loadingText={"Loading User Profile. Please Wait"}
-      error={!!profileErr}
-      errMessage={profileErr as string}
-      noContent={false}
-      actionFn={loadProfile}
-      UIComponent={UIComponent}
-    />
-    
+      <ContentHOC
+        loading={profileLoading}
+        loadingText={"Loading User Profile. Please Wait"}
+        error={!!profileErr}
+        errMessage={profileErr as string}
+        noContent={false}
+        actionFn={loadProfile}
+        UIComponent={UIComponent}
+      />
     </div>
   );
 };
