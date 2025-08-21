@@ -84,6 +84,7 @@ const ProductCardProfile: React.FC<ProductCardProp> = ({ product, index }) => {
           {product?.title}
         </h6>
         <p className={`text-${theme}-800 text-[14px]`}>{product.description}</p>
+        <p className={`text-${theme}-800 text-[14px] font-semibold`}>Price - NGN {product.price}</p>
       </div>
       {auth.isClient && (
         <div>

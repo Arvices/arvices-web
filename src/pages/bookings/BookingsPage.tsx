@@ -4,6 +4,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import api from "../../util/api";
 import dayjs from "dayjs";
 import { NoContent } from "../../components/nocontent";
+import { useNotificationContext } from "../../contexts/NotificationContext";
+import { parseHttpError } from "../../api-services/parseReqError";
 interface Booking {
   id: number;
   name?: string;
@@ -15,6 +17,7 @@ interface Booking {
 }
 const BookingsPage: React.FC = () => {
   const auth = useAuth();
+  const {openNotification} = useNotificationContext()
   const [tab, setTab] = useState<"bookings" | "orders">("bookings");
   const [status, setStatus] = useState<"In Progress" | "Paid" | "Completed">(
     "In Progress",
@@ -51,7 +54,8 @@ const BookingsPage: React.FC = () => {
       setBookings(newData);
     } catch (err) {
       console.error(err);
-      message.error("Failed to load bookings");
+      let message = parseHttpError(err)
+      openNotification("topRight", "Failed", message, "error")
     } finally {
       setLoading(false);
     }
@@ -99,6 +103,7 @@ const BookingsPage: React.FC = () => {
         },
       );
       console.log("✅ Payment response:", res.data);
+      openNotification("topRight", "Successful", "Payment Successful", "success")
       if (method === "Non Wallet") {
         const url = res.data?.response?.data?.authorization_url;
         if (url) {
@@ -110,30 +115,36 @@ const BookingsPage: React.FC = () => {
       setStatus("Paid");
     } catch (err: any) {
       console.error("❌ Pay failed (full error):", err);
+      let message = parseHttpError(err)
+      openNotification("topRight", "Failed", message, "error")
     }
   };
-  const handleComplete = async (item: Booking) => {
-    try {
-      await api.put(
-        item.type === "booking"
-          ? `/bookings/updatebookings/${item.id}`
-          : `/order/updateorder/${item.id}`,
-        {
-          name: item.name ?? "Item",
-          date: item.date ?? new Date().toISOString(),
-          serviceId: item.serviceId ?? [],
-          status: "Completed",
-        },
-      );
-      message.success(
-        `${item.type === "booking" ? "Booking" : "Order"} completed!`,
-      );
-      setStatus("Completed");
-    } catch (err: any) {
-      console.error("Complete failed:", err);
-      message.error(err.response?.data?.message || "Failed to complete.");
-    }
-  };
+const handleComplete = async (item: Booking) => {
+  try {
+    await api.put(
+      item.type === "booking"
+        ? `/bookings/updatebookings/${item.id}`
+        : `/order/updateorder/${item.id}`,
+      {
+        name: item.name ?? "Item",
+        date: item.date ?? new Date().toISOString(),
+        serviceId: item.serviceId ?? [],
+        status: "Completed",
+      },
+    );
+
+    const successMsg = `${item.type === "booking" ? "Booking" : "Order"} completed!`;
+    message.success(successMsg);
+    openNotification("topRight", "Successful", successMsg, "success");
+
+    setStatus("Completed");
+  } catch (err: any) {
+    console.error("❌ Complete failed:", err);
+    const errorMsg = err.response?.data?.message || "Failed to complete.";
+    message.error(errorMsg);
+    openNotification("topRight", "Failed", errorMsg, "error");
+  }
+};
   return (
     <section className="min-h-screen pt-13 ">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">

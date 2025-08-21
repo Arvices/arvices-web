@@ -98,6 +98,7 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     if (!messagesSocket) return;
     messagesSocket.on("messagesuccessful", (data: Message) => {
+
       dispatch(
         addMessage({
           conversationId: String(data.toUser.id),
@@ -105,7 +106,9 @@ export const MessageRealtimeProvider: React.FC<Props> = ({ children }) => {
         }),
       );
     });
+
     messagesSocket.on("messagesent", (data: Message) => {
+
       dispatch(
         addMessage({
           conversationId: String(data?.user?.id),
