@@ -16,7 +16,9 @@ const NewJobPosting = (): React.ReactNode => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
+  const [type, setType] = useState<"Public" | "Private" | "Recommended">(
+    "Public",
+  );
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
@@ -62,7 +64,7 @@ const NewJobPosting = (): React.ReactNode => {
         description,
         address: location,
         categoryId: cat.id,
-        type: isPublic ? "Public" : "Private",
+        type,
       };
       let res = await createServiceRequest(data, auth.token);
       console.log({
@@ -180,20 +182,42 @@ const NewJobPosting = (): React.ReactNode => {
             />
           </div>
           {}
-          <div className="flex items-center space-x-3 mb-3">
-            <input
-              id="isPublic"
-              type="checkbox"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label
-              htmlFor="isPublic"
-              className="text-sm font-medium text-gray-700"
-            >
-              Make Public
-            </label>
+          <div className="mb-5">
+            <p className="mb-2 text-sm font-medium text-neutral-800">Type</p>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="Public"
+                  checked={type === "Public"}
+                  onChange={() => setType("Public")}
+                  className="h-4 w-4 text-neutral-800 focus:ring-neutral-500"
+                />
+                <span className="text-sm text-neutral-700">Public</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="Private"
+                  checked={type === "Private"}
+                  onChange={() => setType("Private")}
+                  className="h-4 w-4 text-neutral-800 focus:ring-neutral-500"
+                />
+                <span className="text-sm text-neutral-700">Private</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="Recommended"
+                  checked={type === "Recommended"}
+                  onChange={() => setType("Recommended")}
+                  className="h-4 w-4 text-neutral-800 focus:ring-neutral-500"
+                />
+                <span className="text-sm text-neutral-700">Recommended</span>
+              </label>
+            </div>
           </div>
           <div className="mb-5 relative">
             <button

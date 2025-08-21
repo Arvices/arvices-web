@@ -24,6 +24,22 @@ const initialState: MessageState = {
   messages: {},
   conversations: [],
 };
+
+export function sortConversationsByLastMessage(
+  conversations: Conversation[],
+): Conversation[] {
+  return [...conversations].sort((a, b) => {
+    const dateA = a.lastmessage
+      ? new Date(a.lastmessage.createdDate).getTime()
+      : 0;
+    const dateB = b.lastmessage
+      ? new Date(b.lastmessage.createdDate).getTime()
+      : 0;
+
+    return dateB - dateA; // newest first
+  });
+}
+
 const messageSlice = createSlice({
   name: "messages",
   initialState,

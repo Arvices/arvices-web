@@ -11,7 +11,7 @@ interface ProductCardProp {
   index: number;
 }
 
-const themeArray = ["blue", "green", "amber", "red", "purple"];
+const themeArray = ["blue", "green", "yellow", "red", "purple"];
 
 function getThemeByIndex(index: number) {
   const actualIndex = index % themeArray.length;
@@ -85,46 +85,50 @@ const ProductCardProfile: React.FC<ProductCardProp> = ({ product, index }) => {
         </h6>
         <p className={`text-${theme}-800 text-[14px]`}>{product.description}</p>
       </div>
-      <div className="py-4" />
-      <div>
-        <button
-          onClick={() => {
-            setQuantity((prev) => {
-              let next = prev - 1;
-              // Corrected logic: if next is less than 0, return 0; otherwise, return next.
-              return next < 0 ? 0 : next;
-            });
-          }}
-          className={`w-10 h-10 rounded-full bg-${theme}-500 cursor-pointer text-white`}
-        >
-          -
-        </button>
-        <span className="inline-block px-3">{quantity}</span>
-        <button
-          onClick={() => {
-            setQuantity((prev) => prev + 1);
-          }}
-          className={`w-10 h-10 rounded-full bg-${theme}-500 cursor-pointer text-white`}
-        >
-          +
-        </button>
-      </div>
-      <div className="py-4" />
-      <div>
-        <button
-          onClick={handlePlaceOrder}
-          className={`cursor-pointer p-2 pl-5 w-full rounded-full bg-${theme}-500 text-white flex items-center justify-between`}
-        >
-          <span className="font-medium tracking-tight">
-            Place Order For This Item
-          </span>
-          <span
-            className={`bg-white text-${theme}-600 rounded-full inline-block p-3`}
-          >
-            <ShoppingBag className={` w-5 h-5`} />
-          </span>
-        </button>
-      </div>
+      {auth.isClient && (
+        <div>
+          <div className="py-4" />
+          <div>
+            <button
+              onClick={() => {
+                setQuantity((prev) => {
+                  let next = prev - 1;
+                  // Corrected logic: if next is less than 0, return 0; otherwise, return next.
+                  return next < 0 ? 0 : next;
+                });
+              }}
+              className={`w-10 h-10 rounded-full bg-${theme}-500 cursor-pointer text-white`}
+            >
+              -
+            </button>
+            <span className="inline-block px-3">{quantity}</span>
+            <button
+              onClick={() => {
+                setQuantity((prev) => prev + 1);
+              }}
+              className={`w-10 h-10 rounded-full bg-${theme}-500 cursor-pointer text-white`}
+            >
+              +
+            </button>
+          </div>
+          <div className="py-4" />
+          <div>
+            <button
+              onClick={handlePlaceOrder}
+              className={`cursor-pointer p-2 pl-5 w-full rounded-full bg-${theme}-500 text-white flex items-center justify-between`}
+            >
+              <span className="font-medium tracking-tight">
+                Place Order For This Item
+              </span>
+              <span
+                className={`bg-white text-${theme}-600 rounded-full inline-block p-3`}
+              >
+                <ShoppingBag className={` w-5 h-5`} />
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

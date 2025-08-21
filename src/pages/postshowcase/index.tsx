@@ -6,9 +6,11 @@ import { useLoading } from "../../contexts/LoadingContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
 import { createShowcase } from "../../api-services/showcase.service";
+import { useNavigate } from "react-router-dom";
 const PostShowcase = (): React.ReactNode => {
   const { setLoading, setLoadingText } = useLoading();
   const auth = useAuth();
+  const navigate = useNavigate();
   const notify = useNotificationContext();
   const [experience, setExperience] = useState("");
   const [location, setLocation] = useState("");
@@ -43,6 +45,7 @@ const PostShowcase = (): React.ReactNode => {
         "Successfully Uploaded Showcase",
         "success",
       );
+      navigate("/activities");
     } catch (error) {
       console.error("Error uploading showcase:", error);
       notify.openNotification(

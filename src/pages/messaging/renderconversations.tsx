@@ -7,6 +7,7 @@ import { RootState } from "../../store/store";
 import moment from "moment";
 import { getInitials } from "../../util/getInitials";
 import { useAuth } from "../../contexts/AuthContext";
+import { sortConversationsByLastMessage } from "../../store/messageSlice";
 const RenderConversations: React.FC = () => {
   let auth = useAuth();
   const [SearchParam] = useSearchParams();
@@ -16,6 +17,7 @@ const RenderConversations: React.FC = () => {
   const conversations = useSelector(
     (state: RootState) => state.message.conversations,
   );
+  const sorted = sortConversationsByLastMessage(conversations);
   let isOnline = true;
   const goToConversation = (id: number) => {
     let url = `/messaging/conversations?with=${id}`;
@@ -25,7 +27,6 @@ const RenderConversations: React.FC = () => {
     <div
       className={`${chattingWith ? "hidden md:flex" : "flex"} h-[calc(100vh-60px)] overflow-y-auto border-l border-r border-gray-200 w-full md:w-1/3 flex-col  `}
     >
-      {}
       <div className="p-6 border-b border-purple-100 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Messages</h2>
@@ -120,7 +121,7 @@ const RenderConversations: React.FC = () => {
         !messageRealTime.conversationLoadError &&
         conversations.length > 0 && (
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {conversations.map((conversation) => {
+            {sorted.map((conversation) => {
               const lastMessageByMe =
                 conversation?.lastmessage?.user?.id === auth?.user?.id;
               console.log("Render conversation", {

@@ -64,6 +64,7 @@ const Header: React.FC = () => {
   {
     /* Provider context menu */
   }
+
   const JobsMenu = (
     <Menu
       items={[
@@ -224,7 +225,17 @@ const Header: React.FC = () => {
           label: (
             <div className="flex items-center gap-4 p-3 w-max">
               <div className="w-16 h-16 flex items-center justify-center rounded-full border border-gray-700 bg-white">
-                <User className="text-gray-700" size={32} />
+                    <span className="h-16 w-16 flex items-center justify-center rounded-full overflow-hidden border border-gray-200 bg-neutral-100">
+                      {auth?.user?.picture ? (
+                        <img
+                          src={auth.user.picture}
+                          alt="User avatar"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <User className="text-neutral-500" size={18} />
+                      )}
+                    </span>
               </div>
               <div>
                 <h6 className="text-base font-semibold text-gray-900">
@@ -386,7 +397,7 @@ const Header: React.FC = () => {
                   </Dropdown>
                 </li>
                 <li className="inline-block px-2">
-                  <Link to={"/post-showcase"}>Post Update</Link>{" "}
+                  <Link to={"/post-showcase"}>Post Showcase</Link>{" "}
                 </li>
 
                 <li className="inline-block px-2">
@@ -443,9 +454,22 @@ const Header: React.FC = () => {
                   placement="bottomRight"
                   arrow
                 >
-                  <span className="h-7 w-7 flex items-center justify-center rounded-3xl border">
-                    <User className="inline" size={20} />
-                  </span>
+                  <div className="flex item-center gap-2">
+                    <span className="h-7 w-7 flex items-center justify-center rounded-full overflow-hidden border border-gray-200 bg-neutral-100">
+                      {auth?.user?.picture ? (
+                        <img
+                          src={auth.user.picture}
+                          alt="User avatar"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <User className="text-neutral-500" size={18} />
+                      )}
+                    </span>{" "}
+                    <span className="text-[14px] font-medium tracking-tight leading-7 text-royalblue-shade3">
+                      Menu
+                    </span>
+                  </div>
                 </Dropdown>
               </li>
             </ul>
@@ -456,12 +480,12 @@ const Header: React.FC = () => {
               <div className="flex items-center gap-x-3">
                 <div>
                   <Link to={"/login"}>
-                    <button className="cursor-pointer">Login</button>
+                    <button className="cursor-pointer font-medium tracking-tight">Login</button>
                   </Link>
                 </div>
                 <div>
                   <Link to={"/signup"}>
-                    <button className="py-2 px-5 rounded-4xl bg-royalblue-main text-white cursor-pointer">
+                    <button className="py-2 px-5 rounded-[8px] bg-gray-900 text-white cursor-pointer">
                       Get Started
                     </button>
                   </Link>
@@ -489,8 +513,18 @@ const Header: React.FC = () => {
                   <ul className=" text-gray-700 space-y-3">
                     {/* User Info */}
                     <li className="flex items-center gap-4 p-3">
-                      <div className="w-16 h-16 flex items-center justify-center rounded-full border border-gray-700 bg-white">
-                        <User className="text-gray-700" size={32} />
+                      <div className="w-16 h-16 flex items-center justify-center rounded-full border border-gray-200 bg-white">
+                        <span className="h-16 w-16 flex items-center justify-center rounded-full overflow-hidden border border-gray-200 bg-neutral-100">
+                          {auth?.user?.picture ? (
+                            <img
+                              src={auth.user.picture}
+                              alt="User avatar"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <User className="text-neutral-500" size={18} />
+                          )}
+                        </span>
                       </div>
                       <div>
                         <h6 className="text-base font-semibold text-gray-900">
