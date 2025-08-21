@@ -124,10 +124,9 @@ function NavigationContent() {
         <Route path="/provider/open-offers" Component={BaseLayout} />
         <Route path="/provider/open-offers" Component={BaseLayout} />
 
-        {}
         <Route path="*" Component={PageNotFound} />
       </Routes>
-      {!isChat || (!isShowcase && <Footer />)}
+      {!isChat && !isShowcase && <Footer />}
     </div>
   );
 }

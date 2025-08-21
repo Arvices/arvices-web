@@ -5,12 +5,8 @@ const Conversations = (): React.ReactNode => {
   return (
     <section className="!h-screen">
       <div className="max-w-[1280px] pt-13 mx-auto">
-        {}
         <div className="w-full flex">
-          {}
           <RenderConversations />
-
-          {}
           <RenderChats />
         </div>
       </div>

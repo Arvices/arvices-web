@@ -30,9 +30,9 @@ const BookingsPage: React.FC = () => {
       fetchOrders();
     }
   };
-  useEffect(()=>{
-    refreshData()
-  },[status,tab])
+  useEffect(() => {
+    refreshData();
+  }, [status, tab]);
   const fetchBookings = async () => {
     setLoading(true);
     try {

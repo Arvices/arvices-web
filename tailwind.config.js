@@ -8,7 +8,7 @@ export default {
   safelist: [
     {
       pattern:
-        /(bg|text|border)-(blue|green|pink|amber|red|purple)-(50|100|200|300|400|500|600|700|800|900|950)/,
+        /(bg|text|border)-(blue|green|yellow|pink|amber|red|purple)-(50|100|200|300|400|500|600|700|800|900|950)/,
     },
   ],
   plugins: [],
