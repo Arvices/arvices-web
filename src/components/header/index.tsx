@@ -598,7 +598,7 @@ const Header: React.FC = () => {
 
                     <li className="mb-5">
                       <Link
-                        to="/post-showcase"
+                        to="/client/new-job"
                         onClick={toggleMobileOpen}
                         className="flex items-center gap-2"
                       >

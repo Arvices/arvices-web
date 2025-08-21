@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Select } from "antd";
-import { MapPin } from "feather-icons-react";
 import { useLoading } from "../../contexts/LoadingContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotificationContext } from "../../contexts/NotificationContext";
@@ -17,6 +16,7 @@ const NewJobPosting = (): React.ReactNode => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
   const [categories, setCategories] = useState([]);
   const [catLoading, setCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
@@ -62,7 +62,7 @@ const NewJobPosting = (): React.ReactNode => {
         description,
         address: location,
         categoryId: cat.id,
-        type: "Public",
+        type: isPublic ? "Public" : "Private",
       };
       let res = await createServiceRequest(data, auth.token);
       console.log({
@@ -178,14 +178,20 @@ const NewJobPosting = (): React.ReactNode => {
               className="rounded border border-gray-300 h-13 w-full pr-[9rem]"
               placeholder="Enter your location"
             />
-            <div className="w-max absolute top-[35px] right-4">
-              <button className="w-max font-medium cursor-pointer text-gray-600 hover:text-black">
-                <span>Add Location </span>
-                <MapPin className="inline ml-1" size={16} />
-              </button>
-            </div>
           </div>
           {}
+              <div className="flex items-center space-x-3 mb-3">
+      <input
+        id="isPublic"
+        type="checkbox"
+        checked={isPublic}
+        onChange={(e) => setIsPublic(e.target.checked)}
+        className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      />
+      <label htmlFor="isPublic" className="text-sm font-medium text-gray-700">
+        Make Public
+      </label>
+    </div>
           <div className="mb-5 relative">
             <button
               type="submit"
