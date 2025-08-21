@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Spin,
-  Tabs,
-  Modal,
-  Input,
-  DatePicker,
-  Select,
-  List,
-  message,
-} from "antd";
-import { PlusOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { message, Spin } from "antd";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../util/api";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { NoContent } from "../../components/nocontent";
 interface Booking {
   id: number;
   name?: string;
@@ -23,21 +12,6 @@ interface Booking {
   type: "booking" | "order";
   date?: string;
   serviceId?: number[];
-}
-interface Category {
-  id: number;
-  name: string;
-}
-interface Professional {
-  id: number;
-  fullName: string;
-  email: string;
-  picture?: string | null;
-}
-interface Product {
-  id: number;
-  title: string;
-  price: number;
 }
 const BookingsPage: React.FC = () => {
   const auth = useAuth();
@@ -48,28 +22,7 @@ const BookingsPage: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [orders, setOrders] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newDate, setNewDate] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [selectedProfessionalId, setSelectedProfessionalId] = useState<
-    number | null
-  >(null);
-  const [creatingBooking, setCreatingBooking] = useState(false);
-  const [showOrderModal, setShowOrderModal] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(
-    null,
-  );
-  const [quantity, setQuantity] = useState<number>(1);
-  const [creatingOrder, setCreatingOrder] = useState(false);
-  useEffect(() => {
-    refreshData();
-    if (tab === "bookings") fetchCategories();
-    if (tab === "orders") fetchProducts();
-  }, [tab, status]);
+
   const refreshData = () => {
     if (tab === "bookings") {
       fetchBookings();
@@ -77,6 +30,9 @@ const BookingsPage: React.FC = () => {
       fetchOrders();
     }
   };
+  useEffect(()=>{
+    refreshData()
+  },[status,tab])
   const fetchBookings = async () => {
     setLoading(true);
     try {
@@ -120,34 +76,6 @@ const BookingsPage: React.FC = () => {
       message.error("Failed to load orders");
     } finally {
       setLoading(false);
-    }
-  };
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get("/category/getallcategory");
-      setCategories(res.data.response);
-    } catch {
-      message.error("Failed to load categories");
-    }
-  };
-  const fetchProfessionals = async (categoryId: number) => {
-    try {
-      const res = await api.get(
-        `/user/getprofessionals?category=${categoryId}&orderBy=DESC&page=1&limit=10`,
-      );
-      setProfessionals(res.data.response || []);
-    } catch {
-      message.error("Failed to load professionals");
-    }
-  };
-  const fetchProducts = async () => {
-    try {
-      const res = await api.get(
-        "/product/getallproduct?orderBy=DESC&page=1&limit=10",
-      );
-      setProducts(res.data.response || []);
-    } catch {
-      message.error("Failed to load products");
     }
   };
   const handlePay = async (item: Booking, method: "Wallet" | "Non Wallet") => {
@@ -206,326 +134,169 @@ const BookingsPage: React.FC = () => {
       message.error(err.response?.data?.message || "Failed to complete.");
     }
   };
-  const handleCreateBooking = async () => {
-    if (!newName.trim()) {
-      message.warning("Please enter a booking name!");
-      return;
-    }
-    if (!selectedCategory) {
-      message.warning("Please select a category!");
-      return;
-    }
-    setCreatingBooking(true);
-    try {
-      const payload = {
-        name: newName,
-        date: newDate || new Date().toISOString(),
-        serviceId: [selectedCategory],
-        ...(selectedProfessionalId && {
-          professionalId: selectedProfessionalId,
-        }),
-      };
-      console.log(
-        "🔎 Final booking payload:",
-        JSON.stringify(payload, null, 2),
-      );
-      const res = await api.post("/bookings/createbookings", payload);
-      console.log("✅ Booking created response:", res.data);
-      message.success("Booking created!");
-      setShowCreateModal(false);
-      setNewName("");
-      setNewDate(null);
-      setSelectedCategory(null);
-      setSelectedProfessionalId(null);
-      setProfessionals([]);
-      setStatus("In Progress");
-      refreshData();
-    } catch (err: any) {
-      console.error("❌ Booking creation error object:", err);
-      const errorContent = err?.response?.data
-        ? JSON.stringify(err.response.data, null, 2)
-        : err?.message || "Unknown error (no response at all)";
-      Modal.error({
-        title: "Booking Creation Failed",
-        content: (
-          <pre
-            style={{
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {errorContent}
-          </pre>
-        ),
-        width: 600,
-      });
-      message.error("Failed to create booking. Check modal for details.");
-    } finally {
-      setCreatingBooking(false);
-    }
-  };
-  const handleCreateOrder = async () => {
-    if (!selectedProductId) {
-      message.warning("Please select a product!");
-      return;
-    }
-    setCreatingOrder(true);
-    try {
-      const payload = {
-        productId: selectedProductId,
-        quantity,
-      };
-      console.log("Creating order with payload:", payload);
-      await api.post("/order/createorder", payload);
-      message.success("Order created!");
-      setShowOrderModal(false);
-      setSelectedProductId(null);
-      setQuantity(1);
-      setStatus("In Progress");
-      refreshData();
-    } catch (err: any) {
-      console.error("Create order failed:", err);
-      message.error(err.response?.data?.message || "Failed to create order.");
-    } finally {
-      setCreatingOrder(false);
-    }
-  };
   return (
-    <div className="max-w-4xl mx-auto p-6 relative">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Bookings & Orders</h1>
-        <Button onClick={refreshData}>🔄 Refresh</Button>
-      </div>
+    <section className="min-h-screen pt-13 ">
+      <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">
+        <div className="w-full mx-auto p-6 relative bg-white">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-xl font-semibold text-gray-800">
+              Bookings & Orders
+            </h1>
+            <button
+              onClick={refreshData}
+              className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
+            >
+              Refresh
+            </button>
+          </div>
 
-      {}
-      <Tabs
-        activeKey={tab}
-        onChange={(key) => setTab(key as "bookings" | "orders")}
-        items={[
-          {
-            key: "bookings",
-            label: "Bookings",
-          },
-          {
-            key: "orders",
-            label: "Orders",
-          },
-        ]}
-      />
-
-      {}
-      <Tabs
-        activeKey={status}
-        onChange={(key) =>
-          setStatus(key as "In Progress" | "Paid" | "Completed")
-        }
-        items={[
-          {
-            key: "In Progress",
-            label: "In Progress",
-          },
-          {
-            key: "Paid",
-            label: "Paid",
-          },
-          {
-            key: "Completed",
-            label: "Completed",
-          },
-        ]}
-      />
-
-      {loading && <Spin className="my-4" />}
-      {tab === "bookings" &&
-        bookings.map((item) => (
-          <Card key={item.id} className="mb-4">
-            <h3 className="font-semibold">Booking #{item.id}</h3>
-            <p>{item.name}</p>
-            <p>Status: {item.status}</p>
-            <p>Price: ₦{item.price}</p>
-            <p>
-              Date: {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
-            </p>
-
-            {auth.isClient && item.status === "In Progress" && (
-              <>
-                <Button
-                  type="primary"
-                  onClick={() => handlePay(item, "Wallet")}
-                  className="mr-2"
+          {/* Main Tabs (Bookings / Orders) */}
+          <div className="mb-2 border-b border-gray-200">
+            <div className="flex w-full">
+              {["bookings", "orders"].map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setTab(key as "bookings" | "orders")}
+                  className={`flex-1 py-2 text-center text-sm font-medium transition-colors rounded-t-md
+          ${
+            tab === key
+              ? "bg-gray-100 text-gray-900"
+              : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+          }`}
                 >
-                  Pay with Wallet
-                </Button>
-                <Button onClick={() => handlePay(item, "Non Wallet")}>
-                  Pay Online
-                </Button>
-              </>
-            )}
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
 
-            {auth.isProvider && item.status === "Paid" && (
-              <Button type="primary" onClick={() => handleComplete(item)}>
-                Complete Booking
-              </Button>
-            )}
-          </Card>
-        ))}
+          {/* Sub Tabs (Status) */}
+          <div className="mb-4 flex justify-center gap-4">
+            {["In Progress", "Paid", "Completed"].map((key) => (
+              <button
+                key={key}
+                onClick={() =>
+                  setStatus(key as "In Progress" | "Paid" | "Completed")
+                }
+                className={`px-3 py-1 text-sm rounded-md transition-colors
+        ${
+          status === key
+            ? "bg-blue-200 text-blue-900"
+            : "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+        }`}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
 
-      {tab === "orders" &&
-        orders.map((item) => (
-          <Card key={item.id} className="mb-4">
-            <h3 className="font-semibold">Order #{item.id}</h3>
-            <p>{item.name}</p>
-            <p>Status: {item.status}</p>
-            <p>Price: ₦{item.price}</p>
-            <p>
-              Date: {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
-            </p>
+          {loading && <Spin size="small" className="my-6" />}
 
-            {auth.isClient && item.status === "In Progress" && (
-              <>
-                <Button
-                  type="primary"
-                  onClick={() => handlePay(item, "Wallet")}
-                  className="mr-2"
-                >
-                  Pay with Wallet
-                </Button>
-                <Button onClick={() => handlePay(item, "Non Wallet")}>
-                  Pay Online
-                </Button>
-              </>
-            )}
+          {/* Bookings */}
+          {tab === "bookings" &&
+            bookings.map((item) => (
+              <div
+                key={item.id}
+                className="mb-4 p-4 border border-gray-200 rounded-xl shadow-sm bg-gray-50"
+              >
+                <h3 className="font-semibold text-gray-800">
+                  Booking #{item.id}
+                </h3>
+                <p className="text-gray-600">{item.name}</p>
+                <p className="text-sm text-gray-500">Status: {item.status}</p>
+                <p className="text-sm text-gray-500">Price: ₦{item.price}</p>
+                <p className="text-sm text-gray-500">
+                  Date:{" "}
+                  {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
+                </p>
 
-            {auth.isProvider && item.status === "Paid" && (
-              <Button type="primary" onClick={() => handleComplete(item)}>
-                Complete Order
-              </Button>
-            )}
-          </Card>
-        ))}
-
-      {}
-      <Button
-        type="primary"
-        shape="circle"
-        icon={<PlusOutlined />}
-        className="!fixed bottom-1/2 right-6 shadow-lg"
-        onClick={() =>
-          tab === "bookings"
-            ? setShowCreateModal(true)
-            : setShowOrderModal(true)
-        }
-      />
-
-      {}
-      <Modal
-        title="Create Booking"
-        open={showCreateModal}
-        confirmLoading={creatingBooking}
-        onCancel={() => setShowCreateModal(false)}
-        onOk={handleCreateBooking}
-        okText="Create"
-        cancelText="Cancel"
-      >
-        <Input
-          placeholder="Booking Name"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          className="mb-2"
-        />
-        <DatePicker
-          className="w-full mb-2"
-          onChange={(date: Dayjs | null) =>
-            setNewDate(date ? date.toISOString() : null)
-          }
-        />
-        <Select
-          placeholder="Select Category"
-          className="w-full mb-2"
-          value={selectedCategory ?? undefined}
-          onChange={(val) => {
-            setSelectedCategory(Number(val));
-            fetchProfessionals(Number(val));
-          }}
-        >
-          {categories.map((cat) => (
-            <Select.Option key={cat.id} value={cat.id}>
-              {cat.name}
-            </Select.Option>
-          ))}
-        </Select>
-
-        {professionals.length > 0 && (
-          <>
-            <p className="font-semibold mb-2">Professionals</p>
-            <List
-              bordered
-              dataSource={professionals}
-              renderItem={(pro) => (
-                <List.Item
-                  className={`cursor-pointer ${selectedProfessionalId === pro.id ? "bg-blue-100" : ""}`}
-                  onClick={() => setSelectedProfessionalId(pro.id)}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <strong>{pro.fullName}</strong> <br />
-                      <small>{pro.email}</small>
-                    </div>
-                    {selectedProfessionalId === pro.id && (
-                      <CheckCircleOutlined
-                        style={{
-                          color: "green",
-                        }}
-                      />
-                    )}
+                {auth.isClient && item.status === "In Progress" && (
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => handlePay(item, "Wallet")}
+                      className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition"
+                    >
+                      Pay with Wallet
+                    </button>
+                    <button
+                      onClick={() => handlePay(item, "Non Wallet")}
+                      className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition"
+                    >
+                      Pay Online
+                    </button>
                   </div>
-                </List.Item>
-              )}
-            />
-          </>
-        )}
-      </Modal>
+                )}
 
-      {}
-      <Modal
-        title="Create Order"
-        open={showOrderModal}
-        confirmLoading={creatingOrder}
-        onCancel={() => setShowOrderModal(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setShowOrderModal(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="ok"
-            type="primary"
-            loading={creatingOrder}
-            onClick={handleCreateOrder}
-          >
-            Create
-          </Button>,
-        ]}
-      >
-        <Select
-          placeholder="Select Product"
-          className="w-full mb-2"
-          value={selectedProductId ?? undefined}
-          onChange={(val) => setSelectedProductId(Number(val))}
-        >
-          {products.map((prod) => (
-            <Select.Option key={prod.id} value={prod.id}>
-              {prod.title} - ₦{prod.price}
-            </Select.Option>
-          ))}
-        </Select>
-        <Input
-          type="number"
-          min={1}
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-        />
-      </Modal>
-    </div>
+                {auth.isProvider && item.status === "Paid" && (
+                  <button
+                    onClick={() => handleComplete(item)}
+                    className="mt-3 px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition"
+                  >
+                    Complete Booking
+                  </button>
+                )}
+              </div>
+            ))}
+
+          {tab === "bookings" && bookings.length === 0 && (
+            <NoContent
+              message={`You do not have any ${status}  bookings at the moment`}
+            />
+          )}
+          {tab === "orders" && orders.length === 0 && (
+            <NoContent
+              message={`You do not have any ${status} orders at the moment`}
+            />
+          )}
+
+          {/* Orders */}
+          {tab === "orders" &&
+            orders.map((item) => (
+              <div
+                key={item.id}
+                className="mb-4 p-4 border border-gray-200 rounded-xl shadow-sm bg-gray-50"
+              >
+                <h3 className="font-semibold text-gray-800">
+                  Order #{item.id}
+                </h3>
+                <p className="text-gray-600">{item.name}</p>
+                <p className="text-sm text-gray-500">Status: {item.status}</p>
+                <p className="text-sm text-gray-500">Price: ₦{item.price}</p>
+                <p className="text-sm text-gray-500">
+                  Date:{" "}
+                  {item.date ? dayjs(item.date).format("YYYY-MM-DD") : "N/A"}
+                </p>
+
+                {auth.isClient && item.status === "In Progress" && (
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => handlePay(item, "Wallet")}
+                      className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition"
+                    >
+                      Pay with Wallet
+                    </button>
+                    <button
+                      onClick={() => handlePay(item, "Non Wallet")}
+                      className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition"
+                    >
+                      Pay Online
+                    </button>
+                  </div>
+                )}
+
+                {auth.isProvider && item.status === "Paid" && (
+                  <button
+                    onClick={() => handleComplete(item)}
+                    className="mt-3 px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition"
+                  >
+                    Complete Order
+                  </button>
+                )}
+              </div>
+            ))}
+        </div>
+      </div>
+    </section>
   );
 };
 export default BookingsPage;
