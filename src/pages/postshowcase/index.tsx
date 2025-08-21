@@ -13,9 +13,7 @@ const PostShowcase = (): React.ReactNode => {
   const [experience, setExperience] = useState("");
   const [location, setLocation] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-  console.log({
-    files,
-  });
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFilesArray = Array.from(e.target.files);

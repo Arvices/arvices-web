@@ -9,7 +9,6 @@ const createProduct = async (data: any, token?: string) => {
     url: `${baseUrl}/product/createproduct`,
     method: "POST" as const,
     headers: {
-      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     },
     data,
@@ -22,7 +21,6 @@ const updateProduct = async (id: number, data: any, token?: string) => {
     url: `${baseUrl}/product/updateproduct/${id}`,
     method: "PUT" as const,
     headers: {
-      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     },
     data,

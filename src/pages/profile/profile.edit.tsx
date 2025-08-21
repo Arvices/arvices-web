@@ -37,6 +37,7 @@ type ChangeLikeEvent =
         value: any;
       };
     };
+    
 export function ProfileEdit() {
   const auth = useAuth();
   const id = auth?.user?.id;

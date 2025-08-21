@@ -13,12 +13,19 @@ import { ContentHOC } from "../../components/nocontent";
 import ProductServiceCard from "./product";
 import { Plus } from "feather-icons-react";
 
+export interface ProductImage {
+    id: number;
+    name: string;
+    path: string;
+}
+
 export interface ProductPayload {
   title: string;
   price: string;
   description: string;
-  image: null | File;
+  images: ProductImage[];
   id: number;
+
 }
 
 export function ManageProducts() {
@@ -36,7 +43,7 @@ export function ManageProducts() {
     title: "",
     price: "",
     description: "",
-    image: null,
+    images: [],
     id: 0,
   });
   const [productImgFile, setProductImgFile] = useState<File | null>(null);
@@ -101,79 +108,109 @@ const validateProductForm = (): boolean => {
     }
   };
 
-  const handleSaveNewProduct = async () => {
-    const valid = validateProductForm()
-    if(!valid) return
-    try {
-      setLoading(true);
-      setLoadingText("Saving new product...");
-      const formData = new FormData();
-      formData.append("title", newProductForm.title);
-      formData.append("description", newProductForm.description);
-      formData.append("price", newProductForm.price);
+const handleSaveNewProduct = async () => {
+  const valid = validateProductForm();
+  if (!valid) return;
 
-      if (productImgFile) {
-        formData.append("attachment", productImgFile);
-        formData.append("attachment","")
-      }
+  try {
+    setLoading(true);
+    setLoadingText("Saving new product...");
 
-      await createProduct(formData, auth.token);
-      setShowProductForm(false);
-      openNotification(
-        "topRight",
-        "New Product Added Successfully",
-        "",
-        "success",
-      );
-      fetchProducts();
-    } catch (error) {
-      console.error(error);
-      openNotification(
-        "topRight",
-        "Error saving product",
-        error?.toString() || "Something went wrong",
-        "error",
-      );
-    } finally {
-      setLoading(false);
-      setLoadingText("");
+    const formData = new FormData();
+    formData.append("title", newProductForm.title);
+    formData.append("description", newProductForm.description);
+    formData.append("price", newProductForm.price);
+
+    if (productImgFile) {
+      // ✅ always include filename
+      formData.append("attachment", productImgFile, productImgFile.name);
+      formData.append("attachment", "")
     }
-  };
 
-  const saveEditedProduct = async () => {
-    if (!productEdit || productEditIndex === undefined) return;
-    try {
-      setLoading(true);
-      setLoadingText("Saving product changes...");
-      const formData = new FormData();
-      if (productEdit.title) formData.append("title", productEdit.title);
-      if (productEdit.description)
-        formData.append("description", productEdit.description);
-      if (productEdit.price) formData.append("price", productEdit.price);
-      if (productImgFile) {
-        formData.append("image", productImgFile);
-      }
-      await updateProduct(productEdit?.id || -1, formData, auth.token);
-      setProducts((prev) => {
-        const copy = [...prev];
-        copy[productEditIndex] = productEdit;
-        return copy;
-      });
-      openNotification(
-        "topRight",
-        "Product updated successfully",
-        "",
-        "success",
-      );
-      setProductEditIndex(undefined);
-      setProductEdit(undefined);
-    } catch (error) {
-      openNotification("topRight", "Failed to update product", "", "error");
-    } finally {
-      setLoading(false);
-      setLoadingText("");
+    await createProduct(formData, auth.token);
+    setShowProductForm(false);
+    setNewProductForm({
+      title: "",
+      price: "",
+      description: "",
+      images: [],
+      id: 0,
+    });
+    setProductImgFile(null);
+
+    openNotification(
+      "topRight",
+      "New Product Added Successfully",
+      "",
+      "success"
+    );
+
+    fetchProducts();
+  } catch (error) {
+    console.error(error);
+    openNotification(
+      "topRight",
+      "Error saving product",
+      error?.toString() || "Something went wrong",
+      "error"
+    );
+  } finally {
+    setLoading(false);
+    setLoadingText("");
+  }
+};
+
+const saveEditedProduct = async () => {
+  if (!productEdit || productEditIndex === undefined) return;
+
+  try {
+    setLoading(true);
+    setLoadingText("Saving product changes...");
+
+    const formData = new FormData();
+    if (productEdit.title) formData.append("title", productEdit.title);
+    if (productEdit.description)
+      formData.append("description", productEdit.description);
+    if (productEdit.price) formData.append("price", productEdit.price);
+
+    if (productImgFile) {
+      // ✅ use the same key name as create
+      formData.append("attachment[]", productImgFile, productImgFile.name);
     }
-  };
+
+    await updateProduct(productEdit.id, formData, auth.token);
+
+    setProducts((prev) => {
+      const copy = [...prev];
+      copy[productEditIndex] = {
+        ...productEdit,
+        images: productImgFile
+          ? [URL.createObjectURL(productImgFile)]
+          : productEdit.images,
+      };
+      return copy;
+    });
+
+    openNotification("topRight", "Product updated successfully", "", "success");
+
+    setProductEditIndex(undefined);
+    setProductEdit(undefined);
+    setProductImgFile(null);
+  } catch (error) {
+    console.error(error);
+    openNotification(
+      "topRight",
+      "Failed to update product",
+      error?.toString() || "",
+      "error"
+    );
+  } finally {
+    setLoading(false);
+    setLoadingText("");
+  }
+};
+
+
   useEffect(() => {
     if (id && auth?.token) {
       fetchProducts();
@@ -215,7 +252,7 @@ const validateProductForm = (): boolean => {
                 title: "",
                 price: "",
                 description: "",
-                image: null,
+                images: [],
                 id: 0,
               });
               setProductImgFile(null);
@@ -389,7 +426,7 @@ const validateProductForm = (): boolean => {
                               className="mt-2 h-24 w-24 object-cover rounded-md"
                             />
                           )}
-                          {productEdit?.image && !productImgFile && (
+                          {productEdit?.images && !productImgFile && (
                             <img
                               src={undefined}
                               alt="Current Product"
