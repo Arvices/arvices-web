@@ -54,7 +54,7 @@ const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
       el.className = "job-marker";
       el.innerHTML = `
   <div class="marker-card">
-    <div class="marker-category">Job Type: ${job?.category?.name || "Unknown"}</div>
+        <p><strong>Description:</strong> ${job?.description || ""}</p>
     <button class="marker-button">View Job</button>
   </div>
 `;
@@ -64,7 +64,6 @@ const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
       el.querySelector(".marker-button")?.addEventListener("click", () => {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
       <div style="text-align:left; max-width:250px;">
-        <h3 style="margin:0;">Job Category -- ${job?.category?.name || ""}</h3>
         <p><strong>Address:</strong> ${job?.address || ""}</p>
         <p><strong>Description:</strong> ${job?.description || ""}</p>
         <p><strong>User:</strong> ${job?.user?.fullName || ""}</p>
