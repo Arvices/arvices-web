@@ -39,7 +39,7 @@ const ProviderOfferCard: React.FC<Props> = ({
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
   const { serviceRequest: job, createdDate } = offer;
-  console.log({offerInCheck: offer})
+  console.log({ offerInCheck: offer });
   let actions = offerActions[offer.status];
   const goToMessageClient = () => {
     navigate(`/messaging/conversations?with=${job?.user?.id}`);

@@ -326,6 +326,7 @@ const Header: React.FC = () => {
               </h1>
             </Link>
           </div>
+          <div className="flex-1" />
 
           <div className="hidden md:block w-max ml-10 relative top-0.5 font-medium tracking-tight">
             {!auth.isAuthenticated && (
@@ -339,9 +340,6 @@ const Header: React.FC = () => {
                   </Link>{" "}
                 </li>
 
-                <li className="inline-block px-2">
-                  <Link to={"/activities"}>What's New</Link>{" "}
-                </li>
                 <li className="inline-block px-2">
                   <Link to={"/help-center"}>Help Center</Link>{" "}
                 </li>
@@ -383,6 +381,7 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/job-posting"}>Find Jobs</Link>{" "}
                 </li>
+
                 <li className="inline-block px-2">
                   <Dropdown
                     overlay={JobsMenu}
@@ -396,6 +395,7 @@ const Header: React.FC = () => {
                     </span>
                   </Dropdown>
                 </li>
+
                 <li className="inline-block px-2">
                   <Link to={"/post-showcase"}>Post Showcase</Link>{" "}
                 </li>

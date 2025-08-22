@@ -13,6 +13,7 @@ import {
 import { Heart, MessageCircle, Bookmark } from "feather-icons-react";
 import { Modal } from "antd";
 import { useNavigate } from "react-router-dom";
+import AttachmentCarousel from "./swipercarousel";
 
 const API_BASE = "https://arvicesapi.denateonlineservice.com";
 function getToken(): string | null {
@@ -701,13 +702,10 @@ const Activities = (): React.ReactNode => {
                   </div>
 
                   {/* Post Content */}
-                  {sc.attachments?.length > 0 && sc.attachments[0]?.url && (
+
+                  {sc.attachments?.length > 0 && (
                     <div className="mb-4 rounded-lg overflow-hidden">
-                      <img
-                        src={sc.attachments[0].url}
-                        className="w-full h-auto object-cover"
-                        alt="Showcase"
-                      />
+                      <AttachmentCarousel attachments={sc.attachments} />
                     </div>
                   )}
                   <p className="text-gray-700 leading-relaxed mb-4">
@@ -878,7 +876,7 @@ const Activities = (): React.ReactNode => {
           </div>
 
           {/* Sidebar 2 */}
-          <div className="sidebar-2 fixed right-0 pt-6 pr-4 overflow-y-auto h-screen w-64 md:block hidden">
+          <div className="sidebar-2 border border-gray-200 p-4 fixed right-0 pt-4 pr-4 overflow-y-auto h-screen w-64 md:block hidden">
             {topProviders.map((p) => {
               const isMe = myId != null && p.id === myId;
               const isFollowing = !!followingMap[p.id];
