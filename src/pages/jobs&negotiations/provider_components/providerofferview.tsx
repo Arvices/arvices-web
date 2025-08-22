@@ -39,6 +39,7 @@ const ProviderOfferCard: React.FC<Props> = ({
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
   const { serviceRequest: job, createdDate } = offer;
+  console.log({offerInCheck: offer})
   let actions = offerActions[offer.status];
   const goToMessageClient = () => {
     navigate(`/messaging/conversations?with=${job?.user?.id}`);
@@ -251,9 +252,7 @@ const ProviderOfferCard: React.FC<Props> = ({
       offerId: offer.id,
     };
     try {
-      let response = await createCounterOffer(auth.token, data);
-
-      onOfferChange(response.data.response);
+      await createCounterOffer(auth.token, data);
       setShowCounterForm(false);
       getCounterOffers();
     } catch (error) {
