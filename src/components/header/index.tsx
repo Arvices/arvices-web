@@ -122,7 +122,7 @@ const Header: React.FC = () => {
         {
           key: "6",
           label: (
-            <span className="mb-3 inline-block">
+            <span className="mb-3 inline-block !hidden">
               Customize Job Alert
               <ArrowUpRight className="inline ml-2" size={18} />
             </span>
@@ -202,7 +202,7 @@ const Header: React.FC = () => {
         {
           key: "7",
           label: (
-            <span className="mb-3 inline-block">
+            <span className="mb-3 inline-block !hidden">
               <Heart className="inline mr-2" size={18} />
               Favourite Service Providers
               <span className="rounded px-1 bg-gray-100 inline-block ml-2"></span>
@@ -326,6 +326,7 @@ const Header: React.FC = () => {
               </h1>
             </Link>
           </div>
+          <div className="flex-1" />
 
           <div className="hidden md:block w-max ml-10 relative top-0.5 font-medium tracking-tight">
             {!auth.isAuthenticated && (
@@ -339,9 +340,6 @@ const Header: React.FC = () => {
                   </Link>{" "}
                 </li>
 
-                <li className="inline-block px-2">
-                  <Link to={"/activities"}>What's New</Link>{" "}
-                </li>
                 <li className="inline-block px-2">
                   <Link to={"/help-center"}>Help Center</Link>{" "}
                 </li>
@@ -383,6 +381,7 @@ const Header: React.FC = () => {
                 <li className="inline-block px-2">
                   <Link to={"/job-posting"}>Find Jobs</Link>{" "}
                 </li>
+
                 <li className="inline-block px-2">
                   <Dropdown
                     overlay={JobsMenu}
@@ -396,6 +395,7 @@ const Header: React.FC = () => {
                     </span>
                   </Dropdown>
                 </li>
+
                 <li className="inline-block px-2">
                   <Link to={"/post-showcase"}>Post Showcase</Link>{" "}
                 </li>
@@ -622,7 +622,7 @@ const Header: React.FC = () => {
                               </Link>
                             </li>
                             <li onClick={toggleMobileOpen}>
-                              <span className="flex items-center py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
+                              <span className=" !hidden flex items-center py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
                                 <Users size={16} className="inline mr-2" />
                                 Previous Hires
                                 <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
@@ -630,7 +630,7 @@ const Header: React.FC = () => {
                             </li>
                             <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
                             <li onClick={toggleMobileOpen}>
-                              <span className="flex items-center py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
+                              <span className=" !hidden flex items-center py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
                                 <Heart size={16} className="inline mr-2" />
                                 Favourite Service Providers
                                 <span className="rounded px-1 bg-gray-100 dark:bg-gray-700 inline-block ml-2 text-xs"></span>
@@ -741,7 +741,7 @@ const Header: React.FC = () => {
                             </li>
                             <li className="border-t border-gray-200 dark:border-gray-700 my-2"></li>
                             <li onClick={toggleMobileOpen}>
-                              <span className="flex items-center py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
+                              <span className=" !hidden flex items-center py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md">
                                 Customize Job Alert
                                 <ArrowUpRight
                                   className="inline ml-2"

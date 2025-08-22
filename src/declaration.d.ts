@@ -8,3 +8,6 @@ declare module "*.gif";
 declare module "*.mp4";
 declare module "*.webm";
 declare module "*.webp";
+declare module "swiper/css";
+declare module "swiper/css/navigation";
+declare module "swiper/css/pagination";

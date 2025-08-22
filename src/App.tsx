@@ -13,6 +13,7 @@ import { LocationProvider } from "./contexts/LocationContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { MessageRealtimeProvider } from "./contexts/Realtime_Messaging";
 import { NotificationRealtimeProvider } from "./contexts/Realtime_Notification";
+
 function App() {
   useEffect(() => {
     document.documentElement.classList.remove("dark");
