@@ -660,7 +660,7 @@ const Activities = (): React.ReactNode => {
                   <div className="bg-amber-50 rounded border border-amber-300 p-2">
                     <p className="font-medium text-gray-700">All Updates</p>
                   </div>
-                  <p className="font-medium text-gray-500">Following</p>
+                  <p className="font-medium text-gray-500 hidden">Following</p>
                 </div>
               </div>
               {showcases.map((sc) => (
