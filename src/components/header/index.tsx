@@ -225,17 +225,17 @@ const Header: React.FC = () => {
           label: (
             <div className="flex items-center gap-4 p-3 w-max">
               <div className="w-16 h-16 flex items-center justify-center rounded-full border border-gray-700 bg-white">
-                    <span className="h-16 w-16 flex items-center justify-center rounded-full overflow-hidden border border-gray-200 bg-neutral-100">
-                      {auth?.user?.picture ? (
-                        <img
-                          src={auth.user.picture}
-                          alt="User avatar"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <User className="text-neutral-500" size={18} />
-                      )}
-                    </span>
+                <span className="h-16 w-16 flex items-center justify-center rounded-full overflow-hidden border border-gray-200 bg-neutral-100">
+                  {auth?.user?.picture ? (
+                    <img
+                      src={auth.user.picture}
+                      alt="User avatar"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <User className="text-neutral-500" size={18} />
+                  )}
+                </span>
               </div>
               <div>
                 <h6 className="text-base font-semibold text-gray-900">
@@ -480,7 +480,9 @@ const Header: React.FC = () => {
               <div className="flex items-center gap-x-3">
                 <div>
                   <Link to={"/login"}>
-                    <button className="cursor-pointer font-medium tracking-tight">Login</button>
+                    <button className="cursor-pointer font-medium tracking-tight">
+                      Login
+                    </button>
                   </Link>
                 </div>
                 <div>

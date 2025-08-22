@@ -115,6 +115,7 @@ function NavigationContent() {
         <Route path="/provider/manage-jobs" Component={ManageJob} />
         <Route path="/client/manage-jobs" Component={ManageJob} />
         <Route path="/provider/manage-jobs/:id/:offerId" Component={JobView} />
+        <Route path="/provider/manage-jobs/:id" Component={JobView} />
         <Route path="/client/manage-jobs/:id" Component={JobView} />
         <Route path="/client/new-job" Component={NewJobPosting} />
         <Route
