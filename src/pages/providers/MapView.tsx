@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import { UserAccount } from "../../api-services/auth";
 import { mapBoxPublickKey } from "./mapbox.util";
 import "./MapView.css";
+import { useNavigate } from "react-router-dom";
 
 mapboxgl.accessToken = mapBoxPublickKey;
 interface MapViewProps {
@@ -14,6 +15,7 @@ const parsePosition = (position: string): [number, number] => {
   return [lng, lat];
 };
 const MapView: React.FC<MapViewProps> = ({ position, users }) => {
+  const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   useEffect(() => {
@@ -38,18 +40,35 @@ const MapView: React.FC<MapViewProps> = ({ position, users }) => {
       const el = document.createElement("div");
       el.className = "profile-marker";
       el.innerHTML = `
-  <img src="${user.picture ?? null}" alt="${user.fullName}" />
-  <div class="name">${user.fullName}</div>
+  <div class="marker-card">
+    ${
+      user.picture
+        ? `<img class="marker-avatar" src="${user.picture}" alt="${user.fullName}" />`
+        : `<div class="marker-initials">${user.fullName?.[0] ?? "?"}</div>`
+    }
+    <div class="marker-name">${user.fullName}</div>
+    <button class="marker-button" data-user-id="${user.id}">
+      View Provider
+    </button>
+  </div>
 `;
+      // Attach click listener to button
+      const button = el.querySelector(".marker-button");
+      button?.addEventListener("click", () => {
+        navigate(`/user-profile/${user.id}`);
+      });
       const marker = new mapboxgl.Marker(el)
         .setLngLat([lng, lat])
         .setPopup(
-          new mapboxgl.Popup({
-            offset: 25,
-          }).setHTML(`<div style="text-align:center">
-               <strong>${user.fullName}</strong><br/>
-               <small>${user.businessName ?? user.username}</small>
-             </div>`),
+          new mapboxgl.Popup({ offset: 25 }).setHTML(`
+      <div class="popup-card">
+        <img class="popup-avatar" src="${user.picture ?? "/default-avatar.png"}" alt="${user.fullName}" />
+        <h3 class="popup-name">${user.fullName}</h3>
+        <p class="popup-business">${user.businessName ?? user.username}</p>
+        ${user.email ? `<p class="popup-email">${user.email}</p>` : ""}
+        ${user.phoneNumber ? `<p class="popup-phone">${user.phoneNumber}</p>` : ""}
+      </div>
+    `),
         )
         .addTo(map);
       markers.push(marker);

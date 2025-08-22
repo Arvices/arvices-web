@@ -45,27 +45,33 @@ const JobMapView: React.FC<JobMapViewProps> = ({ position, jobs }) => {
     const markers: mapboxgl.Marker[] = [];
 
     jobs.forEach((job) => {
-      if (!position) return;
+      if (!position) {
+        console.log({ noPositionExtracted: job });
+        return;
+      }
       const [lng, lat] = parsePosition(position);
       const el = document.createElement("div");
       el.className = "job-marker";
       el.innerHTML = `
-        <div class="category">Job Category</div>
-        <div class="address">${job?.description}</div>
-      `;
+  <div class="marker-card">
+    <div class="marker-category">Job Type: ${job?.category?.name || "Unknown"}</div>
+    <button class="marker-button">View Job</button>
+  </div>
+`;
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([lng, lat])
-        .setPopup(
-          new mapboxgl.Popup({
-            offset: 25,
-          }).setHTML(`<div style="text-align:center">
-                <strong>${job?.address || ""}</strong><br/>
-                <small>${job?.category?.name || ""}</small>
-              </div>`),
-        )
-        .addTo(map);
-      markers.push(marker);
+      const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
+
+      el.querySelector(".marker-button")?.addEventListener("click", () => {
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+      <div style="text-align:left; max-width:250px;">
+        <h3 style="margin:0;">Job Category -- ${job?.category?.name || ""}</h3>
+        <p><strong>Address:</strong> ${job?.address || ""}</p>
+        <p><strong>Description:</strong> ${job?.description || ""}</p>
+        <p><strong>User:</strong> ${job?.user?.fullName || ""}</p>
+      </div>
+    `);
+        marker.setPopup(popup).togglePopup();
+      });
     });
 
     return () => {
