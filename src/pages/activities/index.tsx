@@ -11,7 +11,7 @@ import {
   ArrowUpRight,
 } from "feather-icons-react";
 import { Heart, MessageCircle, Bookmark } from "feather-icons-react";
-import { Modal } from "antd";
+import { Button, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import AttachmentCarousel from "./swipercarousel";
 
@@ -316,6 +316,7 @@ export type ShowcaseComment = {
 const Activities = (): React.ReactNode => {
   const [showcases, setShowcases] = useState<any[]>([]);
   const [savedMap, setSavedMap] = useState<Record<number, boolean>>({});
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const [commentsMap, setCommentsMap] = useState<
     Record<number, ShowcaseComment[]>
@@ -362,9 +363,9 @@ const Activities = (): React.ReactNode => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getAllShowcase("DESC", 1, 10);
+        const data = await getAllShowcase("DESC", currentPage, 10);
         if (Array.isArray(data.response)) {
-          setShowcases(data.response);
+          setShowcases([...showcases, ...data.response]);
           const savedStatus: Record<number, boolean> = {};
           const likedMap: Record<number, Set<number>> = {};
           const showcaseLikeStatus: Record<number, boolean> = {};
@@ -389,7 +390,7 @@ const Activities = (): React.ReactNode => {
         console.warn("Failed to load showcases", err);
       }
     })();
-  }, [myId]);
+  }, [myId, currentPage]);
   useEffect(() => {
     (async () => {
       try {
@@ -871,6 +872,16 @@ const Activities = (): React.ReactNode => {
                   )}
                 </div>
               ))}
+              <div className="py-5" />
+              <Button
+                onClick={() => {
+                  setCurrentPage((prev) => prev + 1);
+                }}
+                variant="outlined"
+                block
+              >
+                Load More
+              </Button>
               <div className="py-10" />
             </div>
           </div>

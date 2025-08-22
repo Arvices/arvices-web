@@ -1,4 +1,0 @@
-export const imgImage4 =
-  "data:image/svg+xml,%3Csvg%20preserveAspectRatio%3D%22none%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20overflow%3D%22visible%22%20style%3D%22display%3A%20block%3B%22%20viewBox%3D%220%200%2041%2041%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20id%3D%22Rectangle%20116%22%20width%3D%2241%22%20height%3D%2241%22%20rx%3D%2220.5%22%20fill%3D%22var(--fill-0%2C%20%23D9D9D9)%22%2F%3E%0A%3C%2Fsvg%3E%0A";
-export const imgImage6 =
-  "data:image/svg+xml,%3Csvg%20preserveAspectRatio%3D%22none%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20overflow%3D%22visible%22%20style%3D%22display%3A%20block%3B%22%20viewBox%3D%220%200%20583%20340%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20id%3D%22Rectangle%20116%22%20width%3D%22582.857%22%20height%3D%22340%22%20rx%3D%2215%22%20fill%3D%22var(--fill-0%2C%20%23D9D9D9)%22%2F%3E%0A%3C%2Fsvg%3E%0A";
