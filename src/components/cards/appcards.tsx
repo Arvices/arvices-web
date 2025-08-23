@@ -345,7 +345,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ showcase }) => {
         <p className="text-sm text-gray-700 leading-relaxed">{showcase.post}</p>
 
         {/* Metrics and Actions */}
-        <div className="flex items-center justify-between text-gray-600 border-t border-b border-gray-200 py-2">
+        <div className="!hidden flex items-center justify-between text-gray-600 border-t border-b border-gray-200 py-2">
           {/* Likes */}
           <div
             className="flex items-center gap-1.5 cursor-pointer"
