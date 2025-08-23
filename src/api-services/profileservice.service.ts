@@ -33,10 +33,10 @@ const getProfileServiceById = async (id: string | number) => {
   };
   return await axios(config);
 };
-const getAllProfileService = async (token: string) => {
+const getAllProfileService = async (token: string, id: number) => {
   const config = {
     method: "get",
-    url: `${baseUrl}/profileservice/getallprofileservice`,
+    url: `${baseUrl}/profileservice/getallprofileservice?userId=${id}`,
     headers: {
       Authorization: `Bearer ${token}`,
     },

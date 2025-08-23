@@ -156,7 +156,6 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
         message.error("Please enter a valid recipient email and amount.");
         return;
       }
-      console.log({recipientDetails})
       if (transferSource === "balance") {
         if (!recipientDetails) {
           message.error("Recipient not found. Please verify email.");
