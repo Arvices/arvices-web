@@ -156,13 +156,14 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
         message.error("Please enter a valid recipient email and amount.");
         return;
       }
+      console.log({recipientDetails})
       if (transferSource === "balance") {
         if (!recipientDetails) {
           message.error("Recipient not found. Please verify email.");
           return;
         }
         const res = await fetch(
-          "https://arvicesapi.denateonlineservice.com/wallet/transfer",
+          "https://arvicesapi.denateonlineservice.com/wallet/initialize-transfer",
           {
             method: "POST",
             headers: {
@@ -170,8 +171,9 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              recipient_email: recipientEmail,
+              userId: recipientDetails.id,
               amount: transferAmount,
+              method: "Wallet"
             }),
           },
         );
@@ -268,54 +270,79 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
       </div>
 
       {}
-      <Modal
-        title="Transfer Funds"
-        open={isTransferModalOpen}
-        onCancel={() => setIsTransferModalOpen(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsTransferModalOpen(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="transfer"
-            type="primary"
-            loading={transferLoading}
-            onClick={handleTransfer}
-          >
-            Confirm Transfer
-          </Button>,
-        ]}
+<Modal
+  title={null}
+  open={isTransferModalOpen}
+  onCancel={() => setIsTransferModalOpen(false)}
+  footer={null}
+  centered
+  className="rounded-2xl"
+>
+  <div className="space-y-4">
+    <h2 className="text-lg font-medium text-gray-800">Transfer Funds</h2>
+
+    {/* Recipient Email */}
+    <Input
+      type="email"
+      value={recipientEmail}
+      onChange={(e) => setRecipientEmail(e.target.value)}
+      onBlur={() => checkRecipientEmail(recipientEmail)}
+      placeholder="Recipient Email"
+      className="h-12 rounded-lg border-gray-300 focus:border-gray-500 focus:ring-0"
+    />
+
+    {checkingRecipient && (
+      <p className="text-sm text-gray-500">Checking recipient...</p>
+    )}
+    {recipientDetails && (
+      <p className="text-sm text-green-600">
+        Recipient: <strong>{recipientDetails.fullName}</strong>
+      </p>
+    )}
+  <div className="pt-3" />
+    {/* Amount */}
+    <Input
+      type="number"
+      min={100}
+      value={transferAmount}
+      onChange={(e) => setTransferAmount(Number(e.target.value))}
+      placeholder="Amount"
+      className="h-12 rounded-lg border-gray-300 focus:border-gray-500 focus:ring-0"
+    />
+
+  <div className="pt-3" />
+    {/* Transfer Source */}
+    <Radio.Group
+      onChange={(e) => setTransferSource(e.target.value)}
+      value={transferSource}
+      className="flex flex-col gap-2"
+    >
+      <Radio value="balance">Available Balance</Radio>
+      <Radio value="other">Other Methods (Paystack)</Radio>
+    </Radio.Group>
+
+  <div className="pt-3" />
+    {/* Actions */}
+    <div className="flex justify-end gap-3 pt-4">
+      <Button
+        key="cancel"
+        onClick={() => setIsTransferModalOpen(false)}
+        className="!h-12 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
       >
-        <Input
-          type="email"
-          value={recipientEmail}
-          onChange={(e) => setRecipientEmail(e.target.value)}
-          onBlur={() => checkRecipientEmail(recipientEmail)}
-          placeholder="Recipient Email"
-          className="mb-2"
-        />
-        {checkingRecipient && <p>Checking recipient...</p>}
-        {recipientDetails && (
-          <p className="text-green-600 mb-3">
-            Recipient: <strong>{recipientDetails.fullName}</strong>
-          </p>
-        )}
-        <Input
-          type="number"
-          min={100}
-          value={transferAmount}
-          onChange={(e) => setTransferAmount(Number(e.target.value))}
-          placeholder="Amount"
-          className="mb-3"
-        />
-        <Radio.Group
-          onChange={(e) => setTransferSource(e.target.value)}
-          value={transferSource}
-        >
-          <Radio value="balance">Available Balance</Radio>
-          <Radio value="other">Other Methods (Paystack)</Radio>
-        </Radio.Group>
-      </Modal>
+        Cancel
+      </Button>
+      <Button
+        key="transfer"
+        type="primary"
+        loading={transferLoading}
+        onClick={handleTransfer}
+        className="!h-12 px-4 rounded-lg bg-black text-white hover:bg-gray-800 border-none"
+      >
+        Confirm Transfer
+      </Button>
+    </div>
+  </div>
+</Modal>
     </>
   );
 };
