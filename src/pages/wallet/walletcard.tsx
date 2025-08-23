@@ -156,13 +156,14 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
         message.error("Please enter a valid recipient email and amount.");
         return;
       }
+      console.log({recipientDetails})
       if (transferSource === "balance") {
         if (!recipientDetails) {
           message.error("Recipient not found. Please verify email.");
           return;
         }
         const res = await fetch(
-          "https://arvicesapi.denateonlineservice.com/wallet/transfer",
+          "https://arvicesapi.denateonlineservice.com/wallet/initialize-transfer",
           {
             method: "POST",
             headers: {
@@ -170,8 +171,9 @@ const WalletCard: React.FC<WalletCardProps> = ({ onWithdraw }) => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              recipient_email: recipientEmail,
+              userId: recipientDetails.id,
               amount: transferAmount,
+              method: "Wallet"
             }),
           },
         );
