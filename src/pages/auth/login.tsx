@@ -119,9 +119,11 @@ const Login: React.FC = () => {
         "success",
       );
 
+      console.log("Login Response: ", response.response);
+
       response.response.user.type == "Client"
         ? navigate("/service-providers")
-        : navigate("/job-posting");
+        : response.response.user.onboarding_approved ?navigate("/job-posting") : navigate("/provider/onboarding/1")
     } catch (err: any) {
       let message = err?.message || "unknown error";
       if (message === "Account not verified") {
@@ -140,6 +142,7 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
+
   return (
     <section className="min-h-screen pt-13 text-royalblue-shade4">
       <div className="px-5 sm:px-8 md:px-16 lg:px-25 max-w-[1280px] mx-auto">

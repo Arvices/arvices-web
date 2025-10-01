@@ -42,6 +42,7 @@ export interface UserAccount {
   rating: number | null;
   allRating: number;
   bio: string | null;
+  onboarding_approved: boolean;
   numberOfRating: number;
   meanRating: number;
   category: Category[];

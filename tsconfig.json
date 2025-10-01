@@ -6,7 +6,10 @@
     "types": ["react", "react-dom", "vite/client"],
     // ...other options
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "files": [],
   "references": [

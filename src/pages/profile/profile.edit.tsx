@@ -197,7 +197,10 @@ export function ProfileEdit() {
     setServiceLoading(true);
     setServiceErr(null);
     try {
-      const res = await getAllProfileService(auth.token, Number(auth?.user?.id));
+      const res = await getAllProfileService(
+        auth.token,
+        Number(auth?.user?.id),
+      );
       setServices(res?.data?.response || []);
     } catch (error: any) {
       console.error(error);

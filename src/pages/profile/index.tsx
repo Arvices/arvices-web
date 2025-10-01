@@ -172,7 +172,7 @@ const Profile = (): React.ReactNode => {
         setServicesLoading(false);
         return;
       }
-      const response = await getAllProfileService(auth.token,Number(id));
+      const response = await getAllProfileService(auth.token, Number(id));
       setServices(response.data.response);
       console.log("User services fetched:", response.data.response);
     } catch (error) {
