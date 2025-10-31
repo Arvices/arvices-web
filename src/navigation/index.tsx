@@ -36,9 +36,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getAccountById } from "../api-services/auth-re";
 import { useDispatch } from "react-redux";
 import { updateProfile } from "../store/userSlice";
-import { OnboardingStep1 } from "../pages/provider-onboarding/onboarding-step-1";
-import OnboardingStep2Page from "../pages/provider-onboarding/onboarding-step-2";
-import OnboardingStep3Page from "../pages/provider-onboarding/onboarding-step-3";
+import OnboardingPage from "@/pages/provider-onboarding/start";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -121,10 +119,7 @@ function NavigationContent() {
         <Route path="/provider/manage-jobs/:id" Component={JobView} />
         <Route path="/client/manage-jobs/:id" Component={JobView} />
         <Route path="/client/new-job" Component={NewJobPosting} />
-        <Route path="/provider/onboarding/1" Component={OnboardingStep1} />
-        <Route path="/provider/onboarding/2" Component={OnboardingStep2Page} />
-        <Route path="/provider/onboarding/3" Component={OnboardingStep3Page} />
-        <Route path="/provider/onboarding/4" Component={OnboardingStep1} />
+        <Route path="/provider/onboarding" Component={OnboardingPage} />
 
         <Route
           path="/client/favourite-service-providers"

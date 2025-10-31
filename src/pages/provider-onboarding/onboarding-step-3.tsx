@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -13,30 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import {
-  DollarSign,
-  CreditCard,
-  Calendar,
-  Clock,
-  Wrench,
-  CheckCircle,
-} from "lucide-react";
+import { DollarSign, CreditCard, Wrench, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useNavigate } from "react-router-dom";
-
-interface Step3Data {
-  selectedServices: string[];
-  pricing: string;
-  pricingType: string;
-  availability: {
-    [key: string]: boolean;
-  };
-  bankAccount: string;
-  bankName: string;
-  paymentMethods: string[];
-  termsAccepted: boolean;
-}
+import {
+  OnboardingPageProps,
+  Step3Data,
+  validateStep3,
+  ValidationErrors,
+} from "./start";
+import { Textarea } from "@/components/ui/textarea";
 
 const serviceOptions = [
   { id: "installation", label: "Installation", icon: "🔧" },
@@ -61,32 +45,36 @@ const paymentMethods = [
   { id: "bank", label: "Bank Transfer", logo: "🏦" },
 ];
 
-const weekDays = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-export default function OnboardingStep3Page() {
+export default function OnboardingStep3Page({
+  onStepDataSubmit,
+  onBack,
+  alldata,
+}: OnboardingPageProps) {
   const [data, setData] = useState<Step3Data>({
-    selectedServices: [],
-    pricing: "",
-    pricingType: "",
-    availability: {},
-    bankAccount: "",
-    bankName: "",
-    paymentMethods: [],
-    termsAccepted: false,
+    selectedServices: alldata.selectedServices || [],
+    pricing: alldata.pricing || "",
+    pricingType: alldata.pricingType || "",
+    bankAccount: alldata.bankAccount || "",
+    bankName: alldata.bankName || "",
+    paymentMethods: alldata.paymentMethods || [],
+    testimonials: alldata.testimonials || "",
   });
 
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
+  const handleNext = () => {
+    const { isValid, errors } = validateStep3(data);
+    if (!isValid) {
+      setErrors(errors); // or show them in UI
+      return;
+    }
+
+    onStepDataSubmit(data);
+  };
 
   const onDataChange = (changes: Partial<Step3Data>) => {
     setData((prev) => ({ ...prev, ...changes }));
+    setErrors({});
   };
 
   const handleServiceToggle = (serviceId: string) => {
@@ -102,35 +90,6 @@ export default function OnboardingStep3Page() {
       : [...data.paymentMethods, methodId];
     onDataChange({ paymentMethods: newMethods });
   };
-
-  const handleAvailabilityChange = (day: string, available: boolean) => {
-    onDataChange({
-      availability: {
-        ...data.availability,
-        [day]: available,
-      },
-    });
-  };
-
-  const onSubmit = () => {
-    console.log("Submitting Step 3 data:", data);
-    // TODO: API call
-  };
-
-  const onBack = () => {
-    console.log("Going back to Step 2");
-    navigate("/provider/onboarding/2");
-    // TODO: navigation logic
-  };
-
-  const isFormValid =
-    data.selectedServices.length > 0 &&
-    data.pricing &&
-    data.pricingType &&
-    data.bankAccount &&
-    data.bankName &&
-    data.paymentMethods.length > 0 &&
-    data.termsAccepted;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 mt-13">
@@ -187,6 +146,11 @@ export default function OnboardingStep3Page() {
                   </div>
                 ))}
               </div>
+              {errors.selectedServices && (
+                <span className="text-sm text-red-500 mt-1 block">
+                  {errors.selectedServices}
+                </span>
+              )}
             </div>
 
             {/* Pricing */}
@@ -214,6 +178,12 @@ export default function OnboardingStep3Page() {
                       placeholder="5000"
                     />
                   </div>
+
+                  {errors.pricing && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.pricing}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -236,40 +206,11 @@ export default function OnboardingStep3Page() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </div>
-
-            {/* Availability */}
-            <div className="space-y-4">
-              <h4 className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                Availability
-              </h4>
-
-              <div className="space-y-3">
-                {weekDays.map((day) => (
-                  <div
-                    key={day}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      <Label
-                        className="cursor-pointer"
-                        htmlFor={`availability-${day}`}
-                      >
-                        {day}
-                      </Label>
-                    </div>
-                    <Switch
-                      id={`availability-${day}`}
-                      checked={data.availability[day] || false}
-                      onCheckedChange={(checked) =>
-                        handleAvailabilityChange(day, checked)
-                      }
-                    />
-                  </div>
-                ))}
+                {errors.pricingType && (
+                  <span className="text-sm text-red-500 mt-1 block">
+                    {errors.pricingType}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -291,6 +232,11 @@ export default function OnboardingStep3Page() {
                     }
                     placeholder="1234567890"
                   />
+                  {errors.bankAccount && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.bankAccount}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -311,6 +257,11 @@ export default function OnboardingStep3Page() {
                       <SelectItem value="fidelity">Fidelity Bank</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.bankName && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.bankName}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -336,39 +287,33 @@ export default function OnboardingStep3Page() {
                       </div>
                     </div>
                   ))}
+                  {errors.paymentMethods && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.paymentMethods}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Terms & Agreement */}
+            {/* References */}
             <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-4 border rounded-lg">
-                <Checkbox
-                  id="terms"
-                  checked={data.termsAccepted}
-                  onCheckedChange={(checked) =>
-                    onDataChange({ termsAccepted: checked as boolean })
-                  }
-                />
-                <div className="text-sm">
-                  <Label htmlFor="terms" className="cursor-pointer">
-                    I agree to the{" "}
-                    <button
-                      type="button"
-                      className="text-primary underline hover:text-primary/80"
-                    >
-                      Terms & Conditions
-                    </button>{" "}
-                    and{" "}
-                    <button
-                      type="button"
-                      className="text-primary underline hover:text-primary/80"
-                    >
-                      Service Policy
-                    </button>
-                  </Label>
-                </div>
-              </div>
+              <Label htmlFor="testimonials">
+                Client Testimonials or References (Optional)
+              </Label>
+              <Textarea
+                id="testimonials"
+                value={data.testimonials}
+                onChange={(e) => onDataChange({ testimonials: e.target.value })}
+                placeholder="Paste client testimonials or provide references..."
+                rows={4}
+              />
+
+              {errors.testimonials && (
+                <span className="text-sm text-red-500 mt-1 block">
+                  {errors.testimonials}
+                </span>
+              )}
             </div>
 
             {/* Success Preview */}
@@ -391,8 +336,7 @@ export default function OnboardingStep3Page() {
             ← Back
           </Button>
           <Button
-            onClick={onSubmit}
-            disabled={!isFormValid}
+            onClick={handleNext}
             className="px-8 bg-royalblue-shade4 text-white"
             size="lg"
           >

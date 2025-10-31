@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 
-interface OnboardingConfirmationProps {
-  onGoToDashboard: () => void;
-}
+export function OnboardingConfirmation({onBack}: {onBack: ()=> void}) {
 
-export function OnboardingConfirmation({
-  onGoToDashboard,
-}: OnboardingConfirmationProps) {
+  const onGoToDashboard = () => {
+    onBack()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
@@ -157,7 +156,7 @@ export function OnboardingConfirmation({
                 <Button
                   onClick={onGoToDashboard}
                   size="lg"
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white"
+                  className="w-full cursor-pointer bg-gradient-to-r from-[#ff4489] to-blue-700 hover:from-[#ff4489]/90 hover:to-blue-700/90 text-white"
                 >
                   Go to Dashboard
                   <ArrowRight className="w-4 h-4 ml-2" />

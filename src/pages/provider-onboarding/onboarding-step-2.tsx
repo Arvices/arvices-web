@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -15,56 +14,63 @@ import {
   X,
   AlertCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {
+  OnboardingPageProps,
+  Step2Data,
+  validateStep2,
+  ValidationErrors,
+} from "./start";
+import { Checkbox } from "@/components/ui/checkbox";
 
-interface Step2Data {
-  govId: File | null;
-  businessCert: File | null;
-  portfolioImages: File[];
-  testimonials: string;
-}
-
-export default function OnboardingStep2Page() {
+export default function OnboardingStep2Page({
+  onNext,
+  onStepDataSubmit,
+  onBack,
+  alldata,
+}: OnboardingPageProps) {
   const [data, setData] = useState<Step2Data>({
-    govId: null,
-    businessCert: null,
-    portfolioImages: [],
-    testimonials: "",
+    govId: alldata.govId || null,
+    businessCert: alldata.businessCert || null,
+    portfolioImages: alldata.portfolioImages || [],
+    termsAccepted: alldata.termsAccepted || false,
   });
 
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
+  const handleNext = () => {
+    const { isValid, errors } = validateStep2(data);
+    if (!isValid) {
+      setErrors(errors); // or show them in UI
+      return;
+    }
+
+    onStepDataSubmit(data);
+    onNext?.();
+  };
 
   // Update partial state
   const onDataChange = (updated: Partial<Step2Data>) => {
     setData((prev) => ({ ...prev, ...updated }));
-  };
-
-  // Dummy navigation handlers
-
-  const onNext = () => {
-    console.log("Next button clicked", data);
-    navigate("/provider/onboarding/3");
-  };
-
-  const onBack = () => {
-    console.log("Going back with data:", data);
-    alert("Back step triggered ⬅️");
+    setErrors({});
   };
 
   const handleGovIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     onDataChange({ govId: file });
+    setErrors({});
   };
 
   const handleBusinessCertChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     onDataChange({ businessCert: file });
+    setErrors({});
   };
 
   const handlePortfolioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const newImages = [...data.portfolioImages, ...files].slice(0, 5);
     onDataChange({ portfolioImages: newImages });
+    setErrors({});
   };
 
   const removePortfolioImage = (index: number) => {
@@ -131,8 +137,6 @@ export default function OnboardingStep2Page() {
     </div>
   );
 
-  const isFormValid = data.govId !== null;
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 mt-13">
       <div className="max-w-2xl mx-auto">
@@ -147,9 +151,9 @@ export default function OnboardingStep2Page() {
             </p>
           </div>
           <h2 className="text-2xl mb-4">
-            Step 2 of 3: Upload Verification Documents
+            Step 2 of 2: Upload Verification Documents
           </h2>
-          <Progress value={66} className="max-w-md mx-auto" />
+          <Progress value={80} className="max-w-md mx-auto" />
         </div>
 
         {/* Card */}
@@ -176,6 +180,11 @@ export default function OnboardingStep2Page() {
                 accept="image/*,.pdf"
                 required
               />
+              {errors.govId && (
+                <span className="text-sm text-red-500 mt-1 block">
+                  {errors.govId}
+                </span>
+              )}
             </div>
 
             {/* Business Verification */}
@@ -193,6 +202,11 @@ export default function OnboardingStep2Page() {
                 accept="image/*,.pdf"
               />
 
+              {errors.businessCert && (
+                <span className="text-sm text-red-500 mt-1 block">
+                  {errors.businessCert}
+                </span>
+              )}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
                 <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
@@ -270,20 +284,48 @@ export default function OnboardingStep2Page() {
                   </div>
                 )}
               </div>
+
+              {errors.portfolioImages && (
+                <span className="text-sm text-red-500 mt-1 block">
+                  {errors.portfolioImages}
+                </span>
+              )}
             </div>
 
-            {/* References */}
+            {/* Terms & Agreement */}
             <div className="space-y-4">
-              <Label htmlFor="testimonials">
-                Client Testimonials or References (Optional)
-              </Label>
-              <Textarea
-                id="testimonials"
-                value={data.testimonials}
-                onChange={(e) => onDataChange({ testimonials: e.target.value })}
-                placeholder="Paste client testimonials or provide references..."
-                rows={4}
-              />
+              <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <Checkbox
+                  id="terms"
+                  checked={data.termsAccepted}
+                  onCheckedChange={(checked) =>
+                    onDataChange({ termsAccepted: checked as boolean })
+                  }
+                />
+                <div className="text-sm">
+                  <Label htmlFor="terms" className="cursor-pointer">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      className="text-primary underline hover:text-primary/80"
+                    >
+                      Terms & Conditions
+                    </button>{" "}
+                    and{" "}
+                    <button
+                      type="button"
+                      className="text-primary underline hover:text-primary/80"
+                    >
+                      Service Policy
+                    </button>
+                  </Label>
+                </div>
+                {errors.termsAccepted && (
+                  <span className="text-sm text-red-500 mt-1 block">
+                    {errors.termsAccepted}
+                  </span>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -293,7 +335,7 @@ export default function OnboardingStep2Page() {
           <Button variant="outline" onClick={onBack}>
             ← Back
           </Button>
-          <Button onClick={onNext} disabled={!isFormValid} className="px-8">
+          <Button onClick={handleNext} className="px-8">
             Next →
           </Button>
         </div>

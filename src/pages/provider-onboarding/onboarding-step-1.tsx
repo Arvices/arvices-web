@@ -13,19 +13,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Upload, User, Mail, Phone, Building, MapPin, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useNavigate } from "react-router-dom";
-
-interface Step1Data {
-  fullName: string;
-  email: string;
-  phone: string;
-  countryCode: string;
-  businessName: string;
-  category: string;
-  experience: string;
-  serviceAreas: string[];
-  profileImage: File | null;
-}
+import {
+  OnboardingPageProps,
+  Step1Data,
+  validateStep1,
+  ValidationErrors,
+} from "./start";
+import { Calendar, Clock } from "feather-icons-react";
+import { Switch } from "@/components/ui/switch";
 
 const serviceCategories = [
   "Plumbing",
@@ -60,33 +55,51 @@ const cities = [
   "Ilorin",
 ];
 
-export function OnboardingStep1() {
+const weekDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+export function OnboardingStep1({
+  onNext,
+  onStepDataSubmit,
+  alldata,
+}: OnboardingPageProps) {
   const [data, setData] = useState<Step1Data>({
-    fullName: "",
-    email: "",
-    phone: "",
-    countryCode: "",
-    businessName: "",
-    category: "",
-    experience: "",
-    serviceAreas: [],
-    profileImage: null,
+    fullName: alldata.fullName || "",
+    email: alldata.email || "",
+    phone: alldata.phone || "",
+    businessName: alldata.businessName || "",
+    category: alldata.category || "",
+    experience: alldata.experience || "",
+    serviceAreas: alldata.serviceAreas || [],
+    profileImage: alldata.profileImage || null,
+    availability: alldata.availability || {},
   });
 
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
+  const handleNext = () => {
+    const { isValid, errors } = validateStep1(data);
+    if (!isValid) {
+      setErrors(errors); // or show them in UI
+      return;
+    }
+
+    onStepDataSubmit(data);
+    onNext?.();
+  };
 
   // 🔥 Update state with partial changes
   const onDataChange = (newData: Partial<Step1Data>) => {
     setData((prev) => ({ ...prev, ...newData }));
-  };
 
-  const onNext = () => {
-    console.log("Next button clicked", data);
-    navigate("/provider/onboarding/2");
-  };
-
-  const onSave = () => {
-    console.log("Save button clicked", data);
+    setErrors({});
   };
 
   const handleServiceAreaAdd = (city: string) => {
@@ -106,12 +119,14 @@ export function OnboardingStep1() {
     onDataChange({ profileImage: file });
   };
 
-  const isFormValid =
-    data.fullName &&
-    data.email &&
-    data.phone &&
-    data.businessName &&
-    data.category;
+  const handleAvailabilityChange = (day: string, available: boolean) => {
+    onDataChange({
+      availability: {
+        ...data.availability,
+        [day]: available,
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 mt-13">
@@ -127,9 +142,9 @@ export function OnboardingStep1() {
             </p>
           </div>
           <h2 className="text-2xl mb-4">
-            Step 1 of 3: Profile & Business Details
+            Step 1 of 2: Profile & Business Details
           </h2>
-          <Progress value={33} className="max-w-md mx-auto" />
+          <Progress value={40} className="max-w-md mx-auto" />
         </div>
 
         <Card>
@@ -159,6 +174,11 @@ export function OnboardingStep1() {
                       placeholder="Enter your full name"
                     />
                   </div>
+                  {errors.fullName && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.fullName}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -174,28 +194,18 @@ export function OnboardingStep1() {
                       placeholder="your.email@example.com"
                     />
                   </div>
+
+                  {errors.email && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.email}
+                    </span>
+                  )}
                 </div>
 
                 <div>
                   <Label htmlFor="phone">Phone Number *</Label>
-                  <div className="flex gap-2">
-                    <Select
-                      value={data.countryCode}
-                      onValueChange={(value) =>
-                        onDataChange({ countryCode: value })
-                      }
-                    >
-                      <SelectTrigger className="w-24">
-                        <SelectValue placeholder="+234" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="+234">+234</SelectItem>
-                        <SelectItem value="+1">+1</SelectItem>
-                        <SelectItem value="+44">+44</SelectItem>
-                        <SelectItem value="+27">+27</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="relative flex-1">
+                  <div className=" gap-2">
+                    <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
                         id="phone"
@@ -208,6 +218,11 @@ export function OnboardingStep1() {
                         placeholder="8012345678"
                       />
                     </div>
+                    {errors.phone && (
+                      <span className="text-sm text-red-500 mt-1 block">
+                        {errors.phone}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -231,6 +246,11 @@ export function OnboardingStep1() {
                     }
                     placeholder="Your business or brand name"
                   />
+                  {errors.businessName && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.businessName}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -250,6 +270,11 @@ export function OnboardingStep1() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.category && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.category}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -271,6 +296,11 @@ export function OnboardingStep1() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.experience && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.experience}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -307,10 +337,53 @@ export function OnboardingStep1() {
                       ))}
                     </div>
                   )}
+                  {errors.serviceAreas && (
+                    <span className="text-sm text-red-500 mt-1 block">
+                      {errors.serviceAreas}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Availability */}
+            <div className="space-y-4">
+              <h4 className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                Availability
+              </h4>
+
+              <div className="space-y-3">
+                {weekDays.map((day) => (
+                  <div
+                    key={day}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <Label
+                        className="cursor-pointer"
+                        htmlFor={`availability-${day}`}
+                      >
+                        {day}
+                      </Label>
+                    </div>
+                    <Switch
+                      id={`availability-${day}`}
+                      checked={data.availability[day] || false}
+                      onCheckedChange={(checked) =>
+                        handleAvailabilityChange(day, checked)
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+              {errors.availability && (
+                <span className="text-sm text-red-500 mt-1 block">
+                  {errors.availability}
+                </span>
+              )}
+            </div>
             {/* Profile Picture Upload */}
             <div className="space-y-4">
               <Label>Profile Picture / Company Logo</Label>
@@ -349,6 +422,11 @@ export function OnboardingStep1() {
                     </div>
                   )}
                 </label>
+                {errors.profileImage && (
+                  <span className="text-sm text-red-500 mt-1 block">
+                    {errors.profileImage}
+                  </span>
+                )}
               </div>
             </div>
           </CardContent>
@@ -356,10 +434,8 @@ export function OnboardingStep1() {
 
         {/* Footer */}
         <div className="flex justify-between items-center mt-8">
-          <Button variant="ghost" onClick={onSave}>
-            Save & Continue Later
-          </Button>
-          <Button onClick={onNext} disabled={!isFormValid} className="px-8">
+          <div></div>
+          <Button onClick={handleNext} className="px-8">
             Next →
           </Button>
         </div>

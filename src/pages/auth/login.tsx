@@ -123,7 +123,9 @@ const Login: React.FC = () => {
 
       response.response.user.type == "Client"
         ? navigate("/service-providers")
-        : response.response.user.onboarding_approved ?navigate("/job-posting") : navigate("/provider/onboarding/1")
+        : response.response.user.onboarding_approved
+          ? navigate("/job-posting")
+          : navigate("/provider/onboarding");
     } catch (err: any) {
       let message = err?.message || "unknown error";
       if (message === "Account not verified") {
